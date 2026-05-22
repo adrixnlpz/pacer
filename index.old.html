@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Usage Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #0d0d0d;
+      --surface: #111111;
+      --border:  #222222;
+      --muted:   #444444;
+      --text:    #cccccc;
+      --bright:  #ffffff;
+      --orange:  #ff8c42;
+      --yellow:  #f5c518;
+      --cyan:    #00e5cc;
+      --green:   #39d353;
+      --purple:  #c084fc;
+      --blue:    #60a5fa;
+      --red:     #f87171;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .dashboard { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+
+    /* ── Header ── */
+    .header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .header h1 { color: var(--orange); font-size: 15px; letter-spacing: 0.04em; font-weight: 700; }
+    .header .subtitle { color: var(--muted); font-size: 11px; margin-top: 2px; }
+
+    /* ── Tabs ── */
+    .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px; }
+    .tab {
+      padding: 5px 14px; border-radius: 4px; cursor: pointer;
+      font-size: 12px; color: var(--muted); border: none;
+      background: transparent; font-family: inherit;
+      transition: all 0.15s; letter-spacing: 0.02em;
+    }
+    .tab:hover { color: var(--text); background: #1a1a1a; }
+    .tab.active { background: var(--orange); color: #000; font-weight: 700; }
+
+    /* ── Card ── */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .card-header { padding: 8px 14px; border-bottom: 1px solid var(--border); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .card-body { padding: 12px 14px; }
+    .card.orange .card-header { color: var(--orange); border-color: var(--orange); }
+    .card.cyan   .card-header { color: var(--cyan);   border-color: var(--cyan);   }
+    .card.purple .card-header { color: var(--purple); border-color: var(--purple); }
+    .card.blue   .card-header { color: var(--blue);   border-color: var(--blue);   }
+    .card.green  .card-header { color: var(--green);  border-color: var(--green);  }
+
+    /* ── Burn Summary ── */
+    .burn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .burn-stat .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+    .burn-stat .value { font-size: 20px; font-weight: 700; }
+    .v-yellow { color: var(--yellow); }
+    .v-white  { color: var(--bright); }
+    .v-cyan   { color: var(--cyan);   }
+    .v-green  { color: var(--green);  }
+    .v-orange { color: var(--orange); }
+    .burn-meta { margin-top: 10px; display: flex; gap: 24px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
+    .burn-meta span b { color: var(--text); }
+
+    /* ── Plan Usage ── */
+    .plan-row { display: flex; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1px solid #191919; }
+    .plan-row:last-child { border-bottom: none; }
+    .plan-label { width: 130px; color: var(--muted); font-size: 11px; }
+    .bar-wrap { flex: 1; height: 8px; background: #1e1e1e; border-radius: 2px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+    .bar-ok   { background: linear-gradient(90deg, var(--green), var(--cyan)); }
+    .bar-warn { background: linear-gradient(90deg, var(--yellow), var(--orange)); }
+    .bar-crit { background: linear-gradient(90deg, var(--orange), var(--red)); }
+    .plan-pct { width: 40px; text-align: right; font-weight: 600; color: var(--yellow); }
+    .plan-reset { width: 90px; text-align: right; font-size: 11px; color: var(--muted); }
+
+    /* ── Generic Row ── */
+    .data-row { display: flex; align-items: center; gap: 12px; padding: 5px 0; border-bottom: 1px solid #191919; }
+    .data-row:last-child { border-bottom: none; }
+    .row-label { color: var(--text); }
+    .row-cost  { width: 60px; text-align: right; color: var(--yellow); font-weight: 600; }
+    .row-calls { width: 36px; text-align: right; color: var(--muted); font-size: 11px; }
+    .row-date  { width: 52px; color: var(--muted); font-size: 11px; }
+
+    /* Model colors */
+    .model-opus   { color: var(--orange); }
+    .model-sonnet { color: var(--blue);   }
+    .model-haiku  { color: var(--green);  }
+    .bar-opus     { background: linear-gradient(90deg, var(--orange), #ffa500); }
+    .bar-sonnet   { background: linear-gradient(90deg, #3b82f6, var(--cyan)); }
+    .bar-haiku    { background: linear-gradient(90deg, var(--green), #86efac); }
+    .bar-daily    { background: linear-gradient(90deg, var(--orange), var(--yellow)); }
+    .bar-tool     { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+
+    /* ── Tools grid ── */
+    .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
+
+    /* ── AI Recommendation ── */
+    .rec-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .rec-section h3 { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
+    .rec-model { display: flex; align-items: flex-start; gap: 10px; padding: 10px; background: #0a0a0a; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px; }
+    .badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+    .badge.opus   { background: rgba(255,140,66,0.2); color: var(--orange); border: 1px solid rgba(255,140,66,0.3); }
+    .badge.sonnet { background: rgba(96,165,250,0.2); color: var(--blue);   border: 1px solid rgba(96,165,250,0.3); }
+    .badge.haiku  { background: rgba(57,211,83,0.2);  color: var(--green);  border: 1px solid rgba(57,211,83,0.3);  }
+    .rec-text { font-size: 12px; color: var(--text); line-height: 1.4; }
+    .rec-text b { color: var(--bright); }
+    .delegate-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px; background: #0a0a0a; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px; }
+    .delegate-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .delegate-text { font-size: 12px; color: var(--text); line-height: 1.4; }
+    .delegate-text b { color: var(--cyan); }
+    .rec-footer { margin-top: 8px; font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 2s infinite; flex-shrink: 0; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ── Rec button ── */
+    .rec-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; background: #0d1a0d;
+      border: 1px solid rgba(57,211,83,0.3); border-radius: 4px;
+      color: var(--green); font-family: inherit; font-size: 12px;
+      cursor: pointer; transition: all 0.15s; width: 100%;
+    }
+    .rec-btn:hover { background: #112011; border-color: var(--green); }
+    .rec-btn:disabled { opacity: 0.5; cursor: default; }
+    .rec-spinner { display: none; }
+    .rec-btn.loading .rec-spinner { display: inline; animation: spin 1s linear infinite; }
+    .rec-btn.loading .rec-icon { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Empty / Loading ── */
+    .empty { color: var(--muted); font-size: 12px; padding: 8px 0; font-style: italic; }
+    .loading-overlay { color: var(--muted); font-size: 11px; padding: 4px 14px; }
+
+    /* ── Footer ── */
+    .footer { font-size: 10px; color: var(--muted); text-align: right; padding-top: 4px; }
+    .footer span { color: var(--green); }
+  </style>
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- Header + Tabs -->
+  <div class="header">
+    <div>
+      <h1>CodeBurn</h1>
+      <div class="subtitle" id="subtitle">Claude Code · Usage Dashboard · Loading…</div>
+    </div>
+    <div class="tabs" id="tabs">
+      <button class="tab" data-range="all">All</button>
+      <button class="tab" data-range="30d">30d</button>
+      <button class="tab active" data-range="7d">7d</button>
+      <button class="tab" data-range="1d">1d</button>
+      <button class="tab" data-range="10hrs">10hrs</button>
+      <button class="tab" data-range="1hr">1hr</button>
+    </div>
+  </div>
+
+  <!-- Burn Summary -->
+  <div class="card orange">
+    <div class="card-header" id="burn-title">CodeBurn</div>
+    <div class="card-body">
+      <div class="burn-grid">
+        <div class="burn-stat"><div class="label">Total Cost</div><div class="value v-yellow" id="s-cost">—</div></div>
+        <div class="burn-stat"><div class="label">API Calls</div><div class="value v-white" id="s-calls">—</div></div>
+        <div class="burn-stat"><div class="label">Sessions</div><div class="value v-cyan" id="s-sessions">—</div></div>
+        <div class="burn-stat"><div class="label">Cache Hit</div><div class="value v-green" id="s-cache">—</div></div>
+      </div>
+      <div class="burn-meta">
+        <span><b id="s-in">—</b> in</span>
+        <span><b id="s-out">—</b> out</span>
+        <span><b id="s-cached">—</b> cached</span>
+        <span><b id="s-written">—</b> written</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plan Usage -->
+  <div class="card">
+    <div class="card-header" style="color:var(--text)">Plan Usage</div>
+    <div class="card-body" id="plan-body">
+      <div class="plan-row">
+        <div class="plan-label">5-hour limit</div>
+        <div class="bar-wrap"><div class="bar-fill bar-warn" id="bar-5h" style="width:0%"></div></div>
+        <div class="plan-pct" id="pct-5h">—</div>
+        <div class="plan-reset" id="reset-5h"></div>
+      </div>
+      <div class="plan-row">
+        <div class="plan-label">Weekly · all models</div>
+        <div class="bar-wrap"><div class="bar-fill bar-crit" id="bar-7d" style="width:0%"></div></div>
+        <div class="plan-pct" id="pct-7d">—</div>
+        <div class="plan-reset" id="reset-7d"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Activity -->
+  <div class="card cyan">
+    <div class="card-header">Daily Activity</div>
+    <div class="card-body" id="daily-body"><div class="empty">Loading…</div></div>
+  </div>
+
+  <!-- By Model -->
+  <div class="card" style="--hdr:var(--purple)">
+    <div class="card-header" style="color:var(--purple);border-color:var(--purple)">By Model</div>
+    <div class="card-body" id="model-body"><div class="empty">Loading…</div></div>
+  </div>
+
+  <!-- Core Tools -->
+  <div class="card blue">
+    <div class="card-header">Core Tools</div>
+    <div class="card-body" id="tools-body"><div class="empty">Loading…</div></div>
+  </div>
+
+  <!-- AI Recommendation -->
+  <div class="card green">
+    <div class="card-header">AI Recommendation &nbsp;·&nbsp; Powered by Claude Haiku</div>
+    <div class="card-body">
+      <button class="rec-btn" id="rec-btn" onclick="loadRecommendation()">
+        <span class="rec-icon">✦</span>
+        <span class="rec-spinner">↻</span>
+        Generate recommendations for current range
+      </button>
+      <div id="rec-content" style="margin-top:12px; display:none">
+        <div class="rec-body">
+          <div class="rec-section">
+            <h3>Suggested Model</h3>
+            <div id="rec-models"></div>
+          </div>
+          <div class="rec-section">
+            <h3>Tool Delegation</h3>
+            <div id="rec-tools"></div>
+          </div>
+        </div>
+        <div class="rec-footer">
+          <span class="dot"></span>
+          <span id="rec-summary"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Updated <span id="updated-at">just now</span> &nbsp;·&nbsp; ~/.claude/projects/ + Tokemon</div>
+</div>
+
+<script>
+  const SERVER = "http://localhost:8765";
+  let currentRange = "7d";
+
+  // ── Tab wiring ────────────────────────────────────────────────────────────
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      currentRange = tab.dataset.range;
+      loadData(currentRange);
+      // Reset recommendation when range changes
+      document.getElementById("rec-content").style.display = "none";
+      document.getElementById("rec-btn").style.display = "flex";
+    });
+  });
+
+  // ── Formatters ────────────────────────────────────────────────────────────
+  function fmtK(n) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
+    if (n >= 1_000)     return (n / 1_000).toFixed(1) + "K";
+    return String(n);
+  }
+  function fmtCost(n) {
+    return "$" + n.toFixed(2);
+  }
+  function barClass(pct) {
+    if (pct >= 80) return "bar-crit";
+    if (pct >= 50) return "bar-warn";
+    return "bar-ok";
+  }
+  function modelClass(modelStr) {
+    const m = (modelStr || "").toLowerCase();
+    if (m.includes("opus"))   return "opus";
+    if (m.includes("haiku"))  return "haiku";
+    return "sonnet";
+  }
+
+  // ── Render summary ────────────────────────────────────────────────────────
+  function renderSummary(s, range) {
+    const labels = { all:"All Time", "30d":"30 Days", "7d":"7 Days", "1d":"24 Hours", "10hrs":"10 Hours", "1hr":"1 Hour" };
+    document.getElementById("burn-title").textContent = `CodeBurn · ${labels[range] || range}`;
+    document.getElementById("subtitle").textContent = `Claude Code · Usage Dashboard · ${labels[range] || range}`;
+    document.getElementById("s-cost").textContent     = fmtCost(s.total_cost);
+    document.getElementById("s-calls").textContent    = s.total_calls;
+    document.getElementById("s-sessions").textContent = s.sessions;
+    document.getElementById("s-cache").textContent    = s.cache_hit_rate + "%";
+    document.getElementById("s-in").textContent       = fmtK(s.tokens_in);
+    document.getElementById("s-out").textContent      = fmtK(s.tokens_out);
+    document.getElementById("s-cached").textContent   = fmtK(s.tokens_cached);
+    document.getElementById("s-written").textContent  = fmtK(s.tokens_written);
+  }
+
+  // ── Render plan ───────────────────────────────────────────────────────────
+  function renderPlan(plan) {
+    const p5 = Math.min(plan.primary_pct, 100);
+    const p7 = Math.min(plan.seven_day_pct, 100);
+
+    const b5 = document.getElementById("bar-5h");
+    b5.style.width = p5 + "%";
+    b5.className = "bar-fill " + barClass(p5);
+    document.getElementById("pct-5h").textContent = p5 + "%";
+
+    const b7 = document.getElementById("bar-7d");
+    b7.style.width = p7 + "%";
+    b7.className = "bar-fill " + barClass(p7);
+    document.getElementById("pct-7d").textContent = p7 + "%";
+  }
+
+  // ── Render daily ──────────────────────────────────────────────────────────
+  function renderDaily(daily) {
+    const el = document.getElementById("daily-body");
+    if (!daily || daily.length === 0) { el.innerHTML = '<div class="empty">No data for this range.</div>'; return; }
+    const maxCost = Math.max(...daily.map(d => d.cost), 0.01);
+    el.innerHTML = daily.map(d => `
+      <div class="data-row">
+        <span class="row-date">${d.date}</span>
+        <div class="bar-wrap"><div class="bar-fill bar-daily" style="width:${(d.cost/maxCost*100).toFixed(1)}%"></div></div>
+        <span class="row-cost">${fmtCost(d.cost)}</span>
+        <span class="row-calls">${d.calls}</span>
+      </div>`).join("");
+  }
+
+  // ── Render models ─────────────────────────────────────────────────────────
+  function renderModels(models) {
+    const el = document.getElementById("model-body");
+    if (!models || models.length === 0) { el.innerHTML = '<div class="empty">No data for this range.</div>'; return; }
+    el.innerHTML = models.map(m => {
+      const cls = modelClass(m.model);
+      return `
+      <div class="data-row">
+        <span class="row-label model-${cls}" style="width:130px">${m.display}</span>
+        <div class="bar-wrap"><div class="bar-fill bar-${cls}" style="width:${m.pct}%"></div></div>
+        <span class="row-cost">${fmtCost(m.cost)}</span>
+        <span class="row-calls">${m.calls}</span>
+      </div>`;
+    }).join("");
+  }
+
+  // ── Render tools ──────────────────────────────────────────────────────────
+  function renderTools(tools) {
+    const el = document.getElementById("tools-body");
+    if (!tools || tools.length === 0) { el.innerHTML = '<div class="empty">No data for this range.</div>'; return; }
+    el.innerHTML = `<div class="tools-grid">` + tools.map(t => `
+      <div class="data-row">
+        <span class="row-label" style="width:80px">${t.name}</span>
+        <div class="bar-wrap"><div class="bar-fill bar-tool" style="width:${t.pct}%"></div></div>
+        <span class="row-calls">${t.calls}</span>
+      </div>`).join("") + `</div>`;
+  }
+
+  // ── Load data ─────────────────────────────────────────────────────────────
+  async function loadData(range) {
+    try {
+      const res = await fetch(`${SERVER}/api/data?range=${range}`);
+      const data = await res.json();
+      renderSummary(data.summary, range);
+      renderPlan(data.plan);
+      renderDaily(data.daily);
+      renderModels(data.by_model);
+      renderTools(data.tools);
+      document.getElementById("updated-at").textContent = new Date().toLocaleTimeString();
+    } catch (e) {
+      document.getElementById("subtitle").textContent = "⚠ Cannot reach server — run: python3 server.py";
+    }
+  }
+
+  // ── Load recommendation ───────────────────────────────────────────────────
+  async function loadRecommendation() {
+    const btn = document.getElementById("rec-btn");
+    btn.classList.add("loading");
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${SERVER}/api/recommend?range=${currentRange}`);
+      const rec = await res.json();
+
+      if (rec.error) throw new Error(rec.error);
+
+      // Render model suggestions
+      document.getElementById("rec-models").innerHTML =
+        (rec.model_suggestions || []).map(s => `
+          <div class="rec-model">
+            <span class="badge ${s.badge_class}">${s.model}</span>
+            <div class="rec-text">${s.reason}</div>
+          </div>`).join("");
+
+      // Render tool delegations
+      document.getElementById("rec-tools").innerHTML =
+        (rec.tool_delegations || []).map(t => `
+          <div class="delegate-item">
+            <span class="delegate-icon">${t.icon}</span>
+            <div class="delegate-text"><b>${t.tool}</b> — ${t.reason}</div>
+          </div>`).join("");
+
+      document.getElementById("rec-summary").textContent =
+        (rec.summary || "") + " · Powered by claude-haiku · " + currentRange + " data";
+
+      document.getElementById("rec-content").style.display = "block";
+      btn.style.display = "none";
+    } catch (e) {
+      document.getElementById("rec-summary").textContent = "Error: " + e.message;
+      document.getElementById("rec-content").style.display = "block";
+    } finally {
+      btn.classList.remove("loading");
+      btn.disabled = false;
+    }
+  }
+
+  // ── Auto-refresh plan every 3 minutes ────────────────────────────────────
+  setInterval(() => loadData(currentRange), 3 * 60 * 1000);
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  loadData(currentRange);
+</script>
+</body>
+</html>
