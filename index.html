@@ -2168,6 +2168,337 @@
     color: var(--violet);
     border-color: var(--violet);
   }
+
+  /* ============================================================
+     BROKER TAB
+     ============================================================ */
+  .tab.has-broker-badge::after {
+    content: '·';
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    color: var(--amber);
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .broker-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .broker-segment {
+    display: inline-flex;
+    border: 1px solid var(--line-bright);
+    background: var(--bg-card-deep);
+  }
+
+  .broker-seg-btn {
+    width: 100px;
+    min-height: 38px;
+    border: none;
+    border-right: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    transition: all 0.22s ease;
+  }
+  .broker-seg-btn:last-child { border-right: none; }
+  .broker-seg-btn:hover { color: var(--amber); background: var(--bg-soft); }
+  .broker-seg-btn.active {
+    background: var(--amber);
+    color: var(--bg);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+  }
+
+  .broker-advisor-toggle {
+    color: var(--ink-dim);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .broker-advisor-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .broker-advisor-toggle input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--amber);
+  }
+
+  .broker-panel {
+    border: 1px solid var(--line);
+    background: var(--bg-card);
+    padding: 16px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .broker-panel::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 10px;
+    height: 10px;
+    border-top: 1px solid var(--amber);
+    border-left: 1px solid var(--amber);
+  }
+
+  .broker-section-title {
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .broker-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .broker-summary-cell {
+    background: var(--bg-card-deep);
+    border: 1px solid var(--line);
+    padding: 14px;
+    min-height: 76px;
+  }
+  .broker-summary-label {
+    font-size: 9px;
+    color: var(--ink-faint);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .broker-summary-value {
+    margin-top: 6px;
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .broker-summary-value.warn { color: var(--amber); }
+  .broker-summary-value.over { color: var(--red); }
+
+  .broker-allocation-bar {
+    display: flex;
+    min-height: 38px;
+    border: 1px solid var(--line-bright);
+    background: var(--bg-card-deep);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .broker-bar-segment {
+    min-width: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .broker-bar-income { background: #4a90e2; }
+  .broker-bar-build { background: var(--green); }
+  .broker-bar-explore { background: var(--amber); }
+  .broker-bar-reserve { background: var(--line-bright); color: var(--ink-dim); }
+
+  .broker-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-size: 9px;
+    color: var(--ink-faint);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .broker-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 5px;
+  }
+
+  .broker-intent-head,
+  .broker-intent-row {
+    display: grid;
+    grid-template-columns: 34px minmax(190px, 1.4fr) 120px minmax(150px, 1fr) 70px 80px 72px;
+    gap: 10px;
+    align-items: center;
+  }
+  .broker-intent-head {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line-bright);
+    color: var(--ink-faint);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .broker-intent-row {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 11px;
+  }
+  .broker-intent-row:last-child { border-bottom: none; }
+  .broker-intent-row.frozen {
+    opacity: 0.62;
+    background: rgba(255, 179, 71, 0.04);
+  }
+  .broker-intent-name,
+  .broker-intent-row input,
+  .broker-add-row input,
+  .broker-add-row select,
+  .broker-intent-row select {
+    width: 100%;
+    background: var(--bg-card-deep);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 9px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+  .broker-intent-row input[type="range"] {
+    padding: 0;
+    border: none;
+    accent-color: var(--amber);
+  }
+  .broker-lock-btn,
+  .broker-delete-btn,
+  .broker-inline-btn {
+    border: 1px solid var(--line);
+    background: var(--bg-card-deep);
+    color: var(--ink-dim);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 10px;
+    padding: 7px 8px;
+    transition: all 0.2s;
+  }
+  .broker-lock-btn:hover,
+  .broker-delete-btn:hover,
+  .broker-inline-btn:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  .broker-delete-btn:hover {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .broker-status-ok { color: var(--green); font-weight: 800; }
+  .broker-status-near { color: var(--amber); font-weight: 800; }
+  .broker-status-over { color: var(--red); font-weight: 800; }
+  .broker-error {
+    display: none;
+    margin: 10px 0;
+    padding: 10px 12px;
+    border-left: 2px solid var(--red);
+    background: rgba(230,57,70,0.08);
+    color: var(--red);
+    font-size: 11px;
+  }
+  .broker-error.show { display: block; }
+
+  .broker-add-row {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) 140px auto auto;
+    gap: 10px;
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+    margin-top: 14px;
+  }
+
+  .broker-advisor-card,
+  .broker-inbox-item {
+    border: 1px solid var(--line);
+    background: var(--bg-card-deep);
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .broker-advisor-card.primary {
+    border-color: var(--amber);
+    background: rgba(255,179,71,0.06);
+  }
+  .broker-rec-top,
+  .broker-inbox-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .broker-rec-label,
+  .broker-inbox-label {
+    font-size: 9px;
+    color: var(--ink-faint);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .broker-rec-title,
+  .broker-inbox-title {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .broker-rec-reason,
+  .broker-inbox-meta {
+    color: var(--ink-dim);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .broker-rec-actions,
+  .broker-inbox-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .broker-recommended {
+    border-color: var(--amber) !important;
+    color: var(--amber) !important;
+  }
+  .broker-empty {
+    color: var(--ink-faint);
+    font-size: 11px;
+    padding: 10px 0;
+  }
+
+  @media (max-width: 900px) {
+    .broker-controls-row,
+    .broker-rec-top,
+    .broker-inbox-top {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .broker-summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .broker-intent-head { display: none; }
+    .broker-intent-row {
+      grid-template-columns: 34px 1fr;
+      gap: 8px;
+      padding: 14px 0;
+    }
+    .broker-intent-row > *:nth-child(n+3) {
+      grid-column: 2;
+    }
+    .broker-add-row {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 </head>
 <body>
@@ -2231,6 +2562,9 @@
     </button>
     <button class="tab" role="tab" data-tab="codex">
       <span class="num">07</span>CODEX
+    </button>
+    <button class="tab" role="tab" data-tab="broker">
+      <span class="num">08</span>BROKER
     </button>
   </nav>
 
@@ -2911,6 +3245,65 @@
   </section>
 
   <!-- ============================================================
+       BROKER TAB — Intent budget + Claude/Codex router
+       ============================================================ -->
+  <section class="tab-panel" data-panel="broker">
+    <div class="hist-header-row">
+      <div>
+        <div class="hist-title">Broker <span class="accent">Router</span></div>
+        <div class="hist-sub">Intent budget allocation · Claude vs Codex cross-service advisor</div>
+      </div>
+      <div class="hist-controls">
+        <button class="btn" onclick="PACER.broker?.seedDemoInbox()">LOAD DEMO INTENT</button>
+        <button class="btn primary" onclick="PACER.broker?.syncWithOtherTabs()">SYNC NOW</button>
+      </div>
+    </div>
+
+    <div id="broker-storage-warning" class="broker-error"></div>
+    <div id="broker-inline-error" class="broker-error"></div>
+
+    <!-- Top controls row -->
+    <div class="broker-controls-row">
+      <div class="broker-segment">
+        <button id="broker-btn-claude" class="broker-seg-btn active" onclick="handleBrokerSegmentClick('claude')">Claude</button>
+        <button id="broker-btn-codex" class="broker-seg-btn" onclick="handleBrokerSegmentClick('codex')">Codex</button>
+      </div>
+      <div class="broker-advisor-toggle">
+        <label>Cross-service advisor
+          <input type="checkbox" id="broker-advisor-toggle" onchange="handleAdvisorToggle(this.checked)">
+        </label>
+      </div>
+    </div>
+
+    <!-- Advisor panel (hidden by default) -->
+    <div id="broker-advisor-panel" class="broker-panel" style="display:none"></div>
+
+    <!-- Incoming intents queue -->
+    <div id="broker-inbox-panel" class="broker-panel">
+      <div class="broker-section-title">Incoming Intents</div>
+      <div id="broker-inbox-list"></div>
+    </div>
+
+    <!-- Selected service panel -->
+    <div id="broker-service-panel" class="broker-panel">
+      <div id="broker-service-title" class="broker-section-title">CLAUDE</div>
+      <div id="broker-summary"></div>
+      <div id="broker-allocation-bar"></div>
+      <div id="broker-intent-table"></div>
+      <div class="broker-add-row">
+        <input type="text" id="broker-new-intent" placeholder="New intent...">
+        <select id="broker-new-priority">
+          <option value="income">income</option>
+          <option value="build" selected>build</option>
+          <option value="explore">explore</option>
+        </select>
+        <button class="btn primary" id="broker-commit-btn" onclick="handleAddIntent()">Commit</button>
+        <button class="btn" onclick="handleRebalance()">Rebalance</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
        FOOTER STATUS
        ============================================================ -->
   <footer class="status-bar">
@@ -3156,6 +3549,7 @@ const PACER = {
     if (name === 'compare' && PACER.compare) setTimeout(() => PACER.compare.drawRadar(), 80);
     if (name === 'yield' && PACER.yield && PACER.yield.dataLoaded) setTimeout(() => PACER.yield.drawYieldChart(), 80);
     if (name === 'codex' && PACER.codex) setTimeout(() => PACER.codex.renderKPIs(), 80);
+    if (name === 'broker' && PACER.broker) setTimeout(() => PACER.broker.renderBrokerTab(), 80);
   },
 
   /* ------------ Clocks ------------ */
@@ -4658,6 +5052,7 @@ const PACER = {
     PACER.optimize.init();
     PACER.yield.init();
     PACER.codex.init();
+    PACER.broker.initBrokerTab();
     document.getElementById('themeToggle')?.addEventListener('click', () => {
       setTimeout(() => {
         PACER.live.drawChart();
@@ -4665,6 +5060,7 @@ const PACER = {
         PACER.history.drawHistChart();
         PACER.compare.drawRadar();
         if (PACER.yield.dataLoaded) PACER.yield.drawYieldChart();
+        if (PACER.broker) PACER.broker.renderBrokerTab();
       }, 550);
     });
   });
@@ -5326,6 +5722,946 @@ const PACER = {
   /* ============================================================
      CODEX TAB — Phase 2 delegation tracker
      ============================================================ */
+  /* ============================================================
+     BROKER TAB — Intent budget + cross-service router
+     ============================================================ */
+  PACER.broker = {
+    BROKER_KEYS: {
+      claude: 'pacer.broker.claude.state',
+      codex: 'pacer.broker.codex.state',
+      inbox: 'pacer.broker.inbox',
+      ui: 'pacer.broker.ui',
+      recommendations: 'pacer.broker.recommendations.latest'
+    },
+
+    BROKER_SEED: {
+      claude: [
+        { id: 'i1', name: 'Job applications · tailoring', alloc: 25, spent: 0, locked: true, priority: 'income' },
+        { id: 'i2', name: 'PACER build', alloc: 30, spent: 0, locked: false, priority: 'build' },
+        { id: 'i3', name: 'Phase 2 portfolio work', alloc: 20, spent: 0, locked: false, priority: 'build' },
+        { id: 'i4', name: 'Writing · LinkedIn + essays', alloc: 10, spent: 0, locked: false, priority: 'build' },
+        { id: 'i5', name: 'Exploration · open chats', alloc: 5, spent: 0, locked: false, priority: 'explore' }
+      ],
+      codex: [
+        { id: 'c1', name: 'File writes · app builds', alloc: 40, spent: 0, locked: true, priority: 'build' },
+        { id: 'c2', name: 'PACER implementation', alloc: 30, spent: 0, locked: false, priority: 'build' },
+        { id: 'c3', name: 'Phase 2 app scaffolding', alloc: 20, spent: 0, locked: false, priority: 'build' },
+        { id: 'c4', name: 'Exploration · Codex experiments', alloc: 5, spent: 0, locked: false, priority: 'explore' }
+      ]
+    },
+
+    state: {
+      memory: {},
+      storageAvailable: true,
+      listenersReady: false,
+      frozenClaudeUnlocked: false
+    },
+
+    initBrokerTab() {
+      this.loadBrokerState('claude');
+      this.loadBrokerState('codex');
+      this.loadBrokerUI();
+      this.loadBrokerInbox();
+      this.initBrokerTabListeners();
+      this.fetchBrokerPacingSnapshot('claude');
+      this.fetchBrokerPacingSnapshot('codex');
+      this.renderBrokerTab();
+    },
+
+    initBrokerTabListeners() {
+      if (this.state.listenersReady) return;
+      this.state.listenersReady = true;
+      window.addEventListener('pacer:broker:intent', (e) => {
+        this.handleIncomingIntent(e.detail?.sourceTab || e.detail?.fromTab || 'live', e.detail || {});
+      });
+      window.addEventListener('pacer:broker:intent-cost', (e) => {
+        this.logIntentCost(e.detail?.service || 'claude', e.detail || {});
+      });
+      window.addEventListener('storage', (e) => {
+        if (e.key && e.key.indexOf('pacer.broker.') === 0) this.renderBrokerTab();
+      });
+    },
+
+    storageGet(key) {
+      if (this.state.memory[key] != null) return this.state.memory[key];
+      try {
+        return localStorage.getItem(key);
+      } catch (e) {
+        this.state.storageAvailable = false;
+        this.showStorageWarning('Broker state is running in memory only. localStorage is unavailable.');
+        return this.state.memory[key] || null;
+      }
+    },
+
+    storageSet(key, value) {
+      this.state.memory[key] = value;
+      try {
+        localStorage.setItem(key, value);
+        this.state.storageAvailable = true;
+      } catch (e) {
+        this.state.storageAvailable = false;
+        this.showStorageWarning('Broker state is running in memory only. Changes will reset on refresh.');
+      }
+    },
+
+    showStorageWarning(message) {
+      const el = document.getElementById('broker-storage-warning');
+      if (!el) return;
+      el.textContent = message;
+      el.classList.add('show');
+    },
+
+    hideStorageWarning() {
+      const el = document.getElementById('broker-storage-warning');
+      if (!el) return;
+      el.textContent = '';
+      el.classList.remove('show');
+    },
+
+    esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    },
+
+    normalizeName(name) {
+      return String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    },
+
+    validateIntent(intent) {
+      if (!intent || typeof intent !== 'object') return null;
+      const priority = ['income', 'build', 'explore'].includes(intent.priority) ? intent.priority : 'build';
+      return {
+        id: String(intent.id || 'intent_' + Date.now() + '_' + Math.random().toString(16).slice(2)),
+        name: String(intent.name || intent.intent || 'Untitled intent').slice(0, 160),
+        alloc: Math.max(0, Number(intent.alloc ?? intent.allocation ?? 0) || 0),
+        spent: Math.max(0, Number(intent.spent ?? 0) || 0),
+        locked: Boolean(intent.locked),
+        priority
+      };
+    },
+
+    validateBrokerState(state, service) {
+      if (!state || typeof state !== 'object' || !Array.isArray(state.intents)) return null;
+      const intents = state.intents.map(i => this.validateIntent(i)).filter(Boolean);
+      return {
+        service,
+        schemaVersion: 1,
+        intents,
+        metrics: this.computeBrokerMetrics(intents),
+        pacing: this.validatePacing(state.pacing),
+        routing_history: Array.isArray(state.routing_history) ? state.routing_history.slice(-100) : [],
+        updatedAt: state.updatedAt || new Date().toISOString()
+      };
+    },
+
+    validatePacing(pacing) {
+      const colors = ['green', 'yellow', 'red', 'violet'];
+      const safe = pacing && typeof pacing === 'object' ? pacing : {};
+      const color = colors.includes(safe.color) ? safe.color : 'green';
+      return {
+        color,
+        verdict: String(safe.verdict || 'ON PACE'),
+        usedPct: Math.max(0, Number(safe.usedPct ?? 0) || 0),
+        projectedPct: Math.max(0, Number(safe.projectedPct ?? 0) || 0),
+        source: safe.source || 'local',
+        updatedAt: safe.updatedAt || new Date().toISOString()
+      };
+    },
+
+    loadBrokerState(service) {
+      const key = this.BROKER_KEYS[service];
+      const raw = this.storageGet(key);
+      if (!raw) {
+        const fresh = this.makeDefaultBrokerState(service);
+        this.saveBrokerState(service, fresh, { silent: true });
+        return fresh;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        const valid = this.validateBrokerState(parsed, service);
+        if (valid) return valid;
+        throw new Error('Invalid broker state shape');
+      } catch (e) {
+        this.storageSet(key + '.corrupt.' + Date.now(), raw);
+        const fresh = this.makeDefaultBrokerState(service);
+        this.saveBrokerState(service, fresh, { silent: true });
+        this.showInlineError('Broker ' + service + ' state was corrupt and has been reset to seed data.');
+        return fresh;
+      }
+    },
+
+    saveBrokerState(service, state, options = {}) {
+      const valid = this.validateBrokerState(state, service) || this.makeDefaultBrokerState(service);
+      valid.metrics = this.computeBrokerMetrics(valid.intents);
+      valid.updatedAt = new Date().toISOString();
+      this.storageSet(this.BROKER_KEYS[service], JSON.stringify(valid));
+      if (!options.silent) {
+        window.dispatchEvent(new CustomEvent('pacer:broker:updated', {
+          detail: { service, metrics: valid.metrics, intents: valid.intents }
+        }));
+      }
+      return valid;
+    },
+
+    makeDefaultBrokerState(service) {
+      const intents = (this.BROKER_SEED[service] || []).map(i => ({ ...i }));
+      return {
+        service,
+        schemaVersion: 1,
+        intents,
+        metrics: this.computeBrokerMetrics(intents),
+        pacing: { color: 'green', verdict: 'ON PACE', usedPct: 0, projectedPct: 0, source: 'seed', updatedAt: new Date().toISOString() },
+        routing_history: [],
+        updatedAt: new Date().toISOString()
+      };
+    },
+
+    loadBrokerInbox() {
+      const raw = this.storageGet(this.BROKER_KEYS.inbox);
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed.map(i => this.normalizeIncomingIntent(i)).filter(Boolean) : [];
+      } catch (e) {
+        this.storageSet(this.BROKER_KEYS.inbox + '.corrupt.' + Date.now(), raw);
+        this.saveBrokerInbox([]);
+        return [];
+      }
+    },
+
+    saveBrokerInbox(inbox) {
+      this.storageSet(this.BROKER_KEYS.inbox, JSON.stringify(Array.isArray(inbox) ? inbox.slice(-100) : []));
+      this.updateBrokerBadge();
+    },
+
+    loadBrokerUI() {
+      const fallback = { activeService: 'claude', advisorEnabled: false, dismissed: [] };
+      const raw = this.storageGet(this.BROKER_KEYS.ui);
+      if (!raw) return fallback;
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          activeService: parsed.activeService === 'codex' ? 'codex' : 'claude',
+          advisorEnabled: Boolean(parsed.advisorEnabled),
+          dismissed: Array.isArray(parsed.dismissed) ? parsed.dismissed : []
+        };
+      } catch (e) {
+        return fallback;
+      }
+    },
+
+    saveBrokerUI(uiState) {
+      this.storageSet(this.BROKER_KEYS.ui, JSON.stringify({
+        activeService: uiState.activeService === 'codex' ? 'codex' : 'claude',
+        advisorEnabled: Boolean(uiState.advisorEnabled),
+        dismissed: Array.isArray(uiState.dismissed) ? uiState.dismissed.slice(-100) : []
+      }));
+    },
+
+    computeBrokerMetrics(intents) {
+      const xs = Array.isArray(intents) ? intents : [];
+      const totalAlloc = xs.reduce((s, i) => s + (Number(i.alloc) || 0), 0);
+      const totalSpent = xs.reduce((s, i) => s + (Number(i.spent) || 0), 0);
+      const incomeShare = xs.filter(i => i.priority === 'income').reduce((s, i) => s + (Number(i.alloc) || 0), 0);
+      const exploreShare = xs.filter(i => i.priority === 'explore').reduce((s, i) => s + (Number(i.alloc) || 0), 0);
+      return {
+        totalAlloc: Math.round(totalAlloc),
+        reserve: Math.max(0, Math.round(100 - totalAlloc)),
+        overcommit: Math.max(0, Math.round(totalAlloc - 100)),
+        totalSpent: Math.round(totalSpent),
+        incomeShare: Math.round(incomeShare),
+        exploreShare: Math.round(exploreShare)
+      };
+    },
+
+    getIntentStatus(intent) {
+      const alloc = Math.max(1, Number(intent.alloc) || 0);
+      const spent = Number(intent.spent) || 0;
+      const overshoot = spent - (Number(intent.alloc) || 0);
+      if (overshoot > 0) return { status: 'OVER', overshoot };
+      if (spent / alloc > 0.8) return { status: 'NEAR', overshoot: 0 };
+      return { status: 'OK', overshoot: 0 };
+    },
+
+    handleAddIntent() {
+      const ui = this.loadBrokerUI();
+      const service = ui.activeService;
+      const input = document.getElementById('broker-new-intent');
+      const priorityEl = document.getElementById('broker-new-priority');
+      const name = (input?.value || '').trim();
+      const priority = priorityEl?.value || 'build';
+      if (!name) return;
+      const claude = this.loadBrokerState('claude');
+      const codex = this.loadBrokerState('codex');
+      if (claude.metrics.reserve <= 0 && codex.metrics.reserve <= 0) {
+        this.showInlineError('Both services are fully allocated. Free up allocation before committing new intents.');
+        return;
+      }
+      let state = this.loadBrokerState(service);
+      state.intents = this.addIntent(state.intents, name, priority, state.metrics.reserve);
+      this.saveBrokerState(service, state);
+      if (state.metrics.reserve <= 0) this.showInlineError('Reserve is 0. New intent added at 0%; rebalance or free allocation first.');
+      if (input) input.value = '';
+      this.renderBrokerTab();
+    },
+
+    addIntent(intents, name, priority, reserve) {
+      const alloc = Math.min(10, Math.max(0, Number(reserve) || 0));
+      return [
+        ...intents,
+        {
+          id: 'intent_' + Date.now(),
+          name: String(name).slice(0, 160),
+          alloc,
+          spent: 0,
+          locked: false,
+          priority: ['income', 'build', 'explore'].includes(priority) ? priority : 'build'
+        }
+      ];
+    },
+
+    handleUpdateIntent(service, id, patch) {
+      const state = this.loadBrokerState(service);
+      state.intents = this.updateIntent(state.intents, id, patch);
+      this.saveBrokerState(service, state);
+      this.clearDismissedRecommendations();
+      this.renderBrokerTab();
+    },
+
+    updateIntent(intents, id, patch) {
+      return intents.map(i => {
+        if (i.id !== id) return i;
+        const next = { ...i, ...patch };
+        return this.validateIntent(next);
+      }).filter(Boolean);
+    },
+
+    handleRemoveIntent(service, id) {
+      const state = this.loadBrokerState(service);
+      state.intents = this.removeIntent(state.intents, id);
+      this.saveBrokerState(service, state);
+      this.clearDismissedRecommendations();
+      this.renderBrokerTab();
+    },
+
+    removeIntent(intents, id) {
+      return intents.filter(i => i.id !== id);
+    },
+
+    handleLockToggle(service, id) {
+      const state = this.loadBrokerState(service);
+      state.intents = state.intents.map(i => i.id === id ? { ...i, locked: !i.locked } : i);
+      this.saveBrokerState(service, state);
+      this.clearDismissedRecommendations();
+      this.renderBrokerTab();
+    },
+
+    handleRebalance() {
+      const service = this.loadBrokerUI().activeService;
+      const state = this.loadBrokerState(service);
+      const result = this.rebalanceIntents(state.intents);
+      if (result.error) {
+        this.showInlineError(result.error);
+        return;
+      }
+      state.intents = result.intents;
+      this.saveBrokerState(service, state);
+      this.clearDismissedRecommendations();
+      this.renderBrokerTab();
+      PACER.showToast('Broker rebalanced ' + service.toUpperCase() + ' intents.');
+    },
+
+    rebalanceIntents(intents) {
+      const locked = intents.filter(i => i.locked);
+      const unlocked = intents.filter(i => !i.locked);
+      const lockedSum = locked.reduce((s, i) => s + (Number(i.alloc) || 0), 0);
+      if (lockedSum > 100) return { intents, error: 'Locked intents exceed 100%. Unlock or reduce one.' };
+      const target = Math.max(0, 100 - lockedSum);
+      const unlockedSum = unlocked.reduce((s, i) => s + (Number(i.alloc) || 0), 0) || 1;
+      const rebalancedUnlocked = unlocked.map(i => ({
+        ...i,
+        alloc: Math.round(((Number(i.alloc) || 0) / unlockedSum) * target)
+      }));
+      return { intents: [...locked, ...rebalancedUnlocked], error: null };
+    },
+
+    normalizeIncomingIntent(item) {
+      if (!item || typeof item !== 'object') return null;
+      return {
+        id: String(item.id || 'incoming_' + Date.now() + '_' + Math.random().toString(16).slice(2)),
+        sourceTab: item.sourceTab || item.fromTab || 'live',
+        name: String(item.name || item.intent || 'Untitled intent').slice(0, 160),
+        priority: ['income', 'build', 'explore'].includes(item.priority) ? item.priority : 'build',
+        estimatedAlloc: Math.max(0, Number(item.estimatedAlloc ?? item.alloc ?? item.cost ?? 5) || 5),
+        estimatedSpent: Math.max(0, Number(item.estimatedSpent ?? item.spent ?? 0) || 0),
+        preferredService: item.preferredService === 'claude' || item.preferredService === 'codex' ? item.preferredService : null,
+        sourceId: item.sourceId || '',
+        timestamp: item.timestamp || new Date().toISOString()
+      };
+    },
+
+    handleIncomingIntent(fromTab, intentData) {
+      const item = this.normalizeIncomingIntent({ ...intentData, sourceTab: fromTab });
+      if (!item) return;
+      const inbox = this.loadBrokerInbox();
+      inbox.unshift(item);
+      this.saveBrokerInbox(inbox);
+      this.clearDismissedRecommendations();
+      if (PACER.state.activeTab === 'broker') this.renderBrokerTab();
+      else this.updateBrokerBadge();
+    },
+
+    handleRouteIncomingIntent(inboxItemId, targetService) {
+      const inbox = this.loadBrokerInbox();
+      const item = inbox.find(i => i.id === inboxItemId);
+      if (!item) return;
+      let state = this.loadBrokerState(targetService);
+      const incoming = {
+        id: 'intent_' + Date.now(),
+        name: item.name,
+        alloc: Number(item.estimatedAlloc) || 5,
+        spent: Number(item.estimatedSpent) || 0,
+        locked: false,
+        priority: item.priority || 'build'
+      };
+      state.intents = this.mergeIntentIntoList(state.intents, incoming);
+      this.saveBrokerState(targetService, state);
+      this.saveBrokerInbox(inbox.filter(i => i.id !== inboxItemId));
+      this.clearDismissedRecommendations();
+      this.renderBrokerTab();
+      PACER.showToast('Intent routed to ' + targetService.toUpperCase() + '.');
+    },
+
+    mergeIntentIntoList(intents, incoming) {
+      const idx = intents.findIndex(i => this.normalizeName(i.name) === this.normalizeName(incoming.name));
+      if (idx === -1) return [...intents, incoming];
+      const merged = intents.map((i, n) => {
+        if (n !== idx) return i;
+        return {
+          ...i,
+          alloc: Math.max(Number(i.alloc) || 0, Number(incoming.alloc) || 0),
+          spent: (Number(i.spent) || 0) + (Number(incoming.spent) || 0),
+          priority: this.higherPriority(i.priority, incoming.priority)
+        };
+      });
+      return merged;
+    },
+
+    higherPriority(a, b) {
+      const rank = { income: 3, build: 2, explore: 1 };
+      return (rank[b] || 0) > (rank[a] || 0) ? b : a;
+    },
+
+    handleDismissInboxItem(id) {
+      this.saveBrokerInbox(this.loadBrokerInbox().filter(i => i.id !== id));
+      this.renderBrokerTab();
+    },
+
+    moveIntentBetweenServices(intentId, fromService, toService) {
+      if (!intentId || fromService === toService) return;
+      const from = this.loadBrokerState(fromService);
+      const to = this.loadBrokerState(toService);
+      const intent = from.intents.find(i => i.id === intentId);
+      if (!intent) return;
+      from.intents = from.intents.filter(i => i.id !== intentId);
+      to.intents = this.mergeIntentIntoList(to.intents, { ...intent, id: intent.id + '_' + toService });
+      this.saveBrokerState(fromService, from);
+      this.saveBrokerState(toService, to);
+      this.clearDismissedRecommendations();
+      this.renderBrokerTab();
+      PACER.showToast('Intent moved to ' + toService.toUpperCase() + '.');
+    },
+
+    computeRouteSuggestion(pendingIntent, claudeState, codexState) {
+      if (pendingIntent.preferredService) return pendingIntent.preferredService;
+      if (claudeState.metrics.reserve < 5 && codexState.metrics.reserve > 10) return 'codex';
+      if (['red', 'violet'].includes(claudeState.pacing.color) && ['green', 'yellow'].includes(codexState.pacing.color)) return 'codex';
+      if (pendingIntent.priority === 'income') return 'claude';
+      if (pendingIntent.priority === 'build') return 'codex';
+      return claudeState.metrics.reserve >= codexState.metrics.reserve ? 'claude' : 'codex';
+    },
+
+    findUnlockedIntent(state, priorities) {
+      return state.intents.find(i => !i.locked && priorities.includes(i.priority)) || null;
+    },
+
+    findIntentService(intentId) {
+      if (this.loadBrokerState('claude').intents.some(i => i.id === intentId)) return 'claude';
+      if (this.loadBrokerState('codex').intents.some(i => i.id === intentId)) return 'codex';
+      return null;
+    },
+
+    buildBrokerAdvice(intents, metrics, snap) {
+      const out = [];
+      if (metrics.overcommit > 0) out.push('Over-committed by ' + metrics.overcommit + '%. Cut from explore intents first.');
+      if (metrics.incomeShare < 30) out.push('Income-tagged work is only ' + metrics.incomeShare + '% of budget. Tilt toward income before mid-week.');
+      if (metrics.exploreShare > 15) out.push('Explore is ' + metrics.exploreShare + '%. Cap at 10% — open-ended chats compound waste.');
+      intents.forEach(i => {
+        const overshoot = (Number(i.spent) || 0) - (Number(i.alloc) || 0);
+        if (overshoot > 2) out.push('"' + i.name + '" is ' + overshoot.toFixed(0) + '% over its commit. Lock it or re-plan.');
+      });
+      if (snap && ['red', 'violet'].includes(snap.color)) out.push('Pacing verdict is ' + snap.verdict + '. Freeze unlocked intents until Friday reset.');
+      if (!out.length) out.push('Allocations are clean. Hold the line through Thursday.');
+      return out;
+    },
+
+    adviseCrossService(claudeState, codexState, inbox) {
+      const recs = [];
+      const cMove = this.findUnlockedIntent(claudeState, ['build', 'explore']);
+      const pendingIncome = inbox.find(i => i.priority === 'income');
+      const cExplore = this.findUnlockedIntent(claudeState, ['explore']);
+
+      if (claudeState.metrics.overcommit > 0 && codexState.metrics.reserve > 20 && cMove) {
+        recs.push({ type: 'routing', service: 'codex', sourceService: 'claude', action: 'move', intent: cMove.id, reason: 'Claude is overcommitted by ' + claudeState.metrics.overcommit + '%. Move unlocked build/explore work to Codex.', confidence: 0.9 });
+      }
+      if (claudeState.metrics.incomeShare < 30 && pendingIncome) {
+        recs.push({ type: 'routing', service: 'claude', action: 'add', intent: pendingIncome.id, reason: 'Claude income allocation is below 30%. Add income work to Claude to protect Phase 1 momentum.', confidence: 0.82 });
+      }
+      if (claudeState.metrics.exploreShare > 15 && cExplore) {
+        recs.push({ type: 'rebalance', service: 'claude', sourceService: 'claude', action: codexState.metrics.reserve > 0 ? 'move_or_cut' : 'cut', intent: cExplore.id, reason: 'Claude explore allocation is above 15%. Cap explore near 10%; route new exploration to Codex only if reserve exists.', confidence: 0.78 });
+      }
+      if (['red', 'violet'].includes(claudeState.pacing.color) && ['green', 'yellow'].includes(codexState.pacing.color)) {
+        recs.push({ type: 'routing', service: 'codex', sourceService: 'claude', action: 'freeze_claude_unlocked', intent: null, reason: 'Claude pacing is ' + claudeState.pacing.color + '. Freeze unlocked Claude intents and route new build/explore work to Codex.', confidence: 0.88 });
+      }
+      ['claude', 'codex'].forEach(service => {
+        const state = service === 'claude' ? claudeState : codexState;
+        state.intents.forEach(intent => {
+          const overshoot = (Number(intent.spent) || 0) - (Number(intent.alloc) || 0);
+          if (intent.priority === 'income' && overshoot > 2) {
+            recs.push({ type: 'rebalance', service, sourceService: service, action: 'lock_or_replan', intent: intent.id, reason: '"' + intent.name + '" is ' + overshoot.toFixed(0) + '% over allocation. Do not cut income automatically; lock or replan.', confidence: 0.84 });
+          }
+        });
+      });
+      if (claudeState.metrics.reserve <= 0 && codexState.metrics.reserve <= 0) {
+        recs.push({ type: 'stop', service: null, action: 'pause_new_intents', intent: null, reason: 'Both Claude and Codex are fully allocated. Do not add new intents until something is cut or reset.', confidence: 0.95 });
+      }
+      if (!recs.length) {
+        recs.push({ type: 'status', service: null, action: 'hold', intent: null, reason: 'Allocations are clean. Hold through Thursday.', confidence: 0.7 });
+      }
+      return recs.sort((a, b) => b.confidence - a.confidence);
+    },
+
+    getAdvisorRecommendation() {
+      const claudeState = this.loadBrokerState('claude');
+      const codexState = this.loadBrokerState('codex');
+      const inbox = this.loadBrokerInbox();
+      const dismissed = this.loadDismissedRecommendations();
+      const recs = this.adviseCrossService(claudeState, codexState, inbox)
+        .filter(r => !dismissed.includes(this.signatureForRecommendation(r)));
+      this.storageSet(this.BROKER_KEYS.recommendations, JSON.stringify(recs[0] || null));
+      if (recs[0]) {
+        window.dispatchEvent(new CustomEvent('pacer:broker:recommendation', { detail: recs[0] }));
+      }
+      return recs;
+    },
+
+    signatureForRecommendation(rec) {
+      return [rec.type, rec.service || 'none', rec.action, rec.intent || 'none', rec.reason].join('|').slice(0, 260);
+    },
+
+    loadDismissedRecommendations() {
+      const ui = this.loadBrokerUI();
+      return ui.dismissed || [];
+    },
+
+    clearDismissedRecommendations() {
+      const ui = this.loadBrokerUI();
+      ui.dismissed = [];
+      this.saveBrokerUI(ui);
+    },
+
+    acceptAdvisorRecommendation(rec) {
+      if (!rec || rec.action === 'hold' || rec.action === 'pause_new_intents') return;
+      if (rec.action === 'move') {
+        this.moveIntentBetweenServices(rec.intent, rec.sourceService || 'claude', rec.service);
+      } else if (rec.action === 'add') {
+        this.handleRouteIncomingIntent(rec.intent, rec.service);
+      } else if (rec.action === 'move_or_cut') {
+        if (rec.service === 'claude' && this.loadBrokerState('codex').metrics.reserve > 0) {
+          this.moveIntentBetweenServices(rec.intent, 'claude', 'codex');
+        } else {
+          this.cutIntentAllocation(rec.sourceService || rec.service, rec.intent, 5);
+        }
+      } else if (rec.action === 'cut') {
+        this.cutIntentAllocation(rec.sourceService || rec.service, rec.intent, 5);
+      } else if (rec.action === 'lock_or_replan') {
+        this.lockIntent(rec.sourceService || rec.service, rec.intent);
+      } else if (rec.action === 'freeze_claude_unlocked') {
+        this.state.frozenClaudeUnlocked = true;
+        PACER.showToast('Claude unlocked intents marked frozen.');
+      }
+      this.logRoutingHistory(rec, true);
+      this.renderBrokerTab();
+    },
+
+    acceptAdvisorByIndex(index) {
+      const rec = (this.state.currentRecommendations || [])[index];
+      this.acceptAdvisorRecommendation(rec);
+    },
+
+    cutIntentAllocation(service, intentId, amount) {
+      const state = this.loadBrokerState(service);
+      state.intents = state.intents.map(i => i.id === intentId ? { ...i, alloc: Math.max(0, (Number(i.alloc) || 0) - amount) } : i);
+      this.saveBrokerState(service, state);
+    },
+
+    lockIntent(service, intentId) {
+      const state = this.loadBrokerState(service);
+      state.intents = state.intents.map(i => i.id === intentId ? { ...i, locked: true } : i);
+      this.saveBrokerState(service, state);
+    },
+
+    rejectAdvisorRecommendation(recSignature) {
+      const ui = this.loadBrokerUI();
+      ui.dismissed = Array.from(new Set([...(ui.dismissed || []), recSignature])).slice(-100);
+      this.saveBrokerUI(ui);
+      this.renderBrokerTab();
+    },
+
+    rejectAdvisorByIndex(index) {
+      const rec = (this.state.currentRecommendations || [])[index];
+      if (!rec) return;
+      this.rejectAdvisorRecommendation(this.signatureForRecommendation(rec));
+    },
+
+    logRoutingHistory(rec, accepted) {
+      ['claude', 'codex'].forEach(service => {
+        const state = this.loadBrokerState(service);
+        state.routing_history = Array.isArray(state.routing_history) ? state.routing_history : [];
+        state.routing_history.unshift({
+          id: 'route_' + Date.now() + '_' + service,
+          type: rec.type,
+          action: rec.action,
+          service: rec.service,
+          intent: rec.intent,
+          reason: rec.reason,
+          confidence: rec.confidence,
+          accepted,
+          timestamp: new Date().toISOString()
+        });
+        state.routing_history = state.routing_history.slice(0, 100);
+        this.saveBrokerState(service, state, { silent: true });
+      });
+    },
+
+    renderBrokerTab() {
+      const ui = this.loadBrokerUI();
+      const activeService = ui.activeService || 'claude';
+      const advisorToggle = document.getElementById('broker-advisor-toggle');
+      if (advisorToggle) advisorToggle.checked = Boolean(ui.advisorEnabled);
+      document.getElementById('broker-btn-claude')?.classList.toggle('active', activeService === 'claude');
+      document.getElementById('broker-btn-codex')?.classList.toggle('active', activeService === 'codex');
+      this.renderInboxPanel();
+      this.renderServicePanel(activeService);
+      this.renderAdvisorUI();
+      this.updateBrokerBadge();
+      if (this.state.storageAvailable) this.hideStorageWarning();
+    },
+
+    handleSegmentedClick(service) {
+      const ui = this.loadBrokerUI();
+      ui.activeService = service === 'codex' ? 'codex' : 'claude';
+      this.saveBrokerUI(ui);
+      this.state.frozenClaudeUnlocked = false;
+      this.renderBrokerTab();
+    },
+
+    handleBrokerSegmentClick(service) {
+      this.handleSegmentedClick(service);
+    },
+
+    handleAdvisorToggle(enabled) {
+      const ui = this.loadBrokerUI();
+      ui.advisorEnabled = Boolean(enabled);
+      this.saveBrokerUI(ui);
+      this.renderBrokerTab();
+    },
+
+    renderAdvisorUI() {
+      const ui = this.loadBrokerUI();
+      const panel = document.getElementById('broker-advisor-panel');
+      if (!panel) return;
+      if (!ui.advisorEnabled) {
+        panel.style.display = 'none';
+        panel.innerHTML = '';
+        return;
+      }
+      const recs = this.getAdvisorRecommendation();
+      this.state.currentRecommendations = recs;
+      panel.style.display = 'block';
+      panel.innerHTML =
+        '<div class="broker-section-title">Cross-service advisor</div>' +
+        this.renderAdvisorPanel(recs);
+    },
+
+    renderAdvisorPanel(recs = this.getAdvisorRecommendation()) {
+      if (!recs.length) return '<div class="broker-empty">No active recommendations.</div>';
+      return recs.slice(0, 4).map((rec, idx) => {
+        const sig = this.esc(this.signatureForRecommendation(rec));
+        const service = rec.service ? rec.service.toUpperCase() : 'PAUSE';
+        const acceptDisabled = rec.action === 'hold' || rec.action === 'pause_new_intents';
+        return '<div class="broker-advisor-card ' + (idx === 0 ? 'primary' : '') + '">' +
+          '<div class="broker-rec-top">' +
+            '<div><div class="broker-rec-label">' + (idx === 0 ? 'Primary' : 'Secondary') + ' · ' + this.esc(rec.type) + '</div>' +
+            '<div class="broker-rec-title">' + this.esc(service + ' · ' + rec.action.replace(/_/g, ' ')) + '</div></div>' +
+            '<div class="broker-rec-label">' + Math.round((rec.confidence || 0) * 100) + '% confidence</div>' +
+          '</div>' +
+          '<div class="broker-rec-reason">' + this.esc(rec.reason) + '</div>' +
+          '<div class="broker-rec-actions">' +
+            '<button class="btn primary" ' + (acceptDisabled ? 'disabled' : '') + ' onclick="PACER.broker.acceptAdvisorByIndex(' + idx + ')">Accept</button>' +
+            '<button class="btn" onclick="PACER.broker.rejectAdvisorByIndex(' + idx + ')">Reject</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    },
+
+    renderInboxPanel() {
+      const list = document.getElementById('broker-inbox-list');
+      if (!list) return;
+      const inbox = this.loadBrokerInbox();
+      const claude = this.loadBrokerState('claude');
+      const codex = this.loadBrokerState('codex');
+      if (!inbox.length) {
+        list.innerHTML = '<div class="broker-empty">No incoming intents. Live, History, and Optimize can send candidates here.</div>';
+        return;
+      }
+      list.innerHTML = inbox.map(item => {
+        const suggested = this.computeRouteSuggestion(item, claude, codex);
+        return '<div class="broker-inbox-item">' +
+          '<div class="broker-inbox-top">' +
+            '<div><div class="broker-inbox-label">' + this.esc(item.sourceTab) + ' · ' + this.esc(item.priority) + '</div>' +
+            '<div class="broker-inbox-title">' + this.esc(item.name) + '</div></div>' +
+            '<div class="broker-inbox-label">' + (Number(item.estimatedAlloc) || 0) + '% est. alloc</div>' +
+          '</div>' +
+          '<div class="broker-inbox-meta">Suggested route: <strong>' + suggested.toUpperCase() + '</strong> · received ' + this.esc(new Date(item.timestamp).toLocaleString()) + '</div>' +
+          '<div class="broker-inbox-actions">' +
+            '<button class="btn ' + (suggested === 'claude' ? 'broker-recommended' : '') + '" onclick="PACER.broker.handleRouteIncomingIntent(\'' + this.esc(item.id) + '\', \'claude\')">Add to Claude</button>' +
+            '<button class="btn ' + (suggested === 'codex' ? 'broker-recommended' : '') + '" onclick="PACER.broker.handleRouteIncomingIntent(\'' + this.esc(item.id) + '\', \'codex\')">Add to Codex</button>' +
+            '<button class="btn" onclick="PACER.broker.handleDismissInboxItem(\'' + this.esc(item.id) + '\')">Dismiss</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    },
+
+    renderServicePanel(service) {
+      const state = this.loadBrokerState(service);
+      state.metrics = this.computeBrokerMetrics(state.intents);
+      const title = document.getElementById('broker-service-title');
+      if (title) title.textContent = service.toUpperCase();
+      document.getElementById('broker-summary').innerHTML = this.renderServiceSummary(state.metrics, state.pacing);
+      document.getElementById('broker-allocation-bar').innerHTML = this.renderAllocationBar(state.intents, state.metrics);
+      document.getElementById('broker-intent-table').innerHTML = this.renderIntentTable(service, state.intents);
+      const claude = this.loadBrokerState('claude');
+      const codex = this.loadBrokerState('codex');
+      const commitBtn = document.getElementById('broker-commit-btn');
+      if (commitBtn) commitBtn.disabled = claude.metrics.reserve <= 0 && codex.metrics.reserve <= 0;
+    },
+
+    renderServiceSummary(metrics, pacing) {
+      const overClass = metrics.overcommit > 0 ? 'over' : '';
+      return '<div class="broker-summary-grid">' +
+        '<div class="broker-summary-cell"><div class="broker-summary-label">Total Alloc</div><div class="broker-summary-value">' + metrics.totalAlloc + '%</div></div>' +
+        '<div class="broker-summary-cell"><div class="broker-summary-label">Spent</div><div class="broker-summary-value">' + metrics.totalSpent + '%</div></div>' +
+        '<div class="broker-summary-cell"><div class="broker-summary-label">Reserve</div><div class="broker-summary-value ' + (metrics.reserve <= 5 ? 'warn' : '') + '">' + metrics.reserve + '%</div></div>' +
+        '<div class="broker-summary-cell"><div class="broker-summary-label">Pacing</div><div class="broker-summary-value ' + overClass + '">' + this.esc(pacing.verdict) + '</div></div>' +
+      '</div>';
+    },
+
+    renderAllocationBar(intents, metrics) {
+      return this.renderAllocationBarSegments(intents, metrics) +
+        '<div class="broker-legend">' +
+          '<span><i class="broker-dot broker-bar-income"></i>Income ' + metrics.incomeShare + '%</span>' +
+          '<span><i class="broker-dot broker-bar-build"></i>Build ' + (metrics.totalAlloc - metrics.incomeShare - metrics.exploreShare) + '%</span>' +
+          '<span><i class="broker-dot broker-bar-explore"></i>Explore ' + metrics.exploreShare + '%</span>' +
+          '<span><i class="broker-dot broker-bar-reserve"></i>Reserve ' + metrics.reserve + '%</span>' +
+        '</div>';
+    },
+
+    renderAllocationBarSegments(intents, metrics) {
+      const buildShare = Math.max(0, metrics.totalAlloc - metrics.incomeShare - metrics.exploreShare);
+      const denom = Math.max(100, metrics.totalAlloc);
+      const segments = [
+        { label: 'income', value: metrics.incomeShare, cls: 'broker-bar-income' },
+        { label: 'build', value: buildShare, cls: 'broker-bar-build' },
+        { label: 'explore', value: metrics.exploreShare, cls: 'broker-bar-explore' },
+        { label: 'reserve', value: metrics.reserve, cls: 'broker-bar-reserve' }
+      ].filter(s => s.value > 0);
+      return '<div class="broker-allocation-bar">' + segments.map(s => {
+        const width = Math.max(2, (s.value / denom) * 100);
+        return '<div class="broker-bar-segment ' + s.cls + '" style="width:' + width + '%">' + (s.value >= 6 ? s.label + ' ' + s.value + '%' : '') + '</div>';
+      }).join('') + '</div>';
+    },
+
+    renderIntentTable(service, intents) {
+      if (!intents.length) return '<div class="broker-empty">No intents yet.</div>';
+      const head = '<div class="broker-intent-head"><span></span><span>Intent</span><span>Priority</span><span>Allocation</span><span>Spent</span><span>Status</span><span></span></div>';
+      const rows = intents.map(intent => {
+        const st = this.getIntentStatus(intent);
+        const statusClass = st.status === 'OVER' ? 'broker-status-over' : st.status === 'NEAR' ? 'broker-status-near' : 'broker-status-ok';
+        const frozen = service === 'claude' && this.state.frozenClaudeUnlocked && !intent.locked ? ' frozen' : '';
+        return '<div class="broker-intent-row' + frozen + '">' +
+          '<button class="broker-lock-btn" title="Lock/unlock" onclick="PACER.broker.handleLockToggle(\'' + service + '\', \'' + this.esc(intent.id) + '\')">' + (intent.locked ? '🔒' : '🔓') + '</button>' +
+          '<input type="text" value="' + this.esc(intent.name) + '" onchange="PACER.broker.handleUpdateIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\', { name: this.value })">' +
+          '<select onchange="PACER.broker.handleUpdateIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\', { priority: this.value })">' +
+            ['income','build','explore'].map(p => '<option value="' + p + '"' + (intent.priority === p ? ' selected' : '') + '>' + p + '</option>').join('') +
+          '</select>' +
+          '<div><input type="range" min="0" max="50" value="' + intent.alloc + '" ' + (intent.locked ? 'disabled' : '') + ' oninput="this.nextElementSibling.textContent=this.value+\'%\'" onchange="PACER.broker.handleUpdateIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\', { alloc: Number(this.value) })"><div class="broker-inbox-meta">' + intent.alloc + '%</div></div>' +
+          '<input type="number" min="0" max="150" step="1" value="' + intent.spent + '" onchange="PACER.broker.handleUpdateIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\', { spent: Number(this.value) })">' +
+          '<span class="' + statusClass + '">' + st.status + (st.overshoot > 0 ? ' +' + st.overshoot.toFixed(0) + '%' : '') + '</span>' +
+          '<div><button class="broker-delete-btn" onclick="PACER.broker.handleRemoveIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\')">DEL</button>' +
+          '<button class="broker-inline-btn" style="margin-left:4px" onclick="PACER.broker.moveIntentBetweenServices(\'' + this.esc(intent.id) + '\', \'' + service + '\', \'' + (service === 'claude' ? 'codex' : 'claude') + '\')">MOVE</button></div>' +
+        '</div>';
+      }).join('');
+      return head + rows;
+    },
+
+    attrJSON(obj) {
+      return JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026').replace(/'/g, '\\u0027');
+    },
+
+    showInlineError(message) {
+      const el = document.getElementById('broker-inline-error');
+      if (!el) return;
+      el.textContent = message;
+      el.classList.add('show');
+      clearTimeout(this.errorTimer);
+      this.errorTimer = setTimeout(() => el.classList.remove('show'), 4000);
+    },
+
+    updateBrokerBadge() {
+      const tab = document.querySelector('[data-tab="broker"]');
+      if (!tab) return;
+      const hasInbox = this.loadBrokerInbox().length > 0;
+      tab.classList.toggle('has-broker-badge', hasInbox && PACER.state.activeTab !== 'broker');
+    },
+
+    logIntentCost(service, usageEvent) {
+      const state = this.loadBrokerState(service);
+      const name = this.normalizeName(usageEvent.name || usageEvent.intent || '');
+      const cost = Math.max(0, Number(usageEvent.cost ?? usageEvent.estimatedSpent ?? 0) || 0);
+      if (!name || !cost) return;
+      let matched = false;
+      state.intents = state.intents.map(i => {
+        if (this.normalizeName(i.name) === name) {
+          matched = true;
+          return { ...i, spent: (Number(i.spent) || 0) + cost };
+        }
+        return i;
+      });
+      if (!matched) {
+        state.intents = this.addIntent(state.intents, usageEvent.name || usageEvent.intent, usageEvent.priority || 'build', state.metrics.reserve)
+          .map(i => i.id.startsWith('intent_') && this.normalizeName(i.name) === name ? { ...i, spent: cost } : i);
+      }
+      this.saveBrokerState(service, state);
+      if (PACER.state.activeTab === 'broker') this.renderBrokerTab();
+    },
+
+    syncWithOtherTabs() {
+      const live = PACER.readLiveSnapshot ? PACER.readLiveSnapshot() : null;
+      if (live) {
+        const state = this.loadBrokerState('claude');
+        state.pacing = {
+          color: live.usedPct > 110 ? 'violet' : live.usedPct > 100 ? 'red' : live.usedPct < 70 ? 'yellow' : 'green',
+          verdict: live.usedPct > 110 ? 'AT RISK' : live.usedPct > 100 ? 'OVER PACE' : live.usedPct < 70 ? 'UNDER PACE' : 'ON PACE',
+          usedPct: live.usedPct,
+          projectedPct: live.usedPct,
+          source: 'live-tab',
+          updatedAt: new Date().toISOString()
+        };
+        this.saveBrokerState('claude', state);
+      }
+      this.renderBrokerTab();
+      PACER.showToast('Broker synced with current Live tab state.');
+    },
+
+    async fetchBrokerPacingSnapshot(service) {
+      try {
+        if (service !== 'claude') return this.loadBrokerState(service).pacing;
+        const response = await fetch('http://localhost:8765/api/data?range=7d', { cache: 'no-store' });
+        if (!response.ok) throw new Error('backend offline');
+        const data = await response.json();
+        const pct = Number(data?.plan?.seven_day_pct ?? data?.plan?.primary_pct ?? 0) || 0;
+        const state = this.loadBrokerState(service);
+        state.pacing = {
+          color: pct > 110 ? 'violet' : pct > 100 ? 'red' : pct < 70 ? 'yellow' : 'green',
+          verdict: pct > 110 ? 'AT RISK' : pct > 100 ? 'OVER PACE' : pct < 70 ? 'UNDER PACE' : 'ON PACE',
+          usedPct: pct,
+          projectedPct: pct,
+          source: 'backend',
+          updatedAt: new Date().toISOString()
+        };
+        this.saveBrokerState(service, state, { silent: true });
+        if (PACER.state.activeTab === 'broker') this.renderBrokerTab();
+        return state.pacing;
+      } catch (e) {
+        return this.loadBrokerState(service).pacing;
+      }
+    },
+
+    renderBrokerControls() { this.renderBrokerTab(); },
+    renderBrokerSegmentedControls() { this.renderBrokerTab(); },
+    renderServicePanelForActive() { this.renderServicePanel(this.loadBrokerUI().activeService); },
+    renderIncomingIntentPanel() { this.renderInboxPanel(); },
+    renderIntentTableForService(service) {
+      const state = this.loadBrokerState(service);
+      return this.renderIntentTable(service, state.intents);
+    },
+    calculateReserveBudget(state) {
+      return this.computeBrokerMetrics(state?.intents || []).reserve;
+    },
+    calculateRemainingBudget(state) {
+      const metrics = this.computeBrokerMetrics(state?.intents || []);
+      return Math.max(0, 100 - metrics.totalSpent);
+    },
+    persistBrokerUIState(uiState) { this.saveBrokerUI(uiState); },
+    loadBrokerUIState() { return this.loadBrokerUI(); },
+    handleExternalIntentEvent(event) {
+      this.handleIncomingIntent(event?.detail?.sourceTab || event?.detail?.fromTab || 'live', event?.detail || {});
+    },
+    dismissAdvisorRecommendation(recSignature) {
+      this.rejectAdvisorRecommendation(recSignature);
+    },
+    updateClaudeState(intent, cost = 0) {
+      this.logIntentCost('claude', { ...intent, cost });
+    },
+    updateCodexState(intent, cost = 0) {
+      this.logIntentCost('codex', { ...intent, cost });
+    },
+
+    routeIntentToService(intent, targetService) {
+      if (intent?.id && String(intent.id).startsWith('incoming_')) return this.handleRouteIncomingIntent(intent.id, targetService);
+      const state = this.loadBrokerState(targetService);
+      state.intents = this.mergeIntentIntoList(state.intents, this.validateIntent(intent));
+      this.saveBrokerState(targetService, state);
+      this.renderBrokerTab();
+    },
+
+    seedDemoInbox() {
+      this.handleIncomingIntent('optimize', {
+        name: 'Broker Tab 8 vanilla port',
+        priority: 'build',
+        estimatedAlloc: 12,
+        estimatedSpent: 0,
+        preferredService: 'codex'
+      });
+      PACER.showToast('Demo intent added to Broker inbox.');
+    }
+  };
+
+  window.handleBrokerSegmentClick = function(service) {
+    PACER.broker?.handleBrokerSegmentClick(service);
+  };
+  window.handleAdvisorToggle = function(enabled) {
+    PACER.broker?.handleAdvisorToggle(enabled);
+  };
+  window.handleAddIntent = function() {
+    PACER.broker?.handleAddIntent();
+  };
+  window.handleRebalance = function() {
+    PACER.broker?.handleRebalance();
+  };
+
   PACER.codex = {
     state: { tasks: [] },
 
