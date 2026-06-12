@@ -231,6 +231,8 @@ def get_plan_usage(range_key="7d"):
     return {
         "primary_pct": round(latest.get("primaryPercentage", 0)),
         "seven_day_pct": round(latest.get("sevenDayPercentage", 0)),
+        "source": latest.get("source", "unknown"),
+        "updated_at": latest.get("timestamp"),
         "history": filtered[-200:],  # cap for response size
     }
 
@@ -344,7 +346,8 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = 8765
-    print(f"  Claude Usage Dashboard")
+    host = "0.0.0.0"
+    print(f"  PACER backend")
     print(f"  http://localhost:{port}")
     print(f"  Press Ctrl+C to stop\n")
-    HTTPServer(("localhost", port), Handler).serve_forever()
+    HTTPServer((host, port), Handler).serve_forever()

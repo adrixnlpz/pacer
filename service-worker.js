@@ -1,4 +1,4 @@
-const PACER_CACHE = "pacer-v2-spa-eng";
+const PACER_CACHE = "pacer-v3-2026-05-25-live-refresh";
 const APP_SHELL = ["./", "./index.html", "./manifest.json", "./service-worker.js"];
 
 self.addEventListener("install", (event) => {
@@ -11,7 +11,8 @@ self.addEventListener("activate", (event) => {
     const keys = await caches.keys();
     await Promise.all(keys.filter((k) => k !== PACER_CACHE).map((k) => caches.delete(k)));
     await self.clients.claim();
-    if (["localhost", "127.0.0.1"].includes(self.location.hostname)) {
+    const purgeHosts = ["localhost", "127.0.0.1", "Mac.local"];
+    if (purgeHosts.includes(self.location.hostname)) {
       await self.registration.unregister();
       const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
       clients.forEach((c) => c.navigate(c.url));

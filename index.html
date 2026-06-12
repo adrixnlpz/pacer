@@ -824,6 +824,55 @@
     color: var(--bg);
   }
 
+  /* Live header strip + refresh icon */
+  .live-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    margin-bottom: 12px;
+  }
+  .live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--amber);
+    font-weight: 600;
+  }
+  .icon-refresh-btn {
+    background: transparent;
+    border: 1px solid var(--line-bright);
+    color: var(--ink);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    padding: 0;
+    line-height: 1;
+  }
+  .icon-refresh-btn:hover {
+    background: var(--bg-card);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  .icon-refresh-btn:active { transform: scale(0.92); }
+  .icon-refresh-btn.spinning { animation: refresh-spin 0.6s linear; }
+  @keyframes refresh-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
   /* Live action controls */
   .action-panel {
     background: var(--bg-card);
@@ -2574,6 +2623,11 @@
 
   <section class="tab-panel active" data-panel="live">
 
+    <div class="live-status-bar" aria-label="Live status">
+      <div class="live-indicator"><span class="live-dot"></span> LIVE</div>
+      <button id="btnLiveRefresh" class="icon-refresh-btn" aria-label="Refresh live data" title="Refresh live data">↻</button>
+    </div>
+
     <div class="action-panel" aria-label="Pacing controls">
       <div class="action-meta">
         <div class="label">Pacing Control Center</div>
@@ -2648,8 +2702,8 @@
           <path d="M0,45 L20,40 L40,42 L60,35 L80,30 L100,32 L120,28 L140,22 L160,25 L180,18 L200,14 L220,16 L240,10 L260,12 L280,8 L300,5" stroke="#e63946" stroke-width="1.5" fill="none"/>
           <line x1="0" y1="43" x2="300" y2="43" stroke="#7fd964" stroke-width="1" stroke-dasharray="2 3" opacity="0.6"/>
         </svg>
-        <div class="ref-line">— — — TARGET 1.4%/hr</div>
-        <div style="margin-top:10px;padding:8px 10px;background:rgba(230,57,70,0.1);border-left:2px solid var(--red);font-size:10px;color:var(--red);letter-spacing:0.05em;">
+        <div class="ref-line" id="burnTargetLine">— — — TARGET 1.4%/hr</div>
+        <div id="burnProjectionNote" style="margin-top:10px;padding:8px 10px;background:rgba(230,57,70,0.1);border-left:2px solid var(--red);font-size:10px;color:var(--red);letter-spacing:0.05em;">
           ⚠ EXHAUSTION PROJECTED: <strong>10:42 PM THU</strong>
         </div>
       </div>
@@ -2670,11 +2724,11 @@
 
     <!-- RECOMMENDATION STRIP -->
     <div class="rec-strip" id="recStrip">
-      <div class="rec-strip-tag">! RECOMMENDATION</div>
-      <div class="rec-icon" id="recIcon">!</div>
+      <div class="rec-strip-tag">SYNCING</div>
+      <div class="rec-icon" id="recIcon">·</div>
       <div class="rec-body">
-        <div class="rec-main" id="recMain">Switch to <strong>Sonnet</strong> for the next <strong>4 hours</strong>, or budget exhausts at <strong>10:42 PM Thursday</strong> — 7 hours before reset.</div>
-        <div class="rec-meta" id="recMeta">Confidence 91% · based on 14 similar pace deviations · predicted savings 8.4%</div>
+        <div class="rec-main" id="recMain">Waiting for Tokemon usage sync.</div>
+        <div class="rec-meta" id="recMeta">Live recommendations update after PACER reads the latest OAuth usage.</div>
       </div>
       <div class="rec-actions">
         <button class="btn primary" id="btnApply">APPLY</button>
@@ -3400,6 +3454,7 @@ const PACER = {
     this.bindPacerControls();
     this.restoreLastAction();
     this.startClocks();
+    this.refreshLiveUsageFromBackend().catch(() => {});
   },
 
   /* ------------ Theme ------------ */
@@ -3618,7 +3673,13 @@ const PACER = {
 
   bindPacerControls() {
     document.getElementById('btnStartNewWeek')?.addEventListener('click', (event) => this.startNewWeek(event.currentTarget));
-    document.getElementById('btnUpdateUsage')?.addEventListener('click', (event) => this.openUsageModal(event.currentTarget));
+    document.getElementById('btnUpdateUsage')?.addEventListener('click', (event) => this.refreshLiveUsageFromBackend(event.currentTarget));
+    document.getElementById('btnLiveRefresh')?.addEventListener('click', (event) => {
+      const btn = event.currentTarget;
+      btn.classList.add('spinning');
+      setTimeout(() => btn.classList.remove('spinning'), 600);
+      this.refreshLiveUsageFromBackend();
+    });
     document.getElementById('btnSavePacingPlan')?.addEventListener('click', (event) => this.savePacingPlan(event.currentTarget));
     document.getElementById('btnViewHistory')?.addEventListener('click', (event) => this.toggleHistory(event.currentTarget));
     document.getElementById('btnParseUsage')?.addEventListener('click', (event) => this.parseUsageIntoForm(event.currentTarget));
@@ -3691,6 +3752,81 @@ const PACER = {
     };
   },
 
+  getBackendBase() {
+    const apiHost = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
+      ? 'localhost'
+      : location.hostname;
+    return `http://${apiHost}:8765`;
+  },
+
+  async fetchTokemonUsage() {
+    const response = await fetch(`${this.getBackendBase()}/api/data?range=7d`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`PACER backend returned HTTP ${response.status}`);
+    const data = await response.json();
+    const plan = data?.plan || {};
+    const weeklyPct = Number(plan.seven_day_pct ?? 0) || 0;
+    const fiveHourPct = Number(plan.primary_pct ?? 0) || 0;
+    const history = Array.isArray(plan.history) ? plan.history : [];
+    return {
+      weeklyPct,
+      fiveHourPct,
+      updatedAt: plan.updated_at,
+      source: plan.source || 'unknown',
+      burnPctPerHour: this.computeBurnPctPerHour(history, 'seven_day_pct'),
+      history
+    };
+  },
+
+  computeBurnPctPerHour(history, field) {
+    const points = history
+      .map((item) => ({
+        at: Date.parse(item.timestamp),
+        value: Number(item[field])
+      }))
+      .filter((item) => Number.isFinite(item.at) && Number.isFinite(item.value))
+      .sort((a, b) => a.at - b.at);
+    const latest = points.at(-1);
+    if (!latest) return 0;
+    const cutoff = latest.at - 60 * 60 * 1000;
+    const base = [...points].reverse().find((item) => item.at <= cutoff) || points[0];
+    const hours = Math.max((latest.at - base.at) / 36e5, 0.01);
+    return Math.max(0, (latest.value - base.value) / hours);
+  },
+
+  formatUsageSourceLabel(usage) {
+    const updated = usage.updatedAt ? this.formatStamp(new Date(usage.updatedAt)) : this.formatStamp(new Date());
+    return `Tokemon ${usage.source} · weekly ${usage.weeklyPct}% · 5-hour ${usage.fiveHourPct}% · updated ${updated}`;
+  },
+
+  async refreshLiveUsageFromBackend(button = null) {
+    if (button) {
+      button.classList.add('loading');
+      button.textContent = 'SYNCING...';
+    }
+    try {
+      const usage = await this.fetchTokemonUsage();
+      this.writeLiveValues({
+        usedPct: usage.weeklyPct,
+        vmCurrent: usage.burnPctPerHour,
+        timeLeft: this.fmtCountdown(this.nextResetUTC() - new Date())
+      });
+      this.saveSnapshot('tokemon-sync');
+      this.setLastAction(this.formatUsageSourceLabel(usage));
+      this.showToast(`Synced from Tokemon: ${usage.weeklyPct}% weekly, ${usage.fiveHourPct}% 5-hour.`);
+      if (PACER.broker) await PACER.broker.fetchBrokerPacingSnapshot('claude');
+      return usage;
+    } catch (error) {
+      this.showToast('Tokemon sync failed. Opening manual usage fallback.');
+      this.openUsageModal(button);
+      throw error;
+    } finally {
+      if (button) {
+        button.classList.remove('loading');
+        button.textContent = 'UPDATE USAGE';
+      }
+    }
+  },
+
   writeLiveValues({ usedPct, vmCurrent, timeLeft }) {
     const pct = Math.max(0, Math.min(100, Number(usedPct) || 0));
     const remaining = +(100 - pct).toFixed(1);
@@ -3720,6 +3856,8 @@ const PACER = {
     if (burnBig) burnBig.innerHTML = `${burn.toFixed(1)}<span class="unit">%/hr</span>`;
     const burnDelta = document.getElementById('burnDelta');
     if (burnDelta) burnDelta.textContent = required > 0 ? `▲ ${Math.round((burn / required) * 100)}% vs required` : '— vs required';
+    const targetLine = document.getElementById('burnTargetLine');
+    if (targetLine) targetLine.textContent = `— — — TARGET ${required.toFixed(1)}%/hr`;
 
     if (PACER.live) {
       PACER.live.chartData.week.actual[PACER.live.chartData.week.actual.length - 1] = pct;
@@ -3727,6 +3865,53 @@ const PACER = {
       PACER.live.dayData = PACER.live.dayData.map(d => d.state === 'today' ? { ...d, actual: Math.round(pct / 7) } : d);
       PACER.live.buildDayRows();
       PACER.live.drawChart();
+    }
+    this.updateLiveRecommendation({ pct, burn, remaining, required, hoursLeft, left });
+  },
+
+  updateLiveRecommendation({ pct, burn, remaining, required, hoursLeft, left }) {
+    const projected = Math.max(0, pct + burn * hoursLeft);
+    const burnNote = document.getElementById('burnProjectionNote');
+    const strip = document.getElementById('recStrip');
+    const tag = strip?.querySelector('.rec-strip-tag');
+    const icon = document.getElementById('recIcon');
+    const main = document.getElementById('recMain');
+    const meta = document.getElementById('recMeta');
+    if (burnNote) {
+      if (projected >= 100 && burn > 0) {
+        const hoursToExhaust = Math.max(0, remaining / Math.max(burn, 0.01));
+        const exhaustAt = new Date(Date.now() + hoursToExhaust * 36e5);
+        burnNote.style.background = 'rgba(230,57,70,0.1)';
+        burnNote.style.borderLeftColor = 'var(--red)';
+        burnNote.style.color = 'var(--red)';
+        burnNote.innerHTML = `⚠ EXHAUSTION PROJECTED: <strong>${this.formatStamp(exhaustAt)}</strong>`;
+      } else {
+        burnNote.style.background = 'rgba(127,217,100,0.1)';
+        burnNote.style.borderLeftColor = 'var(--green)';
+        burnNote.style.color = 'var(--green)';
+        burnNote.innerHTML = `✓ ON PACE: projected <strong>${projected.toFixed(0)}%</strong> by reset`;
+      }
+    }
+    if (!main || !meta || !strip || !tag || !icon || PACER.live?.recState !== 'active') return;
+    strip.classList.remove('applied', 'snoozed', 'dismissed');
+    if (projected >= 100) {
+      tag.textContent = '! RECOMMENDATION';
+      tag.style.color = 'var(--red)';
+      icon.textContent = '!';
+      main.innerHTML = `Reduce Claude burn now. At <strong>${burn.toFixed(1)}%/hr</strong>, projected usage reaches <strong>${projected.toFixed(0)}%</strong> before reset.`;
+      meta.textContent = `Live Tokemon pace · ${pct}% weekly used · ${left} remaining · required ${required.toFixed(1)}%/hr`;
+    } else if (pct >= 70 || burn > required) {
+      tag.textContent = 'WATCH';
+      tag.style.color = 'var(--amber)';
+      icon.textContent = '!';
+      main.innerHTML = `You are within limit but close enough to watch. Keep current burn near <strong>${required.toFixed(1)}%/hr</strong> or route build work to Codex.`;
+      meta.textContent = `Live Tokemon pace · ${pct}% weekly used · projected ${projected.toFixed(0)}% by reset`;
+    } else {
+      tag.textContent = 'ON PACE';
+      tag.style.color = 'var(--green)';
+      icon.textContent = '✓';
+      main.innerHTML = `You are within pace. Weekly usage is <strong>${pct}%</strong> and current burn is <strong>${burn.toFixed(1)}%/hr</strong>.`;
+      meta.textContent = `Synced from Tokemon OAuth · 5-hour and weekly usage are now live inputs`;
     }
   },
 
@@ -6578,7 +6763,10 @@ const PACER = {
     async fetchBrokerPacingSnapshot(service) {
       try {
         if (service !== 'claude') return this.loadBrokerState(service).pacing;
-        const response = await fetch('http://localhost:8765/api/data?range=7d', { cache: 'no-store' });
+        const apiHost = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
+          ? 'localhost'
+          : location.hostname;
+        const response = await fetch(`http://${apiHost}:8765/api/data?range=7d`, { cache: 'no-store' });
         if (!response.ok) throw new Error('backend offline');
         const data = await response.json();
         const pct = Number(data?.plan?.seven_day_pct ?? data?.plan?.primary_pct ?? 0) || 0;
