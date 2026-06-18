@@ -3889,6 +3889,40 @@ const PACER = {
 	      modelCard.innerHTML = `${title}${html}<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:10px;color:var(--ink-faint);display:flex;justify-content:space-between;"><span>Transcript cost</span><span style="color:var(--amber);font-weight:700">${this.fmtMoney(totalCost)}</span></div>${button}`;
 	      PACER.live?.bindModelOptimize();
 	    }
+	    this.renderHiddenCostAudit(data);
+	  },
+
+	  renderHiddenCostAudit(data) {
+	    const rows = document.querySelectorAll('.mini-card .hidden-row');
+	    const models = Array.isArray(data?.by_model) ? data.by_model : [];
+	    const tools = Array.isArray(data?.tools) ? data.tools : [];
+	    const summary = data?.summary || {};
+	    const totalCost = Number(summary.total_cost) || 0;
+	    const topModel = models[0];
+	    const cheaper = models.find(model => !String(model.model || '').toLowerCase().includes('opus')) || models[1];
+	    const topShare = totalCost && topModel ? (Number(topModel.cost) || 0) / totalCost : 0;
+	    const shiftCost = topModel && cheaper ? (Number(topModel.cost) || 0) * 0.2 : 0;
+	    const cheaperRatio = topModel && cheaper && Number(topModel.cost) ? Math.min(1, (Number(cheaper.cost) || 0) / Number(topModel.cost)) : 0.5;
+	    const saving = shiftCost * (1 - cheaperRatio);
+	    const topTool = tools[0];
+	    const values = [
+	      ['Most expensive model', topModel ? `${PACER.fmtMoney(topModel.cost)} ${PACER.shortModelName(topModel.model)}` : 'No model data', 'warn'],
+	      ['Model spend share', `${Math.round(topShare * 100)}% on top model`, topShare > 0.5 ? 'over' : 'warn'],
+	      ['Sessions over threshold', 'Unavailable: backend lacks session costs', 'warn'],
+	      ['Biggest tool line', topTool ? `${topTool.name} · ${topTool.calls} calls` : 'No tool data', ''],
+	      ['Concrete shift', topModel && cheaper ? `Shift 20% to ${PACER.shortModelName(cheaper.model)} · save ~${PACER.fmtMoney(saving)}` : 'Need model mix data', saving > 0 ? 'ok' : 'warn']
+	    ];
+	    rows.forEach((row, index) => {
+	      const item = values[index];
+	      if (!item) return;
+	      const label = row.querySelector('.hl');
+	      const value = row.querySelector('.hv');
+	      if (label) label.textContent = item[0];
+	      if (value) {
+	        value.textContent = item[1];
+	        value.className = 'hv ' + item[2];
+	      }
+	    });
 	  },
 
 	  modelTagClass(model) {
@@ -4494,17 +4528,23 @@ const PACER = {
     },
 
     /* ---- Audit ---- */
-    bindAudit() {
-      document.getElementById('btnAudit')?.addEventListener('click', function() {
-        this.textContent = 'SCANNING...';
-        this.disabled = true;
-        setTimeout(() => {
-          this.textContent = 'AUDIT COMPLETE';
-          this.classList.add('success');
-          this.disabled = false;
-        }, 1800);
-      });
-    },
+	    bindAudit() {
+	      document.getElementById('btnAudit')?.addEventListener('click', function() {
+	        const original = this.textContent;
+	        this.textContent = 'SCANNING...';
+	        this.disabled = true;
+	        PACER.renderHiddenCostAudit(PACER.latestData || {});
+	        setTimeout(() => {
+	          this.textContent = 'AUDIT COMPLETE';
+	          this.classList.add('success');
+	          this.disabled = false;
+	          setTimeout(() => {
+	            this.textContent = original;
+	            this.classList.remove('success');
+	          }, 1200);
+	        }, 500);
+	      });
+	    },
 
     /* ---- Model optimize ---- */
     bindModelOptimize() {
