@@ -5441,8 +5441,9 @@ const PACER = {
       { icon: '🔄', name: 'Conversation Length', finding: 'Average session runs 15 turns. Sessions >20 turns show 60% token inflation.', action: 'Use /compact at 12 turns. Open fresh session every 18–20 exchanges.', confidence: 92 }
     ],
 
-    histView: 'daily',
-    expandedPattern: null,
+	    histView: 'daily',
+	    expandedPattern: null,
+	    backendData: null,
 
 	    init() {
 	      this.renderKPIs();
@@ -5457,6 +5458,7 @@ const PACER = {
 	      const daily = Array.isArray(data?.daily) ? data.daily : [];
 	      const summary = data?.summary || {};
 	      if (!daily.length) return;
+	      this.backendData = data;
 	      const maxCost = Math.max(...daily.map(d => Number(d.cost) || 0), 1);
 	      const days = daily.slice(-7).map((d, i, arr) => {
 	        const val = Math.round(((Number(d.cost) || 0) / maxCost) * 100);
@@ -5464,6 +5466,8 @@ const PACER = {
 	        return {
 	          name: String(d.date || '').toUpperCase(),
 	          val,
+	          cost: Number(d.cost) || 0,
+	          calls: Number(d.calls) || 0,
 	          last: 0,
 	          avg: val,
 	          target,
@@ -5761,13 +5765,24 @@ const PACER = {
         }
       });
 
-      document.getElementById('histExport')?.addEventListener('click', () => {
-        const w = this.weeks[Math.abs(this.currentWeek)];
-        const rows = ['Day,This Week,Last Week,8W Avg,Target,vs Target'];
-        w.days.forEach(d => {
-          rows.push(`${d.name},${d.val ?? ''},${d.last},${d.avg},${d.target},${d.val != null ? d.val - d.target : ''}`);
-        });
-        const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+	      document.getElementById('histExport')?.addEventListener('click', () => {
+	        const w = this.weeks[Math.abs(this.currentWeek)];
+	        const data = this.backendData || PACER.latestData || {};
+	        const rows = ['Daily date,cost,calls,normalized %,target %,vs target %'];
+	        w.days.forEach(d => {
+	          rows.push(`${d.name},${Number(d.cost || 0).toFixed(4)},${d.calls || 0},${d.val ?? ''},${d.target},${d.val != null ? d.val - d.target : ''}`);
+	        });
+	        rows.push('');
+	        rows.push('Model,cost,calls,pct');
+	        (data.by_model || []).forEach(model => {
+	          rows.push(`${model.model},${Number(model.cost || 0).toFixed(4)},${model.calls || 0},${model.pct || 0}`);
+	        });
+	        rows.push('');
+	        rows.push('Tool,calls,pct');
+	        (data.tools || []).forEach(tool => {
+	          rows.push(`${tool.name},${tool.calls || 0},${tool.pct || 0}`);
+	        });
+	        const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = `pacer_history_${w.label.replace(' ','_').toLowerCase()}.csv`;
