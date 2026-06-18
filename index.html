@@ -303,9 +303,10 @@
     touch-action: manipulation;
   }
 
-  /* Theme/language toggle buttons */
+  /* Theme/language/glossary toggle buttons */
   .theme-toggle,
-  .lang-toggle {
+  .lang-toggle,
+  .glossary-toggle {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -324,13 +325,23 @@
   }
 
   .theme-toggle:hover,
-  .lang-toggle:hover {
+  .lang-toggle:hover,
+  .glossary-toggle:hover {
     border-color: var(--amber);
     color: var(--amber);
   }
+  .theme-toggle:focus-visible,
+  .lang-toggle:focus-visible,
+  .glossary-toggle:focus-visible,
+  .plan-toggle:focus-visible,
+  .icon-refresh-btn:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
 
   .theme-toggle .icon,
-  .lang-toggle .icon {
+  .lang-toggle .icon,
+  .glossary-toggle .icon {
     width: 14px;
     height: 14px;
     display: inline-flex;
@@ -458,6 +469,58 @@
   .service-switch .ss-hint strong { color: var(--ink-dim); font-weight: 600; }
   @media (max-width: 640px) {
     .service-switch .ss-hint { flex-basis: 100%; }
+  }
+
+  /* ============================================================
+     SECTION EXPLAINERS — plain-language what/why for each tab
+     ============================================================ */
+  .explainer {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+    background: var(--bg-soft);
+  }
+  .explainer-ico {
+    color: var(--amber);
+    font-size: 14px;
+    line-height: 1.5;
+    flex-shrink: 0;
+  }
+  .explainer p {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--ink-dim);
+    max-width: 78ch;
+  }
+  .explainer strong { color: var(--ink); font-weight: 700; }
+
+  /* Glossary modal */
+  .glossary-modal { max-width: 640px; max-height: 82vh; display: flex; flex-direction: column; }
+  .glossary-list {
+    margin: 6px 0 0;
+    overflow-y: auto;
+    padding-right: 10px;
+    display: grid;
+    gap: 15px;
+  }
+  .glossary-list dt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .glossary-list dd {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-dim);
+    max-width: 72ch;
   }
 
   /* ============================================================
@@ -2648,7 +2711,7 @@
     </div>
 
     <div class="account-bar">
-      <button class="account-pill plan-toggle" id="planToggle" aria-label="Toggle plan">
+      <button class="account-pill plan-toggle" id="planToggle" aria-label="Switch Anthropic plan tier" title="Your Anthropic plan tier (Pro / Max / API). Sets the limit math PACER paces against — switch it to match your subscription.">
         <span class="dot" id="planDot"></span>
         <span id="planLabel">MAX PLAN</span>
       </button>
@@ -2659,6 +2722,10 @@
       <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
         <span class="icon">⇄</span>
         <span id="langLabel">SPA/ENG</span>
+      </button>
+      <button class="glossary-toggle" id="glossaryToggle" aria-label="Open glossary" aria-haspopup="dialog">
+        <span class="icon" aria-hidden="true">?</span>
+        <span>GLOSSARY</span>
       </button>
     </div>
   </header>
@@ -2711,6 +2778,12 @@
        ============================================================ -->
 
   <section class="tab-panel active" id="panel-live" data-panel="live" role="tabpanel" aria-labelledby="tab-live" tabindex="0">
+
+    <div class="explainer">
+      <span class="explainer-ico" aria-hidden="true">ⓘ</span>
+      <p><strong>What:</strong> Your live Claude Code budget — how much of the 5-hour and weekly limits you've burned, your current pace, and when you'll run out. <strong>Use it to:</strong> decide whether to keep working, slow down, or route work to Codex.</p>
+    </div>
+
 
     <div class="live-status-bar" aria-label="Live status">
       <div class="live-indicator"><span class="live-dot"></span> LIVE</div>
@@ -2920,6 +2993,12 @@
 
   <section class="tab-panel" id="panel-history" data-panel="history" role="tabpanel" aria-labelledby="tab-history" tabindex="0">
 
+    <div class="explainer">
+      <span class="explainer-ico" aria-hidden="true">ⓘ</span>
+      <p><strong>What:</strong> Day-by-day token spend and cost, pulled from your real Claude Code session logs. <strong>Use it to:</strong> see which days ran expensive and export the data as CSV.</p>
+    </div>
+
+
     <div class="hist-header-row">
       <div>
         <div class="hist-title">Usage <span class="accent">History</span></div>
@@ -3005,6 +3084,12 @@
 
   <section class="tab-panel" id="panel-optimize" data-panel="optimize" role="tabpanel" aria-labelledby="tab-optimize" tabindex="0">
 
+    <div class="explainer">
+      <span class="explainer-ico" aria-hidden="true">ⓘ</span>
+      <p><strong>What:</strong> Concrete ways to spend fewer tokens for the same work — model mix, batching, and routing tips ranked by impact. <strong>Use it to:</strong> cut your burn before you hit a limit.</p>
+    </div>
+
+
     <div class="hist-header-row">
       <div>
         <div class="hist-title">Optimize <span class="accent">Engine</span></div>
@@ -3052,6 +3137,12 @@
   </section>
 
   <section class="tab-panel" id="panel-yield" data-panel="yield" role="tabpanel" aria-labelledby="tab-yield" tabindex="0">
+
+    <div class="explainer">
+      <span class="explainer-ico" aria-hidden="true">ⓘ</span>
+      <p><strong>What:</strong> Return on tokens — which sessions produced real value versus burned budget. <strong>Use it to:</strong> spot low-yield habits; import a CodeBurn or Claude session export for a verdict.</p>
+    </div>
+
 
     <div class="hist-header-row">
       <div>
@@ -3138,6 +3229,12 @@
   </section>
 
   <section class="tab-panel" id="panel-simulator" data-panel="simulator" role="tabpanel" aria-labelledby="tab-simulator" tabindex="0">
+
+    <div class="explainer">
+      <span class="explainer-ico" aria-hidden="true">ⓘ</span>
+      <p><strong>What:</strong> A what-if model — set your current usage, hours until reset, and work pace to see when you'll hit the wall. <strong>Use it to:</strong> plan a week that doesn't run out early.</p>
+    </div>
+
 
     <div class="sim-header-row">
       <div>
@@ -3262,6 +3359,12 @@
 
   <section class="tab-panel" id="panel-compare" data-panel="compare" role="tabpanel" aria-labelledby="tab-compare" tabindex="0">
 
+    <div class="explainer">
+      <span class="explainer-ico" aria-hidden="true">ⓘ</span>
+      <p><strong>What:</strong> Side-by-side usage archetypes (light pro, heavy pro, code power, and more) so you can see where your habits land. <strong>Use it to:</strong> pick a sustainable pacing profile to aim for.</p>
+    </div>
+
+
     <div class="hist-header-row">
       <div>
         <div class="hist-title">Profile <span class="accent">Compare</span></div>
@@ -3301,6 +3404,12 @@
        CODEX TAB — Phase 2 delegation tracker
        ============================================================ -->
   <section class="tab-panel" id="panel-codex" data-panel="codex" role="tabpanel" aria-label="Codex live usage and routing" tabindex="0">
+
+    <div class="explainer">
+      <span class="explainer-ico" aria-hidden="true">ⓘ</span>
+      <p><strong>What:</strong> Your live Codex (ChatGPT) limits — 5-hour and weekly usage read from your local Codex sessions — plus a routing matrix for what to delegate. <strong>Use it to:</strong> offload coding work and save Claude budget.</p>
+    </div>
+
 
     <div class="hist-header-row">
       <div>
@@ -3391,6 +3500,12 @@
        BROKER TAB — Intent budget + Claude/Codex router
        ============================================================ -->
   <section class="tab-panel" id="panel-broker" data-panel="broker" role="tabpanel" aria-labelledby="tab-broker" tabindex="0">
+
+    <div class="explainer">
+      <span class="explainer-ico" aria-hidden="true">ⓘ</span>
+      <p><strong>What:</strong> A budget router — split your weekly allowance across intents (income, build, explore) and decide what runs on Cloud vs Codex. <strong>Use it to:</strong> protect income work when budget tightens.</p>
+    </div>
+
     <div class="hist-header-row">
       <div>
         <div class="hist-title">Broker <span class="accent">Router</span></div>
@@ -3460,6 +3575,48 @@
     </div>
   </footer>
 
+</div>
+
+<div class="modal-backdrop" id="glossaryModal" hidden>
+  <div class="usage-modal glossary-modal" role="dialog" aria-modal="true" aria-labelledby="glossaryModalTitle">
+    <div class="modal-title" id="glossaryModalTitle">Glossary</div>
+    <div class="modal-sub">Plain-language definitions for every term in PACER.</div>
+    <dl class="glossary-list">
+      <dt>Cloud vs Codex</dt>
+      <dd>Cloud is Anthropic / Claude Code (this app's main subject). Codex is OpenAI's coding tool you run through ChatGPT. The switch at the top flips the dashboard between each service's live limits and routing.</dd>
+      <dt>5-hour limit</dt>
+      <dd>A rolling cap that resets every 5 hours. Hit it and you're paused until it refreshes, even when your weekly budget still has room.</dd>
+      <dt>Weekly limit</dt>
+      <dd>Your larger budget that resets once a week (Friday 06:00 Guatemala time for Claude). The main number to pace against.</dd>
+      <dt>Burn rate</dt>
+      <dd>How fast you're spending budget, shown as % per hour. Compare it to the required pace to know whether you're ahead or behind.</dd>
+      <dt>Pacing plan</dt>
+      <dd>A saved target for the week: how much budget to spend per day so you don't run out early.</dd>
+      <dt>Hidden cost audit</dt>
+      <dd>A scan for silent token drains — oversized context, repeated tool calls, cache misses — that cost budget without obvious work.</dd>
+      <dt>Run full audit</dt>
+      <dd>Triggers that scan on demand and reports what's quietly eating your budget.</dd>
+      <dt>Circuit breaker</dt>
+      <dd>A guardrail: when your burn would blow the budget before reset, it warns you (and can suggest pausing) so you don't hit a hard stop mid-task.</dd>
+      <dt>Reset alert</dt>
+      <dd>A countdown and heads-up before a 5-hour or weekly reset, so you can time heavy work for right after a refresh.</dd>
+      <dt>Pattern detection</dt>
+      <dd>Looks across your history for recurring habits — heavy Mondays, late-night spikes — so you can adjust.</dd>
+      <dt>Yield analysis</dt>
+      <dd>Measures value per token: which sessions were worth the spend. Import a CodeBurn or Claude session export to get a verdict.</dd>
+      <dt>Pacing simulator</dt>
+      <dd>A what-if calculator. Set current usage %, hours until reset, work hours per day, and sessions remaining; it projects when you'll hit the limit.</dd>
+      <dt>Profile compare</dt>
+      <dd>Pre-built usage archetypes (light pro, heavy pro, max balance, heavy max, code power) to benchmark your habits against.</dd>
+      <dt>Broker &amp; intents</dt>
+      <dd>A router that splits your weekly budget across intents (income, build, explore) and assigns each to Cloud or Codex, protecting priority work when budget tightens.</dd>
+      <dt>Plan tier (Pro / Max / API)</dt>
+      <dd>Which Anthropic subscription you're on. It sets the limit math PACER paces against; switch it in the header to match your plan.</dd>
+    </dl>
+    <div class="modal-actions">
+      <button class="btn primary" id="glossaryClose">Close glossary</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-backdrop" id="usageModal" hidden>
@@ -3550,6 +3707,7 @@ const PACER = {
     this.bindTabs();
     this.bindService();
     this.restoreService();
+    this.bindGlossary();
     this.bindPacerControls();
     this.restoreLastAction();
     this.startClocks();
@@ -3767,6 +3925,52 @@ const PACER = {
 
     // Re-render the current tab against the selected service.
     this.activateTab(this.state.activeTab);
+  },
+
+  /* ------------ Glossary + reusable modal a11y helper ------------ */
+  bindGlossary() {
+    const open = document.getElementById('glossaryToggle');
+    const closeBtn = document.getElementById('glossaryClose');
+    const backdrop = document.getElementById('glossaryModal');
+    open?.addEventListener('click', () => this.modal.open('glossaryModal'));
+    closeBtn?.addEventListener('click', () => this.modal.close('glossaryModal'));
+    backdrop?.addEventListener('click', (e) => { if (e.target === backdrop) this.modal.close('glossaryModal'); });
+  },
+
+  modal: {
+    lastFocus: null,
+    _trap: null,
+    open(id) {
+      const m = document.getElementById(id);
+      if (!m) return;
+      this.lastFocus = document.activeElement;
+      m.hidden = false;
+      const focusable = m.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      (focusable || m).focus?.();
+      this._trap = (e) => this._onKey(id, e);
+      document.addEventListener('keydown', this._trap, true);
+    },
+    close(id) {
+      const m = document.getElementById(id);
+      if (!m) return;
+      m.hidden = true;
+      if (this._trap) document.removeEventListener('keydown', this._trap, true);
+      this._trap = null;
+      this.lastFocus?.focus?.();
+    },
+    _onKey(id, e) {
+      const m = document.getElementById(id);
+      if (!m || m.hidden) return;
+      if (e.key === 'Escape') { e.preventDefault(); this.close(id); return; }
+      if (e.key === 'Tab') {
+        const f = [...m.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+          .filter(el => !el.disabled && el.offsetParent !== null);
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
   },
 
   /* ------------ Clocks ------------ */
