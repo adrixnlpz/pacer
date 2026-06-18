@@ -4678,12 +4678,37 @@ const PACER = {
       };
     },
 
+    currentLiveValues() {
+      const live = PACER.live?.current || {};
+      const pct = Math.max(0, Math.min(100, Math.round(Number(live.usedPct) || Number(document.getElementById('usedPct')?.textContent) || 0)));
+      let hrs = live.resetTime ? Math.round((new Date(live.resetTime).getTime() - Date.now()) / 3600000) : NaN;
+      if (!Number.isFinite(hrs) || hrs <= 0) {
+        const txt = document.getElementById('timeLeft')?.textContent || '';
+        const days = Number((txt.match(/(\d+)d/) || [])[1]) || 0;
+        const hours = Number((txt.match(/(\d+)h/) || [])[1]) || 0;
+        hrs = days * 24 + hours;
+      }
+      return {
+        pct,
+        hrs: Math.max(1, Math.min(168, Math.round(hrs) || 24)),
+        work: 8,
+        sess: Math.max(1, Math.round(Number(PACER.latestData?.summary?.sessions) || 12)),
+        opus: 40
+      };
+    },
+
+    seedFromLive() {
+      if (this.dataSeeded) return;
+      this.applyValues(this.currentLiveValues());
+      this.dataSeeded = true;
+    },
+
     applyValues(v) {
-      document.getElementById('simPct').value = v.pct;
-      document.getElementById('simHrs').value = v.hrs;
-      document.getElementById('simWork').value = v.work;
-      document.getElementById('simSess').value = v.sess;
-      document.getElementById('simOpus').value = v.opus ?? 40;
+      document.getElementById('simPct').value = Math.max(0, Math.min(100, Math.round(Number(v.pct) || 0)));
+      document.getElementById('simHrs').value = Math.max(1, Math.min(168, Math.round(Number(v.hrs) || 24)));
+      document.getElementById('simWork').value = Math.max(1, Math.min(16, Math.round(Number(v.work) || 8)));
+      document.getElementById('simSess').value = Math.max(1, Math.min(40, Math.round(Number(v.sess) || 12)));
+      document.getElementById('simOpus').value = Math.max(0, Math.min(100, Math.round(Number(v.opus ?? 40) || 0)));
       this.recompute();
     },
 
@@ -4723,8 +4748,7 @@ const PACER = {
 
     bindReset() {
       document.getElementById('simReset')?.addEventListener('click', () => {
-        // Default = current Live state snapshot
-        this.applyValues({ pct: 80, hrs: 38, work: 8, sess: 12, opus: 40 });
+        this.applyValues(this.currentLiveValues());
         document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
       });
     },
@@ -4735,7 +4759,8 @@ const PACER = {
         const card = document.getElementById('simVerdictCard').parentElement;
         this.comparing = !this.comparing;
         if (this.comparing) {
-          this.currentSnapshot = this.compute({ pct: 80, hrs: 38, work: 8, sess: 12, opus: 40 });
+          const current = this.currentLiveValues();
+          this.currentSnapshot = { vals: current, result: this.compute(current) };
           btn.textContent = '✓ COMPARING';
           btn.classList.add('primary');
           card.classList.add('comparing');
@@ -4758,13 +4783,13 @@ const PACER = {
         btn.classList.add('success');
         setTimeout(() => {
           document.querySelector('[data-tab="live"]')?.click();
-          // Update Live verdict from sim values
           const r = this.compute(v);
-          document.getElementById('usedPct').textContent = v.pct;
-          document.getElementById('vmCurrent').textContent = r.hourly.toFixed(1) + '%/hr';
-          document.getElementById('vmRequired').textContent = r.required.toFixed(1) + '%/hr';
-          document.getElementById('vmRemaining').textContent = (100 - v.pct) + '%';
-          document.getElementById('verdictFill').style.width = v.pct + '%';
+          PACER.live.writeLiveValues({
+            usedPct: v.pct,
+            vmCurrent: r.hourly,
+            timeLeft: PACER.fmtCountdown(v.hrs * 3600000),
+            resetTime: new Date(Date.now() + v.hrs * 3600000)
+          });
           setTimeout(() => {
             btn.textContent = 'APPLY TO LIVE TAB';
             btn.classList.remove('success');
@@ -4912,8 +4937,8 @@ const PACER = {
 
       // Current snapshot overlay (if comparing)
       if (this.comparing && this.currentSnapshot) {
-        const cur = { pct: 80, hrs: 38 };
-        const curR = this.currentSnapshot;
+        const cur = this.currentSnapshot.vals;
+        const curR = this.currentSnapshot.result;
         const curPoints = [];
         for (let i = 0; i <= steps; i++) {
           const t = (i / steps) * cur.hrs;
