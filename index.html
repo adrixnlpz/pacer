@@ -5558,9 +5558,74 @@ const PACER = {
 	        peakDay: peak?.name || '—',
 	        days
 	      };
+	      this.patterns = this.computePatterns(data, days);
 	      this.renderKPIs();
 	      this.buildTable();
+	      this.buildPatterns();
 	      this.drawHistChart();
+	    },
+
+	    computePatterns(data, days) {
+	      const patterns = [];
+	      const daily = Array.isArray(data?.daily) ? data.daily : [];
+	      const models = Array.isArray(data?.by_model) ? data.by_model : [];
+	      const tools = Array.isArray(data?.tools) ? data.tools : [];
+	      const summary = data?.summary || {};
+	      const busiest = days.reduce((best, day) => (day.cost || 0) > (best.cost || 0) ? day : best, days[0] || {});
+	      if (busiest.name) {
+	        patterns.push({
+	          icon: '▲',
+	          name: 'Busiest Day',
+	          finding: `${busiest.name} is the highest-cost day at ${PACER.fmtMoney(busiest.cost)} across ${busiest.calls || 0} calls.`,
+	          action: 'Use Simulator before starting comparable work on that day.',
+	          confidence: 92
+	        });
+	      }
+	      const first = daily.slice(0, Math.floor(daily.length / 2));
+	      const second = daily.slice(Math.floor(daily.length / 2));
+	      const firstCost = first.reduce((sum, d) => sum + (Number(d.cost) || 0), 0);
+	      const secondCost = second.reduce((sum, d) => sum + (Number(d.cost) || 0), 0);
+	      if (firstCost > 0 && second.length) {
+	        const shift = ((secondCost - firstCost) / firstCost) * 100;
+	        patterns.push({
+	          icon: shift >= 0 ? '▲' : '▼',
+	          name: 'Cost Trend',
+	          finding: `Recent daily cost is ${Math.abs(shift).toFixed(0)}% ${shift >= 0 ? 'higher' : 'lower'} than the prior slice.`,
+	          action: shift >= 0 ? 'Route build work to Codex until the trend cools.' : 'Keep current pacing; do not add avoidable Opus work.',
+	          confidence: 84
+	        });
+	      }
+	      const topModel = models[0];
+	      if (topModel) {
+	        patterns.push({
+	          icon: 'M',
+	          name: 'Model Mix',
+	          finding: `${topModel.display || topModel.model} is the top cost line at ${PACER.fmtMoney(topModel.cost)}.`,
+	          action: 'Check whether similar work can start on Sonnet before escalating.',
+	          confidence: 86
+	        });
+	      }
+	      const avgSessionCost = Number(summary.sessions) ? (Number(summary.total_cost) || 0) / Number(summary.sessions) : 0;
+	      if (avgSessionCost) {
+	        patterns.push({
+	          icon: '$',
+	          name: 'Avg Session Cost',
+	          finding: `Average session cost is ${PACER.fmtMoney(avgSessionCost)} across ${summary.sessions} sessions.`,
+	          action: 'Audit sessions above this line before the next reset.',
+	          confidence: 80
+	        });
+	      }
+	      const topTools = tools.slice(0, 3).map(t => `${t.name} (${t.calls})`).join(', ');
+	      if (topTools) {
+	        patterns.push({
+	          icon: 'T',
+	          name: 'Top Tools',
+	          finding: `Most-used tools: ${topTools}.`,
+	          action: 'Batch read/edit passes when these tools dominate a session.',
+	          confidence: 82
+	        });
+	      }
+	      return patterns;
 	    },
 
     renderKPIs() {
