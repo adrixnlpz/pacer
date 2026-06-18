@@ -4967,12 +4967,82 @@ const PACER = {
     dismissedIds: new Set(),
     expandedId: null,
 
-    init() {
-      this.buildCards();
-      this.buildRouting();
-      this.bindHeader();
-      this.updateKPIs();
-    },
+	    init() {
+	      this.recs = [];
+	      this.buildCards();
+	      this.buildRouting();
+	      this.bindHeader();
+	      this.updateKPIs();
+	      this.fetchRecommendations();
+	    },
+
+	    async fetchRecommendations(button = null) {
+	      if (button) {
+	        button.textContent = '↺ SCANNING...';
+	        button.disabled = true;
+	      }
+	      try {
+	        const response = await fetch(`${PACER.getBackendBase()}/api/recommend?range=7d`, { cache: 'no-store' });
+	        if (!response.ok) throw new Error('Recommendation API HTTP ' + response.status);
+	        const data = await response.json();
+	        if (data.error) throw new Error(data.error);
+	        this.recs = this.mapRecommendationPayload(data);
+	      } catch (error) {
+	        this.recs = [{
+	          id: 'recommendation-unavailable',
+	          priority: 'med',
+	          name: 'Recommendation API unavailable',
+	          saving: '0%',
+	          confidence: 0,
+	          detail: String(error.message || error),
+	          steps: ['Fix the recommendation API dependency or Anthropic key, then refresh this tab.']
+	        }];
+	      } finally {
+	        this.dismissedIds.clear();
+	        this.appliedCount = 0;
+	        this.buildCards();
+	        this.updateKPIs();
+	        if (button) {
+	          button.textContent = '↺ REFRESH';
+	          button.disabled = false;
+	        }
+	      }
+	    },
+
+	    mapRecommendationPayload(data) {
+	      const recs = [];
+	      (data.model_suggestions || []).forEach((item, index) => {
+	        recs.push({
+	          id: 'model-' + index,
+	          priority: index === 0 ? 'high' : 'med',
+	          name: `Use ${item.model || 'recommended model'}`,
+	          saving: '0%',
+	          confidence: 80,
+	          detail: item.reason || data.summary || 'Model recommendation returned by /api/recommend.',
+	          steps: [item.reason || 'Apply this model choice to the next matching session.']
+	        });
+	      });
+	      (data.tool_delegations || []).forEach((item, index) => {
+	        recs.push({
+	          id: 'tool-' + index,
+	          priority: 'med',
+	          name: `Delegate to ${item.tool || 'tool'}`,
+	          saving: '0%',
+	          confidence: 75,
+	          detail: item.reason || data.summary || 'Tool recommendation returned by /api/recommend.',
+	          steps: [item.reason || 'Use this delegation when the matching task appears.']
+	        });
+	      });
+	      return recs.length ? recs : [{
+	        id: 'recommendation-empty',
+	        priority: 'low',
+	        name: 'No recommendations returned',
+	        saving: '0%',
+	        confidence: 0,
+	        detail: data.summary || 'The recommendation API returned no actionable items.',
+	        steps: ['Refresh after more live usage data accumulates.']
+	      }];
+	    },
 
     sumSavings() {
       // Sum % savings across active (not dismissed) recs
@@ -5015,10 +5085,14 @@ const PACER = {
       }
     },
 
-    buildCards() {
-      const container = document.getElementById('optCards');
-      if (!container) return;
-      container.innerHTML = this.recs.map(r => `
+	    buildCards() {
+	      const container = document.getElementById('optCards');
+	      if (!container) return;
+	      if (!this.recs.length) {
+	        container.innerHTML = '<div class="empty-history">Fetching live recommendations from /api/recommend...</div>';
+	        return;
+	      }
+	      container.innerHTML = this.recs.map(r => `
         <div class="opt-card ${r.priority}-priority" id="opt-${r.id}">
           <div class="opt-card-header" data-id="${r.id}">
             <div class="opt-priority-dot ${r.priority}"></div>
@@ -5124,16 +5198,11 @@ const PACER = {
       `).join('');
     },
 
-    bindHeader() {
-      document.getElementById('optRefresh')?.addEventListener('click', () => {
-        const btn = document.getElementById('optRefresh');
-        btn.textContent = '↺ SCANNING...';
-        btn.disabled = true;
-        setTimeout(() => {
-          btn.textContent = '↺ REFRESH';
-          btn.disabled = false;
-        }, 1500);
-      });
+	    bindHeader() {
+	      document.getElementById('optRefresh')?.addEventListener('click', () => {
+	        const btn = document.getElementById('optRefresh');
+	        this.fetchRecommendations(btn);
+	      });
 
       document.getElementById('optApplyAll')?.addEventListener('click', () => {
         document.querySelectorAll('.opt-apply-btn').forEach(btn => {
