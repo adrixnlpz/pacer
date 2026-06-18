@@ -3449,6 +3449,7 @@ const PACER = {
 	  },
 	  latestData: null,
 	  latestUsage: null,
+	  latestCodexUsage: null,
 
   init() {
     this.restoreTheme();
@@ -4022,6 +4023,7 @@ const PACER = {
 	      PACER.live.dayData = PACER.live.dayData.map(d => d.state === 'today' ? { ...d, actual: Math.round(pct / 7) } : d);
 	      PACER.live.buildDayRows();
 	      PACER.live.updateCircuitBreaker(PACER.live.current);
+	      PACER.live.updateResetAlerts();
 	      PACER.live.drawChart();
 	    }
     this.updateLiveRecommendation({ pct, burn, remaining, required, hoursLeft, left });
@@ -4577,6 +4579,29 @@ const PACER = {
 	      if (t100) {
 	        t100.textContent = willTrip ? `Projected in ${hoursToExhaust.toFixed(1)}h` : '— Pending';
 	        t100.classList.toggle('fired', willTrip);
+	      }
+	    },
+
+	    updateResetAlerts() {
+	      const claudeReset = PACER.latestUsage?.resetTime ? new Date(PACER.latestUsage.resetTime) : null;
+	      const codexResetAt = Number(PACER.latestCodexUsage?.secondary?.resets_at);
+	      const codexReset = Number.isFinite(codexResetAt) ? new Date(codexResetAt * 1000) : null;
+	      const now = Date.now();
+	      const resetRows = document.querySelectorAll('.threshold-row');
+	      const claudeRow = resetRows[0]?.querySelector('.tv');
+	      const codexRow = resetRows[1]?.querySelector('.tv');
+	      const fmt = (date) => {
+	        if (!date || !Number.isFinite(date.getTime())) return 'reset unknown';
+	        const hours = Math.max(0, (date.getTime() - now) / 36e5);
+	        return `${PACER.fmtCountdown(date - new Date())} · ${PACER.formatStamp(date)}${hours < 12 ? ' · soon' : ''}`;
+	      };
+	      if (claudeRow) {
+	        claudeRow.textContent = 'Claude reset ' + fmt(claudeReset);
+	        claudeRow.classList.toggle('fired', claudeReset && (claudeReset.getTime() - now) / 36e5 < 12);
+	      }
+	      if (codexRow) {
+	        codexRow.textContent = 'Codex reset ' + fmt(codexReset);
+	        codexRow.classList.toggle('fired', codexReset && (codexReset.getTime() - now) / 36e5 < 12);
 	      }
 	    },
 
@@ -7307,10 +7332,13 @@ const PACER = {
 	        const response = await fetch(`${PACER.getBackendBase()}/api/codex`, { cache: 'no-store' });
 	        if (!response.ok) throw new Error('Codex API HTTP ' + response.status);
 	        this.usage = await response.json();
+	        PACER.latestCodexUsage = this.usage;
 	      } catch (e) {
 	        this.usage = { available: false, error: String(e?.message || e) };
+	        PACER.latestCodexUsage = this.usage;
 	      }
 	      this.renderKPIs();
+	      PACER.live?.updateResetAlerts();
 	    },
 
 	    fmtReset(epochSeconds) {
