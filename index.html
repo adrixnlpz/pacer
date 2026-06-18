@@ -524,6 +524,79 @@
   }
 
   /* ============================================================
+     PROFILE — Newbie (essentials) vs Expert (full dashboard)
+     ============================================================ */
+  body[data-profile="newbie"] .tab[data-tab="yield"],
+  body[data-profile="newbie"] .tab[data-tab="simulator"],
+  body[data-profile="newbie"] .tab[data-tab="compare"],
+  body[data-profile="newbie"] .tab[data-tab="broker"] {
+    display: none;
+  }
+  .newbie-banner { display: none; }
+  body[data-profile="newbie"] .newbie-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    border: 1px solid var(--green);
+    background: var(--bg-soft);
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--ink-dim);
+  }
+  .newbie-banner strong { color: var(--ink); }
+  .newbie-banner .nb-up { white-space: nowrap; }
+
+  .onboard-modal { max-width: 600px; }
+  .onboard-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 10px 0 4px;
+  }
+  @media (max-width: 540px) { .onboard-choices { grid-template-columns: 1fr; } }
+  .onboard-card {
+    text-align: left;
+    padding: 18px;
+    border: 1px solid var(--line-bright);
+    background: var(--bg-card);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    font-family: inherit;
+    color: var(--ink);
+  }
+  .onboard-card:hover,
+  .onboard-card:focus-visible {
+    border-color: var(--amber);
+    transform: translateY(-2px);
+    outline: none;
+  }
+  .onboard-card .oc-tag {
+    display: inline-block;
+    margin-bottom: 10px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 700;
+  }
+  .onboard-card h3 {
+    margin: 0 0 6px;
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .onboard-card p {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--ink-dim);
+  }
+
+  /* ============================================================
      TAB CONTENT MORPH
      ============================================================ */
   .tab-panel {
@@ -2727,6 +2800,10 @@
         <span class="icon" aria-hidden="true">?</span>
         <span>GLOSSARY</span>
       </button>
+      <button class="glossary-toggle" id="profileToggle" aria-label="Change view mode" aria-haspopup="dialog" title="Switch between the simple and full dashboard">
+        <span class="icon" aria-hidden="true">◳</span>
+        <span id="profileLabel">EXPERT</span>
+      </button>
     </div>
   </header>
 
@@ -2782,6 +2859,11 @@
     <div class="explainer">
       <span class="explainer-ico" aria-hidden="true">ⓘ</span>
       <p><strong>What:</strong> Your live Claude Code budget — how much of the 5-hour and weekly limits you've burned, your current pace, and when you'll run out. <strong>Use it to:</strong> decide whether to keep working, slow down, or route work to Codex.</p>
+    </div>
+
+    <div class="newbie-banner">
+      <span><strong>Simple mode</strong> — showing the essentials. Yield, Simulator, Compare, and Broker are tucked away.</span>
+      <button class="btn nb-up" id="newbieUpgrade">Show all tools</button>
     </div>
 
 
@@ -3577,6 +3659,25 @@
 
 </div>
 
+<div class="modal-backdrop" id="onboardModal" hidden>
+  <div class="usage-modal onboard-modal" role="dialog" aria-modal="true" aria-labelledby="onboardTitle">
+    <div class="modal-title" id="onboardTitle">Welcome to PACER</div>
+    <div class="modal-sub">How much do you want to see? You can switch anytime from the header.</div>
+    <div class="onboard-choices">
+      <button class="onboard-card" id="onboardNewbie">
+        <span class="oc-tag">Start simple</span>
+        <h3>Just getting started</h3>
+        <p>The essentials only — live budget, history, and optimization tips. Advanced tools stay tucked away until you want them.</p>
+      </button>
+      <button class="onboard-card" id="onboardExpert">
+        <span class="oc-tag">Recommended</span>
+        <h3>Power user</h3>
+        <p>The full dashboard — yield, simulator, profile compare, and the budget broker, all visible.</p>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="glossaryModal" hidden>
   <div class="usage-modal glossary-modal" role="dialog" aria-modal="true" aria-labelledby="glossaryModalTitle">
     <div class="modal-title" id="glossaryModalTitle">Glossary</div>
@@ -3692,6 +3793,7 @@ const PACER = {
 	    language: 'en',
 	    activeTab: 'live',
 	    service: 'cloud',
+	    profile: 'expert',
 	    historyVisible: false
 	  },
 	  latestData: null,
@@ -3708,6 +3810,8 @@ const PACER = {
     this.bindService();
     this.restoreService();
     this.bindGlossary();
+    this.bindProfile();
+    this.restoreProfile();
     this.bindPacerControls();
     this.restoreLastAction();
     this.startClocks();
@@ -3935,6 +4039,43 @@ const PACER = {
     open?.addEventListener('click', () => this.modal.open('glossaryModal'));
     closeBtn?.addEventListener('click', () => this.modal.close('glossaryModal'));
     backdrop?.addEventListener('click', (e) => { if (e.target === backdrop) this.modal.close('glossaryModal'); });
+  },
+
+  /* ------------ Profile (Simple | Power user) ------------ */
+  bindProfile() {
+    document.getElementById('profileToggle')?.addEventListener('click', () => this.modal.open('onboardModal'));
+    document.getElementById('onboardNewbie')?.addEventListener('click', () => { this.applyProfile('newbie'); this.modal.close('onboardModal'); });
+    document.getElementById('onboardExpert')?.addEventListener('click', () => { this.applyProfile('expert'); this.modal.close('onboardModal'); });
+    document.getElementById('newbieUpgrade')?.addEventListener('click', () => this.applyProfile('expert'));
+  },
+
+  restoreProfile() {
+    let profile = null;
+    try {
+      const s = localStorage.getItem('pacer.profile');
+      if (s === 'newbie' || s === 'expert') profile = s;
+    } catch (e) {}
+    if (profile) {
+      this.applyProfile(profile, false);
+    } else {
+      // First run: default to the full dashboard, then offer the choice.
+      this.applyProfile('expert', false);
+      setTimeout(() => this.modal.open('onboardModal'), 450);
+    }
+  },
+
+  applyProfile(mode, persist = true) {
+    const profile = mode === 'newbie' ? 'newbie' : 'expert';
+    this.state.profile = profile;
+    document.body.setAttribute('data-profile', profile);
+    const label = document.getElementById('profileLabel');
+    if (label) label.textContent = profile === 'newbie' ? 'SIMPLE' : 'EXPERT';
+    // If a now-hidden tab is active, fall back to Live.
+    const hiddenInNewbie = ['yield', 'simulator', 'compare', 'broker'];
+    if (profile === 'newbie' && hiddenInNewbie.includes(this.state.activeTab)) {
+      this.activateTab('live');
+    }
+    if (persist) { try { localStorage.setItem('pacer.profile', profile); } catch (e) {} }
   },
 
   modal: {
