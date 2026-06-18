@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PACER // Anthropic Weekly Budget Engine</title>
-<meta name="theme-color" content="#1a0f0f">
+<meta name="theme-color" content="#f4ede0">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%231a0f0f'/%3E%3Crect x='36' y='80' width='120' height='32' rx='6' fill='%233a2424' stroke='%23ffb347' stroke-width='4'/%3E%3Crect x='44' y='88' width='72' height='16' rx='3' fill='%23ffb347'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%231a0f0f'/%3E%3Crect x='36' y='80' width='120' height='32' rx='6' fill='%233a2424' stroke='%23ffb347' stroke-width='4'/%3E%3Crect x='44' y='88' width='72' height='16' rx='3' fill='%23ffb347'/%3E%3C/svg%3E">
@@ -15,10 +15,9 @@
   (() => {
     try {
       const stored = localStorage.getItem('pacer-theme') || localStorage.getItem('pacer.theme');
-      const system = window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', stored || system);
+      document.documentElement.setAttribute('data-theme', (stored === 'dark' || stored === 'light') ? stored : 'light');
     } catch (e) {
-      document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.setAttribute('data-theme', 'light');
     }
   })();
 </script>
@@ -391,6 +390,74 @@
     font-size: 9px;
     margin-right: 8px;
     opacity: 0.6;
+  }
+  .tab:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: -2px;
+  }
+
+  /* ============================================================
+     GLOBAL SERVICE SWITCH — Cloud | Codex (drives every tab)
+     ============================================================ */
+  .service-switch {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 14px 0 16px;
+    border-bottom: 1px dashed var(--line);
+    margin-bottom: 20px;
+  }
+  .service-switch .ss-label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+  }
+  .service-seg {
+    display: inline-flex;
+    border: 1px solid var(--line-bright);
+    background: var(--bg-card-deep);
+  }
+  .service-seg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 18px;
+    border: none;
+    border-right: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-dim);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: background 0.22s ease, color 0.22s ease;
+  }
+  .service-seg-btn:last-child { border-right: none; }
+  .service-seg-btn:hover { color: var(--amber); background: var(--bg-soft); }
+  .service-seg-btn[aria-pressed="true"] {
+    background: var(--amber);
+    color: var(--bg);
+  }
+  .service-seg-btn:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+  .service-seg-btn .ss-ico { font-size: 13px; line-height: 1; }
+  .service-switch .ss-hint {
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
+  .service-switch .ss-hint strong { color: var(--ink-dim); font-weight: 600; }
+  @media (max-width: 640px) {
+    .service-switch .ss-hint { flex-basis: 100%; }
   }
 
   /* ============================================================
@@ -2268,6 +2335,15 @@
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
   }
 
+  .broker-service-indicator {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+  }
+  .broker-service-indicator strong { color: var(--amber); font-weight: 700; }
+  .broker-svc-hint { color: var(--ink-faint); text-transform: none; letter-spacing: 0.01em; }
+
   .broker-advisor-toggle {
     color: var(--ink-dim);
     font-size: 10px;
@@ -2577,8 +2653,8 @@
         <span id="planLabel">MAX PLAN</span>
       </button>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-        <span class="icon" id="themeIcon">◐</span>
-        <span id="themeLabel">DARK</span>
+        <span class="icon" id="themeIcon">◑</span>
+        <span id="themeLabel">LIGHT</span>
       </button>
       <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
         <span class="icon">⇄</span>
@@ -2588,32 +2664,45 @@
   </header>
 
   <!-- ============================================================
+       GLOBAL SERVICE SWITCH — Cloud | Codex
+       ============================================================ -->
+  <div class="service-switch" role="group" aria-label="Usage service selector">
+    <span class="ss-label">Tracking</span>
+    <div class="service-seg">
+      <button type="button" class="service-seg-btn" id="svcCloud" data-service="cloud" aria-pressed="true">
+        <span class="ss-ico" aria-hidden="true">☁</span>Cloud
+      </button>
+      <button type="button" class="service-seg-btn" id="svcCodex" data-service="codex" aria-pressed="false">
+        <span class="ss-ico" aria-hidden="true">⌥</span>Codex
+      </button>
+    </div>
+    <span class="ss-hint" id="serviceHint"><strong>Anthropic · Claude Code</strong> — usage, analytics &amp; routing</span>
+  </div>
+
+  <!-- ============================================================
        TABS
        ============================================================ -->
-  <nav class="tabs" role="tablist">
-    <button class="tab active" role="tab" data-tab="live">
+  <nav class="tabs" role="tablist" aria-label="Dashboard sections">
+    <button class="tab active" role="tab" id="tab-live" data-tab="live" aria-selected="true" aria-controls="panel-live" tabindex="0">
       <span class="num">01</span>LIVE
     </button>
-    <button class="tab" role="tab" data-tab="history">
+    <button class="tab" role="tab" id="tab-history" data-tab="history" aria-selected="false" aria-controls="panel-history" tabindex="-1">
       <span class="num">02</span>HISTORY
     </button>
-    <button class="tab" role="tab" data-tab="optimize">
+    <button class="tab" role="tab" id="tab-optimize" data-tab="optimize" aria-selected="false" aria-controls="panel-optimize" tabindex="-1">
       <span class="num">03</span>OPTIMIZE
     </button>
-    <button class="tab" role="tab" data-tab="yield">
+    <button class="tab" role="tab" id="tab-yield" data-tab="yield" aria-selected="false" aria-controls="panel-yield" tabindex="-1">
       <span class="num">04</span>YIELD
     </button>
-    <button class="tab" role="tab" data-tab="simulator">
+    <button class="tab" role="tab" id="tab-simulator" data-tab="simulator" aria-selected="false" aria-controls="panel-simulator" tabindex="-1">
       <span class="num">05</span>SIMULATOR
     </button>
-    <button class="tab" role="tab" data-tab="compare">
+    <button class="tab" role="tab" id="tab-compare" data-tab="compare" aria-selected="false" aria-controls="panel-compare" tabindex="-1">
       <span class="num">06</span>COMPARE
     </button>
-    <button class="tab" role="tab" data-tab="codex">
-      <span class="num">07</span>CODEX
-    </button>
-    <button class="tab" role="tab" data-tab="broker">
-      <span class="num">08</span>BROKER
+    <button class="tab" role="tab" id="tab-broker" data-tab="broker" aria-selected="false" aria-controls="panel-broker" tabindex="-1">
+      <span class="num">07</span>BROKER
     </button>
   </nav>
 
@@ -2621,7 +2710,7 @@
        TAB PANELS — placeholders to be filled in sections 2–5
        ============================================================ -->
 
-  <section class="tab-panel active" data-panel="live">
+  <section class="tab-panel active" id="panel-live" data-panel="live" role="tabpanel" aria-labelledby="tab-live" tabindex="0">
 
     <div class="live-status-bar" aria-label="Live status">
       <div class="live-indicator"><span class="live-dot"></span> LIVE</div>
@@ -2829,7 +2918,7 @@
 
   </section>
 
-  <section class="tab-panel" data-panel="history">
+  <section class="tab-panel" id="panel-history" data-panel="history" role="tabpanel" aria-labelledby="tab-history" tabindex="0">
 
     <div class="hist-header-row">
       <div>
@@ -2914,7 +3003,7 @@
 
   </section>
 
-  <section class="tab-panel" data-panel="optimize">
+  <section class="tab-panel" id="panel-optimize" data-panel="optimize" role="tabpanel" aria-labelledby="tab-optimize" tabindex="0">
 
     <div class="hist-header-row">
       <div>
@@ -2962,7 +3051,7 @@
 
   </section>
 
-  <section class="tab-panel" data-panel="yield">
+  <section class="tab-panel" id="panel-yield" data-panel="yield" role="tabpanel" aria-labelledby="tab-yield" tabindex="0">
 
     <div class="hist-header-row">
       <div>
@@ -3048,7 +3137,7 @@
     </div>
   </section>
 
-  <section class="tab-panel" data-panel="simulator">
+  <section class="tab-panel" id="panel-simulator" data-panel="simulator" role="tabpanel" aria-labelledby="tab-simulator" tabindex="0">
 
     <div class="sim-header-row">
       <div>
@@ -3171,7 +3260,7 @@
 
   </section>
 
-  <section class="tab-panel" data-panel="compare">
+  <section class="tab-panel" id="panel-compare" data-panel="compare" role="tabpanel" aria-labelledby="tab-compare" tabindex="0">
 
     <div class="hist-header-row">
       <div>
@@ -3211,7 +3300,7 @@
   <!-- ============================================================
        CODEX TAB — Phase 2 delegation tracker
        ============================================================ -->
-  <section class="tab-panel" data-panel="codex">
+  <section class="tab-panel" id="panel-codex" data-panel="codex" role="tabpanel" aria-label="Codex live usage and routing" tabindex="0">
 
     <div class="hist-header-row">
       <div>
@@ -3301,7 +3390,7 @@
   <!-- ============================================================
        BROKER TAB — Intent budget + Claude/Codex router
        ============================================================ -->
-  <section class="tab-panel" data-panel="broker">
+  <section class="tab-panel" id="panel-broker" data-panel="broker" role="tabpanel" aria-labelledby="tab-broker" tabindex="0">
     <div class="hist-header-row">
       <div>
         <div class="hist-title">Broker <span class="accent">Router</span></div>
@@ -3318,9 +3407,9 @@
 
     <!-- Top controls row -->
     <div class="broker-controls-row">
-      <div class="broker-segment">
-        <button id="broker-btn-claude" class="broker-seg-btn active" onclick="handleBrokerSegmentClick('claude')">Claude</button>
-        <button id="broker-btn-codex" class="broker-seg-btn" onclick="handleBrokerSegmentClick('codex')">Codex</button>
+      <div class="broker-service-indicator" aria-live="polite">
+        Managing <strong id="broker-active-service-label">Cloud</strong> intents
+        <span class="broker-svc-hint">· switch with the Cloud / Codex toggle at the top</span>
       </div>
       <div class="broker-advisor-toggle">
         <label>Cross-service advisor
@@ -3442,9 +3531,10 @@
 
 const PACER = {
 	  state: {
-	    theme: 'dark',
+	    theme: 'light',
 	    language: 'en',
 	    activeTab: 'live',
+	    service: 'cloud',
 	    historyVisible: false
 	  },
 	  latestData: null,
@@ -3458,6 +3548,8 @@ const PACER = {
     this.bindLanguage();
     this.bindPlan();
     this.bindTabs();
+    this.bindService();
+    this.restoreService();
     this.bindPacerControls();
     this.restoreLastAction();
     this.startClocks();
@@ -3466,13 +3558,11 @@ const PACER = {
 
   /* ------------ Theme ------------ */
   restoreTheme() {
-    let theme = 'dark';
+    let theme = 'light';
     try {
       const saved = localStorage.getItem('pacer-theme') || localStorage.getItem('pacer.theme');
       if (saved === 'light' || saved === 'dark') {
         theme = saved;
-      } else if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
-        theme = 'light';
       }
     } catch (e) { /* localStorage blocked, fine */ }
     this.setTheme(theme, false);
@@ -3579,21 +3669,41 @@ const PACER = {
 
   /* ------------ Tabs ------------ */
   bindTabs() {
-    document.querySelectorAll('.tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = btn.dataset.tab;
-        this.activateTab(target);
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    tabs.forEach((btn, i) => {
+      btn.addEventListener('click', () => this.activateTab(btn.dataset.tab));
+      btn.addEventListener('keydown', (e) => {
+        let idx = null;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') idx = (i + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') idx = (i - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') idx = 0;
+        else if (e.key === 'End') idx = tabs.length - 1;
+        if (idx === null) return;
+        e.preventDefault();
+        this.activateTab(tabs[idx].dataset.tab);
+        tabs[idx].focus();
       });
     });
   },
 
   activateTab(name) {
     this.state.activeTab = name;
+    const service = this.state.service || 'cloud';
+    // In Codex mode the LIVE slot renders the Codex telemetry panel.
+    const targetPanel = (service === 'codex' && name === 'live') ? 'codex' : name;
+
     document.querySelectorAll('.tab').forEach(t => {
-      t.classList.toggle('active', t.dataset.tab === name);
+      const selected = t.dataset.tab === name;
+      t.classList.toggle('active', selected);
+      t.setAttribute('aria-selected', selected ? 'true' : 'false');
+      t.tabIndex = selected ? 0 : -1;
     });
+    // Keep the Live tab's aria-controls honest about which panel it shows.
+    const liveTab = document.getElementById('tab-live');
+    if (liveTab) liveTab.setAttribute('aria-controls', service === 'codex' ? 'panel-codex' : 'panel-live');
+
     document.querySelectorAll('.tab-panel').forEach(p => {
-      const isActive = p.dataset.panel === name;
+      const isActive = p.dataset.panel === targetPanel;
       if (isActive) {
         // Re-trigger animation by toggling
         p.classList.remove('active');
@@ -3603,16 +3713,60 @@ const PACER = {
         p.classList.remove('active');
       }
     });
-    document.getElementById('footerSurface').textContent = 'SURFACE: ' + name.toUpperCase();
+    document.getElementById('footerSurface').textContent =
+      'SURFACE: ' + name.toUpperCase() + (service === 'codex' ? ' · CODEX' : '');
     // Per-tab canvas redraws (deferred so DOM is stable post-animation)
-    if (name === 'live' && PACER.live) setTimeout(() => PACER.live.drawChart(), 80);
+    if (targetPanel === 'live' && PACER.live) setTimeout(() => PACER.live.drawChart(), 80);
     if (PACER.live?.resetOptimizeCTA) PACER.live.resetOptimizeCTA();
     if (name === 'simulator' && PACER.sim) setTimeout(() => PACER.sim.recompute(), 80);
     if (name === 'history' && PACER.history) setTimeout(() => PACER.history.drawHistChart(), 80);
     if (name === 'compare' && PACER.compare) setTimeout(() => PACER.compare.drawRadar(), 80);
     if (name === 'yield' && PACER.yield && PACER.yield.dataLoaded) setTimeout(() => PACER.yield.drawYieldChart(), 80);
-    if (name === 'codex' && PACER.codex) setTimeout(() => PACER.codex.renderKPIs(), 80);
+    if (targetPanel === 'codex' && PACER.codex) setTimeout(() => PACER.codex.renderKPIs(), 80);
     if (name === 'broker' && PACER.broker) setTimeout(() => PACER.broker.renderBrokerTab(), 80);
+  },
+
+  /* ------------ Service (Cloud | Codex) ------------ */
+  bindService() {
+    document.getElementById('svcCloud')?.addEventListener('click', () => this.setService('cloud'));
+    document.getElementById('svcCodex')?.addEventListener('click', () => this.setService('codex'));
+  },
+
+  restoreService() {
+    let service = 'cloud';
+    try {
+      const saved = localStorage.getItem('pacer.service');
+      if (saved === 'cloud' || saved === 'codex') service = saved;
+    } catch (e) {}
+    this.setService(service, false);
+  },
+
+  setService(svc, persist = true) {
+    const service = svc === 'codex' ? 'codex' : 'cloud';
+    this.state.service = service;
+    document.body.setAttribute('data-service', service);
+
+    const cloudBtn = document.getElementById('svcCloud');
+    const codexBtn = document.getElementById('svcCodex');
+    cloudBtn?.setAttribute('aria-pressed', String(service === 'cloud'));
+    codexBtn?.setAttribute('aria-pressed', String(service === 'codex'));
+
+    const hint = document.getElementById('serviceHint');
+    if (hint) {
+      hint.innerHTML = service === 'codex'
+        ? '<strong>Codex · ChatGPT</strong> — live limits in LIVE, routing in BROKER. Analytics tabs stay Claude-scoped.'
+        : '<strong>Anthropic · Claude Code</strong> — usage, analytics &amp; routing';
+    }
+
+    // Mirror to the Broker so its intents follow the global service.
+    if (PACER.broker?.setActiveServiceFromGlobal) {
+      PACER.broker.setActiveServiceFromGlobal(service === 'codex' ? 'codex' : 'claude');
+    }
+
+    if (persist) { try { localStorage.setItem('pacer.service', service); } catch (e) {} }
+
+    // Re-render the current tab against the selected service.
+    this.activateTab(this.state.activeTab);
   },
 
   /* ------------ Clocks ------------ */
@@ -6550,6 +6704,10 @@ const PACER = {
       this.loadBrokerState('claude');
       this.loadBrokerState('codex');
       this.loadBrokerUI();
+      // Follow the global Cloud|Codex switch on first render.
+      const ui = this.loadBrokerUI();
+      ui.activeService = (PACER.state.service === 'codex') ? 'codex' : 'claude';
+      this.saveBrokerUI(ui);
       this.loadBrokerInbox();
       this.initBrokerTabListeners();
       this.fetchBrokerPacingSnapshot('claude');
@@ -7139,13 +7297,20 @@ const PACER = {
       const activeService = ui.activeService || 'claude';
       const advisorToggle = document.getElementById('broker-advisor-toggle');
       if (advisorToggle) advisorToggle.checked = Boolean(ui.advisorEnabled);
-      document.getElementById('broker-btn-claude')?.classList.toggle('active', activeService === 'claude');
-      document.getElementById('broker-btn-codex')?.classList.toggle('active', activeService === 'codex');
+      const svcLabel = document.getElementById('broker-active-service-label');
+      if (svcLabel) svcLabel.textContent = activeService === 'codex' ? 'Codex' : 'Cloud';
       this.renderInboxPanel();
       this.renderServicePanel(activeService);
       this.renderAdvisorUI();
       this.updateBrokerBadge();
       if (this.state.storageAvailable) this.hideStorageWarning();
+    },
+
+    setActiveServiceFromGlobal(service) {
+      const ui = this.loadBrokerUI();
+      ui.activeService = service === 'codex' ? 'codex' : 'claude';
+      this.saveBrokerUI(ui);
+      if (PACER.state.activeTab === 'broker') this.renderBrokerTab();
     },
 
     handleSegmentedClick(service) {
