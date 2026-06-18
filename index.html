@@ -4021,8 +4021,9 @@ const PACER = {
 	      PACER.live.chartData['24h'].actual[PACER.live.chartData['24h'].actual.length - 1] = pct;
 	      PACER.live.dayData = PACER.live.dayData.map(d => d.state === 'today' ? { ...d, actual: Math.round(pct / 7) } : d);
 	      PACER.live.buildDayRows();
+	      PACER.live.updateCircuitBreaker(PACER.live.current);
 	      PACER.live.drawChart();
-    }
+	    }
     this.updateLiveRecommendation({ pct, burn, remaining, required, hoursLeft, left });
   },
 
@@ -4501,7 +4502,7 @@ const PACER = {
     },
 
     /* ---- Circuit Breaker ---- */
-    bindBreaker() {
+	    bindBreaker() {
       document.getElementById('btnResetAlerts')?.addEventListener('click', () => {
         const light = document.getElementById('breakerLight');
         const status = document.getElementById('breakerStatus');
@@ -4544,6 +4545,39 @@ const PACER = {
 	          }, 1200);
 	        }, 500);
 	      });
+	    },
+
+	    updateCircuitBreaker(current) {
+	      if (!current) return;
+	      const projected = Number(current.projected) || 0;
+	      const pct = Number(current.pct) || 0;
+	      const burn = Number(current.burn) || 0;
+	      const hoursLeft = Number(current.hoursLeft) || 0;
+	      const light = document.getElementById('breakerLight');
+	      const status = document.getElementById('breakerStatus');
+	      const desc = document.getElementById('breakerDesc');
+	      const t90 = document.getElementById('t90');
+	      const t100 = document.getElementById('t100');
+	      const willTrip = projected >= 100 && burn > 0;
+	      const hoursToExhaust = willTrip ? Math.max(0, (100 - pct) / Math.max(burn, 0.01)) : null;
+	      if (light) light.className = 'breaker-light' + (willTrip ? ' over' : pct >= 70 ? ' warn' : '');
+	      if (status) {
+	        status.textContent = willTrip ? 'TRIPPED · EXHAUSTION PROJECTED' : 'ARMED · MONITORING';
+	        status.style.color = willTrip ? 'var(--red)' : pct >= 70 ? 'var(--amber)' : 'var(--green)';
+	      }
+	      if (desc) {
+	        desc.textContent = willTrip
+	          ? `Projected ${projected.toFixed(0)}% before reset; exhaustion in ${hoursToExhaust.toFixed(1)}h.`
+	          : `Projected ${projected.toFixed(0)}% by reset with ${hoursLeft.toFixed(1)}h remaining.`;
+	      }
+	      if (t90) {
+	        t90.textContent = pct >= 90 ? '✓ Current threshold crossed' : projected >= 90 ? 'Projected before reset' : '— Pending';
+	        t90.classList.toggle('fired', pct >= 90 || projected >= 90);
+	      }
+	      if (t100) {
+	        t100.textContent = willTrip ? `Projected in ${hoursToExhaust.toFixed(1)}h` : '— Pending';
+	        t100.classList.toggle('fired', willTrip);
+	      }
 	    },
 
     /* ---- Model optimize ---- */
