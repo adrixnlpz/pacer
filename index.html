@@ -5409,28 +5409,106 @@ const PACER = {
     },
 
     loadFromCodeBurn(data) {
-      // Map CodeBurn format to our session format
-      // Expected: { conversations: [{ title, tokens, model, timestamp }] }
-      if (data.conversations && Array.isArray(data.conversations)) {
-        this.sessions = data.conversations.slice(0, 20).map((c, i) => ({
-          name: c.title || `Session ${i+1}`,
-          surface: c.source || 'chat',
-          tokens: c.tokens || c.input_tokens + c.output_tokens || 0,
-          pct: ((c.tokens || 0) / 500000 * 100).toFixed(1),
-          roi: Math.round(50 + Math.random() * 44),
-          verdict: ['high','med','low'][Math.floor(Math.random()*3)],
-          detail: `Imported from CodeBurn · ${c.model || 'unknown model'} · ${new Date(c.timestamp || Date.now()).toLocaleDateString()}`
-        }));
+      const rows = this.extractCodeBurnSessions(data);
+      if (!rows.length) {
+        alert('No CodeBurn Codex sessions found in that JSON export.');
+        return;
       }
+      const sessions = rows.slice(0, 50).map((c, i) => this.normalizeYieldSession(c, i)).filter(Boolean);
+      this.sessions = this.scoreYieldSessions(sessions);
       this.showResults();
+    },
+
+    extractCodeBurnSessions(data) {
+      if (!data || typeof data !== 'object') return [];
+      if (Array.isArray(data.conversations)) return data.conversations;
+      if (Array.isArray(data.sessions)) return data.sessions;
+      if (Array.isArray(data.days)) return data.days.map(d => ({ ...d, title: d.date || d.day, source: 'codex daily' }));
+      if (Array.isArray(data.projects)) {
+        return data.projects.flatMap(p => (p.sessions || p.conversations || p.calls || []).map(s => ({ ...s, project: p.name || p.project || s.project })));
+      }
+      if (Array.isArray(data.periods)) {
+        return data.periods.flatMap(period => [
+          ...(period.sessions || []),
+          ...((period.projects || []).flatMap(p => (p.sessions || p.conversations || p.calls || []).map(s => ({ ...s, project: p.name || p.project || s.project }))))
+        ]);
+      }
+      if (data.providers?.codex?.files) {
+        return Object.values(data.providers.codex.files).flatMap(file => file.calls || file.sessions || []);
+      }
+      if (data.files && typeof data.files === 'object') {
+        return Object.values(data.files).flatMap(file => file.calls || file.sessions || []);
+      }
+      return [];
+    },
+
+    normalizeYieldSession(c, i) {
+      const input = Number(c.input_tokens ?? c.inputTokens ?? c.totalInputTokens ?? c.input ?? c.usage?.input_tokens ?? 0) || 0;
+      const output = Number(c.output_tokens ?? c.outputTokens ?? c.totalOutputTokens ?? c.output ?? c.usage?.output_tokens ?? 0) || 0;
+      const tokens = Number(c.tokens) || ((Number(c.input_tokens) || 0) + (Number(c.output_tokens) || 0)) || input + output;
+      const cost = Number(c.cost ?? c.costUSD ?? c.costUsd ?? c.totalCostUSD ?? c.total_cost ?? c.usd ?? 0) || 0;
+      if (!tokens && !output && !cost) return null;
+      const when = c.timestamp || c.startedAt || c.started_at || c.date || c.day || Date.now();
+      const name = c.title || c.name || c.userMessage || c.project || c.sessionId || c.id || `Session ${i + 1}`;
+      const model = c.model || c.model_name || c.provider_model || 'codex';
+      const roiRaw = cost > 0 ? output / cost : output;
+      return {
+        name: String(name).slice(0, 64),
+        surface: c.source || c.provider || c.project || 'codex',
+        tokens,
+        outputTokens: output,
+        cost,
+        roiRaw,
+        pct: 0,
+        roi: 0,
+        verdict: 'med',
+        detail: `CodeBurn Codex · ${model} · ${new Date(when).toLocaleDateString()} · ROI ${Math.round(roiRaw).toLocaleString()} output tokens/$`
+      };
+    },
+
+    scoreYieldSessions(sessions) {
+      if (!sessions.length) return sessions;
+      const totalTokens = sessions.reduce((sum, s) => sum + s.tokens, 0) || 1;
+      const roiVals = sessions.map(s => s.roiRaw).sort((a, b) => a - b);
+      const pick = p => roiVals[Math.min(roiVals.length - 1, Math.max(0, Math.floor((roiVals.length - 1) * p)))] || 0;
+      const p33 = pick(0.33);
+      const p67 = pick(0.67);
+      const maxRoi = Math.max(...roiVals, 1);
+      return sessions.map(s => {
+        const verdict = s.roiRaw >= p67 ? 'high' : s.roiRaw <= p33 ? 'low' : 'med';
+        return {
+          ...s,
+          pct: ((s.tokens / totalTokens) * 100).toFixed(1),
+          roi: Math.round(Math.min(100, (s.roiRaw / maxRoi) * 100)),
+          verdict
+        };
+      });
     },
 
     showResults() {
       document.getElementById('yieldImportZone').style.display = 'none';
       document.getElementById('yieldResults').style.display = 'block';
       this.dataLoaded = true;
+      this.recomputeKPIs();
       this.buildTable();
       this.drawYieldChart();
+    },
+
+    recomputeKPIs() {
+      const sessions = this.sessions || [];
+      const totalTokens = sessions.reduce((sum, s) => sum + s.tokens, 0) || 1;
+      const avgROI = sessions.length ? Math.round(sessions.reduce((sum, s) => sum + s.roi, 0) / sessions.length) : 0;
+      const lowTokens = sessions.filter(s => s.verdict === 'low').reduce((sum, s) => sum + s.tokens, 0);
+      const topDrain = sessions.reduce((max, s) => !max || s.tokens > max.tokens ? s : max, null);
+      const topYield = sessions.reduce((max, s) => !max || s.roiRaw > max.roiRaw ? s : max, null);
+      const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+      set('yAvgROI', avgROI);
+      set('yWasted', Math.round((lowTokens / totalTokens) * 100) + '%');
+      set('yTopDrain', topDrain ? `${(topDrain.tokens / 1000).toFixed(0)}K` : '0K');
+      set('yTopDrainLabel', topDrain ? topDrain.name : 'No session data');
+      set('yTopYield', topYield ? `${topYield.roi}` : '0');
+      set('yTopYieldLabel', topYield ? topYield.name : 'No session data');
+      set('yTotalSessions', String(sessions.length));
     },
 
     buildTable() {
@@ -5529,7 +5607,7 @@ const PACER = {
       // Dots
       this.sessions.forEach(s => {
         const x = pad.l + (Math.min(parseFloat(s.pct), 20) / 20) * cw;
-        const y = pad.t + ch - (s.roi / 100) * ch;
+        const y = pad.t + ch - (Math.min(100, Math.max(0, s.roi)) / 100) * ch;
         const r = Math.max(5, Math.min(14, (s.tokens / 5000)));
         const color = s.verdict === 'high' ? green : s.verdict === 'med' ? amber : red;
         ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
