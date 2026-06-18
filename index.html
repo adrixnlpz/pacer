@@ -6177,6 +6177,62 @@ const PACER = {
       window.addEventListener('resize', () => this.drawRadar());
     },
 
+    numAttr(profile, key) {
+      if (profile.metrics && Number.isFinite(profile.metrics[key])) return profile.metrics[key];
+      return parseFloat(profile.attrs[key]) || 0;
+    },
+
+    applyBackendData(data, usage) {
+      const daily = Array.isArray(data?.daily) ? data.daily : [];
+      const models = Array.isArray(data?.by_model) ? data.by_model : [];
+      const summary = data?.summary || {};
+      const totalCost = Number(summary.total_cost) || 0;
+      const sessions = Number(summary.sessions) || Number(summary.total_calls) || 0;
+      const weeklyPct = Math.max(0, Math.min(100, Number(usage?.weeklyPct) || Number(data?.plan?.weekly_pct) || 0));
+      const avgCost = daily.length ? totalCost / daily.length : 0;
+      const peak = daily.reduce((best, day) => (Number(day.cost) || 0) > (Number(best?.cost) || 0) ? day : best, null);
+      const peakCost = Number(peak?.cost) || 0;
+      const peakShare = totalCost > 0 ? (peakCost / totalCost) * 100 : 0;
+      const opusCost = models.filter(m => String(m.model || m.display || '').toLowerCase().includes('opus')).reduce((sum, m) => sum + (Number(m.cost) || 0), 0);
+      const opusMix = totalCost > 0 ? (opusCost / totalCost) * 100 : 0;
+      const efficiency = Math.max(0, Math.min(100, 100 - Math.max(0, weeklyPct - 70) - Math.max(0, peakShare - 25)));
+      const profile = this.profiles.find(p => p.id === 'your-profile');
+      if (!profile) return;
+      profile.name = 'You (Live)';
+      profile.badge = 'LIVE DATA';
+      profile.attrs = {
+        weekly: `${PACER.fmtMoney(totalCost)}`,
+        avgDay: `${PACER.fmtMoney(avgCost)}/day`,
+        peakDay: `${String(peak?.date || '—').toUpperCase()} · ${PACER.fmtMoney(peakCost)}`,
+        opusMix: `${opusMix.toFixed(0)}%`,
+        surfaces: 'live transcripts',
+        sessions: `${sessions}/wk`,
+        lockouts: weeklyPct >= 100 ? '1/mo' : '0/mo',
+        efficiency: `${efficiency.toFixed(0)}%`
+      };
+      profile.metrics = {
+        weekly: weeklyPct,
+        avgDay: daily.length ? weeklyPct / daily.length : 0,
+        peakDay: peakShare,
+        opusMix,
+        sessions,
+        lockouts: weeklyPct >= 100 ? 1 : 0,
+        efficiency
+      };
+      const resetMs = usage?.resetTime ? new Date(usage.resetTime).getTime() - Date.now() : NaN;
+      profile.simVals = {
+        pct: weeklyPct,
+        hrs: Math.max(1, Math.round(resetMs / 3600000) || 24),
+        work: 8,
+        sess: Math.max(1, Math.round(sessions)),
+        opus: Math.round(opusMix)
+      };
+      profile.rec = `Your live profile has ${PACER.fmtMoney(totalCost)} weekly cost, ${PACER.fmtMoney(avgCost)}/day average, peak day ${String(peak?.date || '—').toUpperCase()} at ${PACER.fmtMoney(peakCost)}, and ${opusMix.toFixed(0)}% Opus mix.`;
+      this.buildPills();
+      this.renderComparison();
+      this.drawRadar();
+    },
+
     buildPills() {
       const container = document.getElementById('cmpPills');
       if (!container) return;
@@ -6229,7 +6285,7 @@ const PACER = {
       // Compute best/worst per attr across selected
       const best = {}, worst = {};
       attrKeys.forEach(k => {
-        const vals = selected.map(p => parseFloat(p.attrs[k]) || 0);
+        const vals = selected.map(p => this.numAttr(p, k));
         const mn = Math.min(...vals), mx = Math.max(...vals);
         selected.forEach((p, i) => {
           if (lowerBetter.includes(k)) {
@@ -6285,7 +6341,7 @@ const PACER = {
         rec.textContent = selected[0].rec;
         meta.textContent = 'Single profile loaded · click LOAD IN SIMULATOR to apply this scenario';
       } else {
-        const best = selected.reduce((a, b) => parseFloat(a.attrs.efficiency) > parseFloat(b.attrs.efficiency) ? a : b);
+        const best = selected.reduce((a, b) => this.numAttr(a, 'efficiency') > this.numAttr(b, 'efficiency') ? a : b);
         rec.innerHTML = `Across ${selected.length} profiles, <strong>${best.name}</strong> has the best pacing efficiency (${best.attrs.efficiency}). ${best.rec}`;
         meta.textContent = `${selected.map(p => p.name).join(' · ')} · click any card's button to load into Simulator`;
       }
@@ -6343,12 +6399,12 @@ const PACER = {
 
       // Profile data — normalize each axis 0–1 (higher = better)
       const normalize = (p) => [
-        parseFloat(p.attrs.efficiency) / 100,
-        1 - (parseFloat(p.attrs.opusMix) / 100),
-        1 - (parseFloat(p.attrs.peakDay) / 40),
-        parseFloat(p.attrs.lockouts) === 0 ? 1 : 0.3,
-        parseFloat(p.attrs.efficiency) / 100 * 0.9,
-        1 - (parseFloat(p.attrs.weekly) / 100)
+        this.numAttr(p, 'efficiency') / 100,
+        1 - (this.numAttr(p, 'opusMix') / 100),
+        1 - (this.numAttr(p, 'peakDay') / 40),
+        this.numAttr(p, 'lockouts') === 0 ? 1 : 0.3,
+        this.numAttr(p, 'efficiency') / 100 * 0.9,
+        1 - (this.numAttr(p, 'weekly') / 100)
       ];
 
       const profileColors = ['#ffb347','#7fd964','#b794f4','#e63946','#ffb347'];
@@ -6393,13 +6449,22 @@ const PACER = {
     addCustom() {
       const name = prompt('Custom profile name:', 'My Profile');
       if (!name) return;
-      const weekly = prompt('Weekly usage % (0–100):', '75') || '75';
-      const opus = prompt('Opus mix % (0–100):', '30') || '30';
+      const weeklyRaw = prompt('Weekly usage % (0–100):', '75') || '75';
+      const opusRaw = prompt('Opus mix % (0–100):', '30') || '30';
+      const weeklyNum = Number(weeklyRaw);
+      const opusNum = Number(opusRaw);
+      if (!Number.isFinite(weeklyNum) || !Number.isFinite(opusNum)) {
+        PACER.showToast('Custom profile needs numeric weekly and Opus values.');
+        return;
+      }
+      const weekly = Math.max(0, Math.min(100, weeklyNum));
+      const opus = Math.max(0, Math.min(100, opusNum));
       const id = 'custom-' + Date.now();
       this.profiles.push({
         id, name, badge: 'CUSTOM', badgeColor: '#b794f4',
-        attrs: { weekly: weekly + '%', avgDay: (parseFloat(weekly)/7).toFixed(1)+'%', peakDay: (parseFloat(weekly)*0.3).toFixed(0)+'%', opusMix: opus+'%', surfaces: 'mixed', sessions: '10/wk', lockouts: '0/mo', efficiency: (100 - parseFloat(opus) * 0.3).toFixed(0)+'%' },
-        simVals: { pct: parseFloat(weekly), hrs: 60, work: 8, sess: 10, opus: parseFloat(opus) },
+        attrs: { weekly: weekly + '%', avgDay: (weekly/7).toFixed(1)+'%', peakDay: (weekly*0.3).toFixed(0)+'%', opusMix: opus+'%', surfaces: 'mixed', sessions: '10/wk', lockouts: '0/mo', efficiency: (100 - opus * 0.3).toFixed(0)+'%' },
+        metrics: { weekly, avgDay: weekly / 7, peakDay: weekly * 0.3, opusMix: opus, sessions: 10, lockouts: 0, efficiency: 100 - opus * 0.3 },
+        simVals: { pct: weekly, hrs: 60, work: 8, sess: 10, opus },
         rec: `Custom profile "${name}" loaded with ${weekly}% weekly usage and ${opus}% Opus mix.`
       });
       if (this.selected.length >= 3) this.selected.shift();
