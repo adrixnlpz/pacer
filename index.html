@@ -3606,6 +3606,7 @@ const PACER = {
     document.getElementById('footerSurface').textContent = 'SURFACE: ' + name.toUpperCase();
     // Per-tab canvas redraws (deferred so DOM is stable post-animation)
     if (name === 'live' && PACER.live) setTimeout(() => PACER.live.drawChart(), 80);
+    if (PACER.live?.resetOptimizeCTA) PACER.live.resetOptimizeCTA();
     if (name === 'simulator' && PACER.sim) setTimeout(() => PACER.sim.recompute(), 80);
     if (name === 'history' && PACER.history) setTimeout(() => PACER.history.drawHistChart(), 80);
     if (name === 'compare' && PACER.compare) setTimeout(() => PACER.compare.drawRadar(), 80);
@@ -4617,6 +4618,13 @@ const PACER = {
           document.querySelector('[data-tab="optimize"]')?.click();
         }, 1200);
       });
+    },
+
+    resetOptimizeCTA() {
+      const btn = document.getElementById('btnOptimizeMix');
+      if (!btn || btn.textContent === 'ANALYZING...') return;
+      btn.textContent = 'OPTIMIZE MIX';
+      btn.disabled = false;
     }
 
   };
