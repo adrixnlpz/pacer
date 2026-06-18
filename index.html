@@ -3865,16 +3865,17 @@ const PACER = {
 	    const surfaceAlert = document.querySelector('.surface-alert');
 	    if (surfaceAlert) {
 	      const topTool = tools[0]?.name || 'no tool';
-	      surfaceAlert.textContent = `${this.fmtMoney(totalCost)} across ${sessions} sessions and ${totalCalls} calls · top tool: ${topTool}.`;
+	      const topModel = models[0]?.display || models[0]?.model || 'no model';
+	      surfaceAlert.textContent = `${this.fmtMoney(totalCost)} across ${sessions} sessions · top model: ${topModel} · top tool: ${topTool}.`;
 	    }
 
 	    const modelCard = Array.from(document.querySelectorAll('.mini-card')).find(card => card.querySelector('#btnOptimizeMix'));
 	    if (modelCard) {
 	      const rows = models.slice(0, 4);
-	      const maxCost = Math.max(...rows.map(m => Number(m.cost) || 0), 1);
+	      const modelTotal = models.reduce((sum, model) => sum + (Number(model.cost) || 0), 0) || 1;
 	      const html = rows.length ? rows.map(model => {
 	        const cost = Number(model.cost) || 0;
-	        const pct = Math.round(cost / maxCost * 100);
+	        const pct = Math.round(cost / modelTotal * 100);
 	        const tag = this.modelTagClass(model.model);
 	        return `<div class="model-row">
 	          <span class="model-tag ${tag}">${this.escapeHtml(this.shortModelName(model.model))}</span>
