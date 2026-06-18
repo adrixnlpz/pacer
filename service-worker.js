@@ -1,4 +1,4 @@
-const PACER_CACHE = "pacer-v3-2026-05-25-live-refresh";
+const PACER_CACHE = "pacer-v4-2026-06-18-w5";
 const APP_SHELL = ["./", "./index.html", "./manifest.json", "./service-worker.js"];
 
 self.addEventListener("install", (event) => {
@@ -23,15 +23,30 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
+
+  // API calls must always hit the network — never serve cached or shell-fallback
+  // data, or PACER would show stale usage numbers.
+  if (url.origin === self.location.origin && url.pathname.includes("/api/")) {
+    event.respondWith(fetch(event.request, { cache: "no-store" }));
+    return;
+  }
+
   const isAppAsset = url.origin === self.location.origin &&
     ["/", "/index.html", "/manifest.json"].some((p) => url.pathname.endsWith(p));
+  const isNavigation = event.request.mode === "navigate";
+
   event.respondWith(
     fetch(event.request, isAppAsset ? { cache: "no-store" } : undefined)
       .then((response) => {
-        const copy = response.clone();
-        caches.open(PACER_CACHE).then((cache) => cache.put(event.request, copy));
+        // Only cache same-origin app-shell assets.
+        if (isAppAsset && response.ok) {
+          const copy = response.clone();
+          caches.open(PACER_CACHE).then((cache) => cache.put(event.request, copy));
+        }
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html", { ignoreSearch: true })))
+      .catch(() => caches.match(event.request).then((cached) =>
+        cached || (isNavigation ? caches.match("./index.html", { ignoreSearch: true }) : Response.error())
+      ))
   );
 });

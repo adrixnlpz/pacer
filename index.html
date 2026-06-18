@@ -72,7 +72,7 @@
     --line-bright: #b09878;
     --ink: #3d2c1e;
     --ink-dim: #5c4535;
-    --ink-faint: #8a7060;
+    --ink-faint: #6f5a48;
     --amber: #a0620a;
     --amber-deep: #7a4800;
     --green: #3d6e22;
@@ -2719,7 +2719,7 @@
         <span class="icon" id="themeIcon">◑</span>
         <span id="themeLabel">LIGHT</span>
       </button>
-      <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
+      <button class="lang-toggle" id="langToggle" aria-label="Toggle language" title="Bilingual mode — Spanish UI is in progress; most copy is still English.">
         <span class="icon">⇄</span>
         <span id="langLabel">SPA/ENG</span>
       </button>
@@ -3795,7 +3795,7 @@ const PACER = {
     document.getElementById('langToggle')?.addEventListener('click', () => {
       const next = this.state.language === 'en' ? 'es' : 'en';
       this.setLanguage(next);
-      this.showToast(next === 'es' ? 'Idioma: espanol' : 'Language: English');
+      this.showToast(next === 'es' ? 'Español (beta) · interfaz en progreso' : 'Language: English');
     });
   },
 
@@ -3939,37 +3939,49 @@ const PACER = {
 
   modal: {
     lastFocus: null,
-    _trap: null,
+    _bound: false,
     open(id) {
       const m = document.getElementById(id);
       if (!m) return;
       this.lastFocus = document.activeElement;
       m.hidden = false;
+      this._ensureBound();
       const focusable = m.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
       (focusable || m).focus?.();
-      this._trap = (e) => this._onKey(id, e);
-      document.addEventListener('keydown', this._trap, true);
     },
     close(id) {
       const m = document.getElementById(id);
       if (!m) return;
       m.hidden = true;
-      if (this._trap) document.removeEventListener('keydown', this._trap, true);
-      this._trap = null;
       this.lastFocus?.focus?.();
     },
-    _onKey(id, e) {
-      const m = document.getElementById(id);
-      if (!m || m.hidden) return;
-      if (e.key === 'Escape') { e.preventDefault(); this.close(id); return; }
-      if (e.key === 'Tab') {
-        const f = [...m.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
-          .filter(el => !el.disabled && el.offsetParent !== null);
-        if (!f.length) return;
-        const first = f[0], last = f[f.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
+    _openModals() {
+      return [...document.querySelectorAll('.modal-backdrop')].filter(el => !el.hidden);
+    },
+    _ensureBound() {
+      if (this._bound) return;
+      this._bound = true;
+      // One persistent listener handles every modal (topmost wins), so
+      // overlapping modals can't clobber each other's trap.
+      document.addEventListener('keydown', (e) => {
+        const open = this._openModals();
+        if (!open.length) return;
+        const m = open[open.length - 1];
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          m.hidden = true;
+          this.lastFocus?.focus?.();
+          return;
+        }
+        if (e.key === 'Tab') {
+          const f = [...m.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+            .filter(el => !el.disabled && el.offsetParent !== null);
+          if (!f.length) return;
+          const first = f[0], last = f[f.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }, true);
     }
   },
 
@@ -4456,12 +4468,12 @@ const PACER = {
 	    document.getElementById('usagePctInput').value = snap.usedPct;
 	    document.getElementById('usageBurnInput').value = burn.toFixed(1);
 	    document.getElementById('usageTimeInput').value = this.fmtCountdown(resetDate - new Date());
-	    document.getElementById('usageModal').hidden = false;
+	    this.modal.open('usageModal');
 	    document.getElementById('usagePaste').focus();
 	  },
 
   closeUsageModal() {
-    document.getElementById('usageModal').hidden = true;
+    this.modal.close('usageModal');
   },
 
 	  parseUsageIntoForm(button) {
@@ -4848,7 +4860,7 @@ const PACER = {
           document.getElementById('recMain').innerHTML = 'Switch to <strong>Sonnet</strong> for the next <strong>4 hours</strong>, or budget exhausts at <strong>10:42 PM Thursday</strong> — 7 hours before reset.';
           document.getElementById('recMeta').textContent = 'Confidence 91% · Snooze expired · resuming monitoring';
           if (tag) { tag.textContent = '! RECOMMENDATION'; tag.style.color = 'var(--amber)'; }
-        }, 5000); // demo: 5s. Real: 3600000
+        }, 3600000); // 1 hour, matching the 1HR SNOOZE label
       });
 
       document.getElementById('btnDismiss')?.addEventListener('click', () => {
@@ -7234,6 +7246,17 @@ const PACER = {
         ...i,
         alloc: Math.round(((Number(i.alloc) || 0) / unlockedSum) * target)
       }));
+      // Normalize rounding drift onto the largest unlocked intent so the
+      // unlocked allocations sum to exactly `target` (no 99%/101% drift).
+      if (rebalancedUnlocked.length) {
+        const sum = rebalancedUnlocked.reduce((s, i) => s + i.alloc, 0);
+        const drift = target - sum;
+        if (drift !== 0) {
+          let maxIdx = 0;
+          rebalancedUnlocked.forEach((i, idx) => { if (i.alloc > rebalancedUnlocked[maxIdx].alloc) maxIdx = idx; });
+          rebalancedUnlocked[maxIdx] = { ...rebalancedUnlocked[maxIdx], alloc: Math.max(0, rebalancedUnlocked[maxIdx].alloc + drift) };
+        }
+      }
       return { intents: [...locked, ...rebalancedUnlocked], error: null };
     },
 
@@ -7659,7 +7682,7 @@ const PACER = {
         const statusClass = st.status === 'OVER' ? 'broker-status-over' : st.status === 'NEAR' ? 'broker-status-near' : 'broker-status-ok';
         const frozen = service === 'claude' && this.state.frozenClaudeUnlocked && !intent.locked ? ' frozen' : '';
         return '<div class="broker-intent-row' + frozen + '">' +
-          '<button class="broker-lock-btn" title="Lock/unlock" onclick="PACER.broker.handleLockToggle(\'' + service + '\', \'' + this.esc(intent.id) + '\')">' + (intent.locked ? '🔒' : '🔓') + '</button>' +
+          '<button class="broker-lock-btn" title="Lock/unlock" aria-label="' + (intent.locked ? 'Unlock ' : 'Lock ') + this.esc(intent.name) + ' intent" onclick="PACER.broker.handleLockToggle(\'' + service + '\', \'' + this.esc(intent.id) + '\')">' + (intent.locked ? '🔒' : '🔓') + '</button>' +
           '<input type="text" value="' + this.esc(intent.name) + '" onchange="PACER.broker.handleUpdateIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\', { name: this.value })">' +
           '<select onchange="PACER.broker.handleUpdateIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\', { priority: this.value })">' +
             ['income','build','explore'].map(p => '<option value="' + p + '"' + (intent.priority === p ? ' selected' : '') + '>' + p + '</option>').join('') +
@@ -7667,8 +7690,8 @@ const PACER = {
           '<div><input type="range" min="0" max="50" value="' + intent.alloc + '" ' + (intent.locked ? 'disabled' : '') + ' oninput="this.nextElementSibling.textContent=this.value+\'%\'" onchange="PACER.broker.handleUpdateIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\', { alloc: Number(this.value) })"><div class="broker-inbox-meta">' + intent.alloc + '%</div></div>' +
           '<input type="number" min="0" max="150" step="1" value="' + intent.spent + '" onchange="PACER.broker.handleUpdateIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\', { spent: Number(this.value) })">' +
           '<span class="' + statusClass + '">' + st.status + (st.overshoot > 0 ? ' +' + st.overshoot.toFixed(0) + '%' : '') + '</span>' +
-          '<div><button class="broker-delete-btn" onclick="PACER.broker.handleRemoveIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\')">DEL</button>' +
-          '<button class="broker-inline-btn" style="margin-left:4px" onclick="PACER.broker.moveIntentBetweenServices(\'' + this.esc(intent.id) + '\', \'' + service + '\', \'' + (service === 'claude' ? 'codex' : 'claude') + '\')">MOVE</button></div>' +
+          '<div><button class="broker-delete-btn" aria-label="Delete ' + this.esc(intent.name) + ' intent" onclick="PACER.broker.handleRemoveIntent(\'' + service + '\', \'' + this.esc(intent.id) + '\')">DEL</button>' +
+          '<button class="broker-inline-btn" style="margin-left:4px" aria-label="Move ' + this.esc(intent.name) + ' to ' + (service === 'claude' ? 'Codex' : 'Cloud') + '" onclick="PACER.broker.moveIntentBetweenServices(\'' + this.esc(intent.id) + '\', \'' + service + '\', \'' + (service === 'claude' ? 'codex' : 'claude') + '\')">MOVE</button></div>' +
         '</div>';
       }).join('');
       return head + rows;
@@ -7900,13 +7923,12 @@ const PACER = {
       if (routedEl) routedEl.value = 'codex';
       if (tokensEl) tokensEl.value = '0';
       const modal = document.getElementById('codexLogModal');
-      if (modal) modal.hidden = false;
+      if (modal) PACER.modal.open('codexLogModal');
       setTimeout(() => descEl?.focus(), 50);
     },
 
     closeLogModal() {
-      const modal = document.getElementById('codexLogModal');
-      if (modal) modal.hidden = true;
+      PACER.modal.close('codexLogModal');
     },
 
     saveTask() {
