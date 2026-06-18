@@ -14,7 +14,6 @@ import subprocess
 from datetime import datetime, timezone, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-import anthropic
 
 # ── Auth: read API key from .env file or environment ─────────────────────────
 def get_api_key():
@@ -77,74 +76,77 @@ def parse_sessions(range_key="7d"):
         session_id = os.path.basename(fpath).replace(".jsonl", "")
         session_data = {"calls": 0, "cost": 0.0, "has_data": False}
 
-        with open(fpath, encoding="utf-8", errors="ignore") as f:
-            for raw in f:
-                raw = raw.strip()
-                if not raw:
-                    continue
-                try:
-                    obj = json.loads(raw)
-                except json.JSONDecodeError:
-                    continue
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                for raw in f:
+                    raw = raw.strip()
+                    if not raw:
+                        continue
+                    try:
+                        obj = json.loads(raw)
+                    except json.JSONDecodeError:
+                        continue
 
-                if obj.get("type") != "assistant":
-                    continue
+                    if obj.get("type") != "assistant":
+                        continue
 
-                msg = obj.get("message", {})
-                usage = msg.get("usage")
-                if not usage:
-                    continue
+                    msg = obj.get("message", {})
+                    usage = msg.get("usage")
+                    if not usage:
+                        continue
 
-                # Parse timestamp
-                ts_str = obj.get("timestamp", "")
-                try:
-                    ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
-                except Exception:
-                    continue
+                    # Parse timestamp
+                    ts_str = obj.get("timestamp", "")
+                    try:
+                        ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+                    except Exception:
+                        continue
 
-                if cutoff and ts < cutoff:
-                    continue
+                    if cutoff and ts < cutoff:
+                        continue
 
-                model = msg.get("model", "unknown")
-                in_tok  = usage.get("input_tokens", 0)
-                out_tok = usage.get("output_tokens", 0)
-                cw_tok  = usage.get("cache_creation_input_tokens", 0)
-                cr_tok  = usage.get("cache_read_input_tokens", 0)
-                cost    = token_cost(model, in_tok, out_tok, cw_tok, cr_tok)
+                    model = msg.get("model", "unknown")
+                    in_tok  = usage.get("input_tokens", 0)
+                    out_tok = usage.get("output_tokens", 0)
+                    cw_tok  = usage.get("cache_creation_input_tokens", 0)
+                    cr_tok  = usage.get("cache_read_input_tokens", 0)
+                    cost    = token_cost(model, in_tok, out_tok, cw_tok, cr_tok)
 
-                # Session aggregation
-                session_data["calls"] += 1
-                session_data["cost"]  += cost
-                session_data["has_data"] = True
+                    # Session aggregation
+                    session_data["calls"] += 1
+                    session_data["cost"]  += cost
+                    session_data["has_data"] = True
 
-                # Daily aggregation
-                day_key = ts.strftime("%m-%d")
-                if day_key not in daily:
-                    daily[day_key] = {"cost": 0.0, "calls": 0}
-                daily[day_key]["cost"]  += cost
-                daily[day_key]["calls"] += 1
+                    # Daily aggregation
+                    day_key = ts.strftime("%m-%d")
+                    if day_key not in daily:
+                        daily[day_key] = {"cost": 0.0, "calls": 0}
+                    daily[day_key]["cost"]  += cost
+                    daily[day_key]["calls"] += 1
 
-                # Model aggregation
-                if model not in by_model:
-                    by_model[model] = {"cost": 0.0, "calls": 0,
-                                       "input": 0, "output": 0,
-                                       "cached": 0, "written": 0}
-                by_model[model]["cost"]    += cost
-                by_model[model]["calls"]   += 1
-                by_model[model]["input"]   += in_tok
-                by_model[model]["output"]  += out_tok
-                by_model[model]["cached"]  += cr_tok
-                by_model[model]["written"] += cw_tok
+                    # Model aggregation
+                    if model not in by_model:
+                        by_model[model] = {"cost": 0.0, "calls": 0,
+                                           "input": 0, "output": 0,
+                                           "cached": 0, "written": 0}
+                    by_model[model]["cost"]    += cost
+                    by_model[model]["calls"]   += 1
+                    by_model[model]["input"]   += in_tok
+                    by_model[model]["output"]  += out_tok
+                    by_model[model]["cached"]  += cr_tok
+                    by_model[model]["written"] += cw_tok
 
-                # Tool usage (from content array)
-                content = msg.get("content", [])
-                for item in content:
-                    if isinstance(item, dict) and item.get("type") == "tool_use":
-                        name = item.get("name", "unknown")
-                        # Shorten MCP/internal tool names
-                        if "__" in name:
-                            name = name.split("__")[-1]
-                        tools[name] = tools.get(name, 0) + 1
+                    # Tool usage (from content array)
+                    content = msg.get("content", [])
+                    for item in content:
+                        if isinstance(item, dict) and item.get("type") == "tool_use":
+                            name = item.get("name", "unknown")
+                            # Shorten MCP/internal tool names
+                            if "__" in name:
+                                name = name.split("__")[-1]
+                            tools[name] = tools.get(name, 0) + 1
+        except OSError:
+            continue
 
         if session_data["has_data"]:
             sessions[session_id] = session_data
@@ -203,20 +205,26 @@ def parse_sessions(range_key="7d"):
 TOKEMON_HISTORY = os.path.expanduser(
     "~/Library/Application Support/Tokemon/usage_history.json"
 )
+TOKEMON_STATUS = os.path.expanduser("~/.tokemon/status.json")
+
+def parse_iso(value):
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except Exception:
+        return None
 
 def get_plan_usage(range_key="7d"):
     try:
         with open(TOKEMON_HISTORY) as f:
             history = json.load(f)
     except Exception:
-        return {"primary_pct": 0, "seven_day_pct": 0, "history": []}
+        history = []
 
     cutoff = cutoff_for(range_key)
     filtered = []
     for entry in history:
-        try:
-            ts = datetime.fromisoformat(entry["timestamp"].replace("Z", "+00:00"))
-        except Exception:
+        ts = parse_iso(entry.get("timestamp"))
+        if not ts:
             continue
         if cutoff and ts < cutoff:
             continue
@@ -225,19 +233,111 @@ def get_plan_usage(range_key="7d"):
             "primary_pct": entry.get("primaryPercentage", 0),
             "seven_day_pct": entry.get("sevenDayPercentage", 0),
         })
+    filtered.sort(key=lambda item: parse_iso(item["timestamp"]) or datetime.min.replace(tzinfo=timezone.utc))
 
-    # Latest values
-    latest = history[-1] if history else {}
+    parsed_history = []
+    for entry in history:
+        ts = parse_iso(entry.get("timestamp"))
+        if ts:
+            parsed_history.append((ts, entry))
+    parsed_history.sort(key=lambda item: item[0])
+    latest_ts, latest = parsed_history[-1] if parsed_history else (None, {})
+    primary = round(latest.get("primaryPercentage", 0))
+    weekly = round(latest.get("sevenDayPercentage", 0))
+    source = latest.get("source", "history" if latest else "missing")
+    updated_at = latest.get("timestamp")
+    reset_time = None
+
+    try:
+        with open(TOKEMON_STATUS) as f:
+            status = json.load(f)
+    except Exception:
+        status = None
+
+    now = datetime.now(timezone.utc)
+    if isinstance(status, dict):
+        status_ts = parse_iso(status.get("updated"))
+        if status_ts and (now - status_ts) <= timedelta(minutes=5):
+            primary = round(status.get("session_pct", primary))
+            weekly = round(status.get("weekly_pct", weekly))
+            source = "status"
+            updated_at = status.get("updated")
+            latest_ts = status_ts
+            reset_time = status.get("reset_time")
+        else:
+            reset_time = status.get("reset_time")
+
+    stale = True
+    if latest_ts:
+        stale = (now - latest_ts) > timedelta(minutes=5)
+
     return {
-        "primary_pct": round(latest.get("primaryPercentage", 0)),
-        "seven_day_pct": round(latest.get("sevenDayPercentage", 0)),
-        "source": latest.get("source", "unknown"),
-        "updated_at": latest.get("timestamp"),
+        "primary_pct": primary,
+        "seven_day_pct": weekly,
+        "source": source,
+        "updated_at": updated_at,
+        "stale": stale,
+        "reset_time": reset_time,
         "history": filtered[-200:],  # cap for response size
+    }
+
+CODEX_GLOB = os.path.expanduser("~/.codex/sessions/**/*.jsonl")
+
+def get_codex_usage():
+    newest = None
+    for fpath in glob.glob(CODEX_GLOB, recursive=True):
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                for raw in f:
+                    try:
+                        obj = json.loads(raw)
+                    except json.JSONDecodeError:
+                        continue
+                    if obj.get("type") != "event_msg":
+                        continue
+                    payload = obj.get("payload", {})
+                    if payload.get("type") != "token_count":
+                        continue
+                    ts = parse_iso(obj.get("timestamp"))
+                    if not ts:
+                        continue
+                    if newest is None or ts > newest[0]:
+                        newest = (ts, payload)
+        except OSError:
+            continue
+
+    if newest is None:
+        return {"available": False}
+
+    ts, payload = newest
+    rate_limits = payload.get("rate_limits") or {}
+    primary = rate_limits.get("primary") or {}
+    secondary = rate_limits.get("secondary") or {}
+    info = payload.get("info") or {}
+    return {
+        "available": True,
+        "updated_at": ts.isoformat(),
+        "primary": {
+            "used_percent": primary.get("used_percent"),
+            "resets_at": primary.get("resets_at"),
+            "window_minutes": primary.get("window_minutes"),
+        },
+        "secondary": {
+            "used_percent": secondary.get("used_percent"),
+            "resets_at": secondary.get("resets_at"),
+            "window_minutes": secondary.get("window_minutes"),
+        },
+        "plan_type": rate_limits.get("plan_type"),
+        "total_token_usage": info.get("total_token_usage") or {},
     }
 
 # ── AI Recommendation via Claude ──────────────────────────────────────────────
 def get_recommendation(stats):
+    try:
+        import anthropic
+    except Exception as exc:
+        raise RuntimeError(f"Recommendation unavailable: anthropic package is not installed ({exc})")
+
     key = get_api_key()
     if not key:
         raise ValueError("No API key found. Add ANTHROPIC_API_KEY=sk-ant-... to dashboard/.env")
@@ -339,6 +439,9 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as e:
                 rec = {"error": str(e)}
             self.send_json(rec)
+
+        elif path == "/api/codex":
+            self.send_json(get_codex_usage())
 
         else:
             self.send_response(404)

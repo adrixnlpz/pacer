@@ -3242,21 +3242,21 @@
       <div class="hero-card">
         <div class="corner tl"></div><div class="corner tr"></div>
         <div class="corner bl"></div><div class="corner br"></div>
-        <div class="card-label">Codex · Tasks This Week</div>
-        <div class="stat-big" id="codexTasksTotal">0<span class="unit">/wk</span></div>
-        <div class="delta" id="codexTasksDelta">▬ no data yet</div>
-      </div>
+	        <div class="card-label">Codex 5-hour limit · Live</div>
+	        <div class="stat-big" id="codexTasksTotal">0<span class="unit">/wk</span></div>
+	        <div class="delta" id="codexTasksDelta">▬ no data yet</div>
+	      </div>
       <div class="hero-card">
         <div class="corner tl"></div><div class="corner tr"></div>
         <div class="corner bl"></div><div class="corner br"></div>
-        <div class="card-label">Claude Tokens Saved · est.</div>
-        <div class="stat-big" id="codexTokensSaved">0<span class="unit">%</span></div>
-        <div class="delta" id="codexTokensDeltaLabel">vs running all tasks in Claude</div>
-      </div>
+	        <div class="card-label">Codex weekly limit · Live</div>
+	        <div class="stat-big" id="codexTokensSaved">0<span class="unit">%</span></div>
+	        <div class="delta" id="codexTokensDeltaLabel">vs running all tasks in Claude</div>
+	      </div>
       <div class="hero-card">
         <div class="corner tl"></div><div class="corner tr"></div>
         <div class="corner bl"></div><div class="corner br"></div>
-        <div class="card-label">Hand-off Streak</div>
+	        <div class="card-label">Codex Plan / Tokens</div>
         <div class="stat-big" id="codexStreak">0<span class="unit">days</span></div>
         <div class="delta" id="codexStreakNote">consecutive days routing to Codex</div>
       </div>
@@ -3375,21 +3375,25 @@
 
 <div class="modal-backdrop" id="usageModal" hidden>
   <div class="usage-modal" role="dialog" aria-modal="true" aria-labelledby="usageModalTitle">
-    <div class="modal-title" id="usageModalTitle">Update Usage</div>
-    <div class="modal-sub">Paste Claude /usage output, then parse or manually adjust the detected fields.</div>
-    <textarea id="usagePaste" placeholder="Paste /usage output here. PACER looks for values like 80%, 4.2%/hr, and 1d 14h."></textarea>
+    <div class="modal-title" id="usageModalTitle">Fallback Usage Update</div>
+    <div class="modal-sub">Fallback only. Use this when Tokemon is offline; PACER computes burn and reset time from live history when available.</div>
+    <textarea id="usagePaste" placeholder="Paste /usage output here. PACER looks for 5-hour and weekly percentages."></textarea>
     <div class="usage-fields">
       <div class="usage-field">
-        <label for="usagePctInput">Used %</label>
+        <label for="usagePrimaryInput">5-hour limit used %</label>
+        <input type="number" id="usagePrimaryInput" min="0" max="100" step="0.1">
+      </div>
+      <div class="usage-field">
+        <label for="usagePctInput">Weekly limit used %</label>
         <input type="number" id="usagePctInput" min="0" max="100" step="0.1">
       </div>
       <div class="usage-field">
-        <label for="usageBurnInput">Current Burn %/hr</label>
-        <input type="number" id="usageBurnInput" min="0" max="100" step="0.1">
+        <label for="usageBurnInput">Computed burn %/hr</label>
+        <input type="number" id="usageBurnInput" min="0" max="100" step="0.1" readonly>
       </div>
       <div class="usage-field">
-        <label for="usageTimeInput">Time Left</label>
-        <input type="text" id="usageTimeInput" placeholder="1d 14h">
+        <label for="usageTimeInput">Computed time left to reset</label>
+        <input type="text" id="usageTimeInput" placeholder="computed from reset" readonly>
       </div>
     </div>
     <div class="modal-actions">
@@ -3437,12 +3441,14 @@
    ============================================================ */
 
 const PACER = {
-  state: {
-    theme: 'dark',
-    language: 'en',
-    activeTab: 'live',
-    historyVisible: false
-  },
+	  state: {
+	    theme: 'dark',
+	    language: 'en',
+	    activeTab: 'live',
+	    historyVisible: false
+	  },
+	  latestData: null,
+	  latestUsage: null,
 
   init() {
     this.restoreTheme();
@@ -3673,13 +3679,15 @@ const PACER = {
 
   bindPacerControls() {
     document.getElementById('btnStartNewWeek')?.addEventListener('click', (event) => this.startNewWeek(event.currentTarget));
-    document.getElementById('btnUpdateUsage')?.addEventListener('click', (event) => this.refreshLiveUsageFromBackend(event.currentTarget));
-    document.getElementById('btnLiveRefresh')?.addEventListener('click', (event) => {
-      const btn = event.currentTarget;
-      btn.classList.add('spinning');
-      setTimeout(() => btn.classList.remove('spinning'), 600);
-      this.refreshLiveUsageFromBackend();
-    });
+	    document.getElementById('btnUpdateUsage')?.addEventListener('click', (event) => {
+	      this.refreshLiveUsageFromBackend(event.currentTarget).catch(() => {});
+	    });
+	    document.getElementById('btnLiveRefresh')?.addEventListener('click', (event) => {
+	      const btn = event.currentTarget;
+	      btn.classList.add('spinning');
+	      setTimeout(() => btn.classList.remove('spinning'), 600);
+	      this.refreshLiveUsageFromBackend().catch(() => {});
+	    });
     document.getElementById('btnSavePacingPlan')?.addEventListener('click', (event) => this.savePacingPlan(event.currentTarget));
     document.getElementById('btnViewHistory')?.addEventListener('click', (event) => this.toggleHistory(event.currentTarget));
     document.getElementById('btnParseUsage')?.addEventListener('click', (event) => this.parseUsageIntoForm(event.currentTarget));
@@ -3728,14 +3736,30 @@ const PACER = {
     } catch(e) {}
   },
 
-  formatStamp(date) {
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  },
+	  formatStamp(date) {
+	    return date.toLocaleString('en-US', {
+	      month: 'short',
+	      day: '2-digit',
+	      hour: '2-digit',
+	      minute: '2-digit'
+	    });
+	  },
+
+	  escapeHtml(value) {
+	    return String(value ?? '').replace(/[&<>"']/g, c => ({
+	      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+	    }[c]));
+	  },
+
+	  fmtMoney(value) {
+	    const n = Number(value) || 0;
+	    return '$' + n.toFixed(n >= 10 ? 2 : 4);
+	  },
+
+	  pctText(value) {
+	    const n = Number(value) || 0;
+	    return n.toFixed(n % 1 ? 1 : 0) + '%';
+	  },
 
   readLiveSnapshot() {
     const usedPct = Number(document.getElementById('usedPct')?.textContent || 0);
@@ -3759,23 +3783,30 @@ const PACER = {
     return `http://${apiHost}:8765`;
   },
 
-  async fetchTokemonUsage() {
-    const response = await fetch(`${this.getBackendBase()}/api/data?range=7d`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`PACER backend returned HTTP ${response.status}`);
-    const data = await response.json();
-    const plan = data?.plan || {};
-    const weeklyPct = Number(plan.seven_day_pct ?? 0) || 0;
-    const fiveHourPct = Number(plan.primary_pct ?? 0) || 0;
-    const history = Array.isArray(plan.history) ? plan.history : [];
-    return {
-      weeklyPct,
-      fiveHourPct,
-      updatedAt: plan.updated_at,
-      source: plan.source || 'unknown',
-      burnPctPerHour: this.computeBurnPctPerHour(history, 'seven_day_pct'),
-      history
-    };
-  },
+	  async fetchTokemonUsage() {
+	    const response = await fetch(`${this.getBackendBase()}/api/data?range=7d`, { cache: 'no-store' });
+	    if (!response.ok) throw new Error(`PACER backend returned HTTP ${response.status}`);
+	    const data = await response.json();
+	    this.latestData = data;
+	    const plan = data?.plan || {};
+	    const weeklyPct = Number(plan.seven_day_pct ?? 0) || 0;
+	    const fiveHourPct = Number(plan.primary_pct ?? 0) || 0;
+	    const history = Array.isArray(plan.history) ? plan.history : [];
+	    const usage = {
+	      weeklyPct,
+	      fiveHourPct,
+	      updatedAt: plan.updated_at,
+	      source: plan.source || 'unknown',
+	      stale: Boolean(plan.stale),
+	      resetTime: plan.reset_time || null,
+	      burnPctPerHour: this.computeBurnPctPerHour(history, 'seven_day_pct'),
+	      history,
+	      data
+	    };
+	    this.latestUsage = usage;
+	    this.applyBackendData(data, usage);
+	    return usage;
+	  },
 
   computeBurnPctPerHour(history, field) {
     const points = history
@@ -3793,33 +3824,115 @@ const PACER = {
     return Math.max(0, (latest.value - base.value) / hours);
   },
 
-  formatUsageSourceLabel(usage) {
-    const updated = usage.updatedAt ? this.formatStamp(new Date(usage.updatedAt)) : this.formatStamp(new Date());
-    return `Tokemon ${usage.source} · weekly ${usage.weeklyPct}% · 5-hour ${usage.fiveHourPct}% · updated ${updated}`;
-  },
+	  formatUsageSourceLabel(usage) {
+	    const updated = usage.updatedAt ? this.formatStamp(new Date(usage.updatedAt)) : this.formatStamp(new Date());
+	    const freshness = usage.stale ? 'STALE' : 'LIVE';
+	    return `Tokemon ${usage.source} ${freshness} · weekly ${usage.weeklyPct}% · 5-hour ${usage.fiveHourPct}% · updated ${updated}`;
+	  },
+
+	  resetDateForUsage(usage) {
+	    const reset = usage?.resetTime ? new Date(usage.resetTime) : this.nextResetUTC();
+	    return Number.isFinite(reset.getTime()) ? reset : this.nextResetUTC();
+	  },
+
+	  applyBackendData(data, usage) {
+	    this.renderLiveDataPanels(data);
+	    if (PACER.history?.applyBackendData) PACER.history.applyBackendData(data);
+	    if (PACER.sim?.seedFromLive) PACER.sim.seedFromLive();
+	    if (PACER.compare?.applyBackendData) PACER.compare.applyBackendData(data, usage);
+	  },
+
+	  renderLiveDataPanels(data) {
+	    const summary = data?.summary || {};
+	    const models = Array.isArray(data?.by_model) ? data.by_model : [];
+	    const tools = Array.isArray(data?.tools) ? data.tools : [];
+	    const totalCost = Number(summary.total_cost) || 0;
+	    const totalCalls = Number(summary.total_calls) || 0;
+	    const sessions = Number(summary.sessions) || 0;
+
+	    const surfaceRows = document.querySelectorAll('.surface-row');
+	    const surfaceTotal = tools.reduce((sum, tool) => sum + (Number(tool.calls) || 0), 0) || 1;
+	    surfaceRows.forEach((row, i) => {
+	      const tool = tools[i];
+	      const pct = tool ? Math.round((Number(tool.calls) || 0) / surfaceTotal * 100) : 0;
+	      const name = row.querySelector('.s-name');
+	      const fill = row.querySelector('.s-fill');
+	      const pctEl = row.querySelector('.s-pct');
+	      if (name) name.textContent = tool ? tool.name : 'No tool data';
+	      if (fill) fill.style.width = pct + '%';
+	      if (pctEl) pctEl.textContent = pct + '%';
+	    });
+	    const surfaceAlert = document.querySelector('.surface-alert');
+	    if (surfaceAlert) {
+	      const topTool = tools[0]?.name || 'no tool';
+	      surfaceAlert.textContent = `${this.fmtMoney(totalCost)} across ${sessions} sessions and ${totalCalls} calls · top tool: ${topTool}.`;
+	    }
+
+	    const modelCard = Array.from(document.querySelectorAll('.mini-card')).find(card => card.querySelector('#btnOptimizeMix'));
+	    if (modelCard) {
+	      const rows = models.slice(0, 4);
+	      const maxCost = Math.max(...rows.map(m => Number(m.cost) || 0), 1);
+	      const html = rows.length ? rows.map(model => {
+	        const cost = Number(model.cost) || 0;
+	        const pct = Math.round(cost / maxCost * 100);
+	        const tag = this.modelTagClass(model.model);
+	        return `<div class="model-row">
+	          <span class="model-tag ${tag}">${this.escapeHtml(this.shortModelName(model.model))}</span>
+	          <div class="model-bar"><div class="model-bar-fill mbf-${tag}" style="width:${pct}%"></div></div>
+	          <span class="model-pct">${pct}%</span>
+	          <span class="model-cost">${this.fmtMoney(cost)}</span>
+	        </div>`;
+	      }).join('') : '<div class="empty-history">No model usage found.</div>';
+	      const title = modelCard.querySelector('.mini-title')?.outerHTML || '<div class="mini-title">Model Mix · This Week</div>';
+	      const button = modelCard.querySelector('#btnOptimizeMix')?.outerHTML || '<button class="btn" style="width:100%;margin-top:10px" id="btnOptimizeMix">OPTIMIZE MIX</button>';
+	      modelCard.innerHTML = `${title}${html}<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:10px;color:var(--ink-faint);display:flex;justify-content:space-between;"><span>Transcript cost</span><span style="color:var(--amber);font-weight:700">${this.fmtMoney(totalCost)}</span></div>${button}`;
+	      PACER.live?.bindModelOptimize();
+	    }
+	  },
+
+	  modelTagClass(model) {
+	    const lower = String(model || '').toLowerCase();
+	    if (lower.includes('opus')) return 'opus';
+	    if (lower.includes('haiku')) return 'haiku';
+	    return 'sonnet';
+	  },
+
+	  shortModelName(model) {
+	    const lower = String(model || 'model').toLowerCase();
+	    if (lower.includes('opus')) return 'OPUS';
+	    if (lower.includes('haiku')) return 'HAIKU';
+	    if (lower.includes('sonnet')) return 'SONNET';
+	    return 'MODEL';
+	  },
 
   async refreshLiveUsageFromBackend(button = null) {
     if (button) {
       button.classList.add('loading');
       button.textContent = 'SYNCING...';
     }
-    try {
-      const usage = await this.fetchTokemonUsage();
-      this.writeLiveValues({
-        usedPct: usage.weeklyPct,
-        vmCurrent: usage.burnPctPerHour,
-        timeLeft: this.fmtCountdown(this.nextResetUTC() - new Date())
-      });
-      this.saveSnapshot('tokemon-sync');
-      this.setLastAction(this.formatUsageSourceLabel(usage));
-      this.showToast(`Synced from Tokemon: ${usage.weeklyPct}% weekly, ${usage.fiveHourPct}% 5-hour.`);
-      if (PACER.broker) await PACER.broker.fetchBrokerPacingSnapshot('claude');
-      return usage;
-    } catch (error) {
-      this.showToast('Tokemon sync failed. Opening manual usage fallback.');
-      this.openUsageModal(button);
-      throw error;
-    } finally {
+	    try {
+	      const usage = await this.fetchTokemonUsage();
+	      const resetDate = this.resetDateForUsage(usage);
+	      this.writeLiveValues({
+	        usedPct: usage.weeklyPct,
+	        vmCurrent: usage.burnPctPerHour,
+	        timeLeft: this.fmtCountdown(resetDate - new Date()),
+	        resetTime: resetDate
+	      });
+	      this.saveSnapshot('tokemon-sync');
+	      this.setLastAction(this.formatUsageSourceLabel(usage));
+	      if (usage.stale) {
+	        this.showToast('Tokemon data stale — start Tokemon to refresh.');
+	      } else {
+	        this.showToast(`Synced from Tokemon: ${usage.weeklyPct}% weekly, ${usage.fiveHourPct}% 5-hour.`);
+	      }
+	      if (PACER.broker) await PACER.broker.fetchBrokerPacingSnapshot('claude');
+	      return usage;
+	    } catch (error) {
+	      this.showToast('Tokemon sync failed. Opening manual usage fallback.');
+	      this.openUsageModal(button);
+	      return null;
+	    } finally {
       if (button) {
         button.classList.remove('loading');
         button.textContent = 'UPDATE USAGE';
@@ -3827,12 +3940,12 @@ const PACER = {
     }
   },
 
-  writeLiveValues({ usedPct, vmCurrent, timeLeft }) {
-    const pct = Math.max(0, Math.min(100, Number(usedPct) || 0));
-    const remaining = +(100 - pct).toFixed(1);
-    const burn = Number(vmCurrent) || 0;
-    const left = timeLeft || this.fmtCountdown(this.nextResetUTC() - new Date());
-    const hoursLeft = Math.max(this.parseHours(left), 0.1);
+	  writeLiveValues({ usedPct, vmCurrent, timeLeft, resetTime = null }) {
+	    const pct = Math.max(0, Math.min(100, Number(usedPct) || 0));
+	    const remaining = +(100 - pct).toFixed(1);
+	    const burn = Number(vmCurrent) || 0;
+	    const left = timeLeft || this.fmtCountdown(this.nextResetUTC() - new Date());
+	    const hoursLeft = Math.max(this.parseHours(left), 0.1);
     const required = remaining / hoursLeft;
     const pacePct = Math.max(0, Math.min(100, pct - required * 3));
     const stateClass = pct >= 90 ? 'over' : pct >= 70 ? 'warn' : 'ok';
@@ -3856,15 +3969,24 @@ const PACER = {
     if (burnBig) burnBig.innerHTML = `${burn.toFixed(1)}<span class="unit">%/hr</span>`;
     const burnDelta = document.getElementById('burnDelta');
     if (burnDelta) burnDelta.textContent = required > 0 ? `▲ ${Math.round((burn / required) * 100)}% vs required` : '— vs required';
-    const targetLine = document.getElementById('burnTargetLine');
-    if (targetLine) targetLine.textContent = `— — — TARGET ${required.toFixed(1)}%/hr`;
+	    const targetLine = document.getElementById('burnTargetLine');
+	    if (targetLine) targetLine.textContent = `— — — TARGET ${required.toFixed(1)}%/hr`;
 
-    if (PACER.live) {
-      PACER.live.chartData.week.actual[PACER.live.chartData.week.actual.length - 1] = pct;
-      PACER.live.chartData['24h'].actual[PACER.live.chartData['24h'].actual.length - 1] = pct;
-      PACER.live.dayData = PACER.live.dayData.map(d => d.state === 'today' ? { ...d, actual: Math.round(pct / 7) } : d);
-      PACER.live.buildDayRows();
-      PACER.live.drawChart();
+	    if (PACER.live) {
+	      PACER.live.current = {
+	        pct,
+	        burn,
+	        remaining,
+	        required,
+	        hoursLeft,
+	        resetTime: resetTime ? new Date(resetTime).toISOString() : null,
+	        projected: Math.max(0, pct + burn * hoursLeft)
+	      };
+	      PACER.live.chartData.week.actual[PACER.live.chartData.week.actual.length - 1] = pct;
+	      PACER.live.chartData['24h'].actual[PACER.live.chartData['24h'].actual.length - 1] = pct;
+	      PACER.live.dayData = PACER.live.dayData.map(d => d.state === 'today' ? { ...d, actual: Math.round(pct / 7) } : d);
+	      PACER.live.buildDayRows();
+	      PACER.live.drawChart();
     }
     this.updateLiveRecommendation({ pct, burn, remaining, required, hoursLeft, left });
   },
@@ -3894,7 +4016,7 @@ const PACER = {
     }
     if (!main || !meta || !strip || !tag || !icon || PACER.live?.recState !== 'active') return;
     strip.classList.remove('applied', 'snoozed', 'dismissed');
-    if (projected >= 100) {
+	    if (projected >= 100) {
       tag.textContent = '! RECOMMENDATION';
       tag.style.color = 'var(--red)';
       icon.textContent = '!';
@@ -3906,14 +4028,16 @@ const PACER = {
       icon.textContent = '!';
       main.innerHTML = `You are within limit but close enough to watch. Keep current burn near <strong>${required.toFixed(1)}%/hr</strong> or route build work to Codex.`;
       meta.textContent = `Live Tokemon pace · ${pct}% weekly used · projected ${projected.toFixed(0)}% by reset`;
-    } else {
-      tag.textContent = 'ON PACE';
-      tag.style.color = 'var(--green)';
-      icon.textContent = '✓';
-      main.innerHTML = `You are within pace. Weekly usage is <strong>${pct}%</strong> and current burn is <strong>${burn.toFixed(1)}%/hr</strong>.`;
-      meta.textContent = `Synced from Tokemon OAuth · 5-hour and weekly usage are now live inputs`;
-    }
-  },
+	    } else {
+	      tag.textContent = 'ON PACE';
+	      tag.style.color = 'var(--green)';
+	      icon.textContent = '✓';
+	      main.innerHTML = `You are within pace. Weekly usage is <strong>${pct}%</strong> and current burn is <strong>${burn.toFixed(1)}%/hr</strong>.`;
+	      meta.textContent = PACER.latestUsage?.stale
+	        ? 'Tokemon data stale — start Tokemon to refresh plan percentages'
+	        : `Synced from Tokemon OAuth · 5-hour and weekly usage are now live inputs`;
+	    }
+	  },
 
   parseHours(value) {
     const text = String(value || '').toLowerCase();
@@ -3924,29 +4048,37 @@ const PACER = {
     return total || 1;
   },
 
-  openUsageModal(button) {
-    this.flashButton(button, 'OPENED');
-    const snap = this.readLiveSnapshot();
-    document.getElementById('usagePctInput').value = snap.usedPct;
-    document.getElementById('usageBurnInput').value = parseFloat(snap.vmCurrent) || '';
-    document.getElementById('usageTimeInput').value = snap.timeLeft;
-    document.getElementById('usageModal').hidden = false;
-    document.getElementById('usagePaste').focus();
-  },
+	  openUsageModal(button) {
+	    this.flashButton(button, 'OPENED');
+	    const snap = this.readLiveSnapshot();
+	    const usage = this.latestUsage || {};
+	    const resetDate = this.resetDateForUsage(usage);
+	    const burn = this.computeBurnPctPerHour(usage.history || [], 'seven_day_pct');
+	    const primary = Number.isFinite(Number(usage.fiveHourPct)) ? Number(usage.fiveHourPct) : snap.usedPct;
+	    document.getElementById('usagePrimaryInput').value = primary;
+	    document.getElementById('usagePctInput').value = snap.usedPct;
+	    document.getElementById('usageBurnInput').value = burn.toFixed(1);
+	    document.getElementById('usageTimeInput').value = this.fmtCountdown(resetDate - new Date());
+	    document.getElementById('usageModal').hidden = false;
+	    document.getElementById('usagePaste').focus();
+	  },
 
   closeUsageModal() {
     document.getElementById('usageModal').hidden = true;
   },
 
-  parseUsageIntoForm(button) {
-    const text = document.getElementById('usagePaste').value;
-    const parsed = this.parseUsageText(text);
-    if (parsed.usedPct != null) document.getElementById('usagePctInput').value = parsed.usedPct;
-    if (parsed.vmCurrent != null) document.getElementById('usageBurnInput').value = parsed.vmCurrent;
-    if (parsed.timeLeft) document.getElementById('usageTimeInput').value = parsed.timeLeft;
-    this.flashButton(button, 'PARSED');
-    this.showToast('Usage paste parsed. Review the fields, then apply.');
-  },
+	  parseUsageIntoForm(button) {
+	    const text = document.getElementById('usagePaste').value;
+	    const parsed = this.parseUsageText(text);
+	    if (parsed.primaryPct != null) document.getElementById('usagePrimaryInput').value = parsed.primaryPct;
+	    if (parsed.usedPct != null) document.getElementById('usagePctInput').value = parsed.usedPct;
+	    const usage = this.latestUsage || {};
+	    const resetDate = this.resetDateForUsage(usage);
+	    document.getElementById('usageBurnInput').value = this.computeBurnPctPerHour(usage.history || [], 'seven_day_pct').toFixed(1);
+	    document.getElementById('usageTimeInput').value = this.fmtCountdown(resetDate - new Date());
+	    this.flashButton(button, 'PARSED');
+	    this.showToast('Fallback percentages parsed. PACER computed burn and reset time.');
+	  },
 
   parseUsageText(text) {
     const source = String(text);
@@ -3954,29 +4086,28 @@ const PACER = {
     const pctMatches = [...source.matchAll(/(\d{1,3}(?:\.\d+)?)\s*%/g)]
       .map(match => Number(match[1]))
       .filter(value => value >= 0 && value <= 100);
-    const burn = source.match(/(?:burn|current|rate)[^\d%]{0,40}(\d{1,3}(?:\.\d+)?)\s*%\s*\/?\s*(?:hr|hour)/i)
-      || source.match(/(\d{1,3}(?:\.\d+)?)\s*%\s*\/?\s*(?:hr|hour)/i);
-    const time = source.match(/(?:time left|remaining|resets? in)[^\d]{0,40}((?:\d+(?:\.\d+)?\s*d(?:ay)?s?\s*)?(?:\d+(?:\.\d+)?\s*h(?:our)?s?\s*)?(?:\d+(?:\.\d+)?\s*m(?:in)?s?)?)/i)
-      || source.match(/(\d+(?:\.\d+)?\s*d(?:ay)?s?\s+\d+(?:\.\d+)?\s*h(?:our)?s?|\d+(?:\.\d+)?\s*h(?:our)?s?(?:\s+\d+(?:\.\d+)?\s*m(?:in)?s?)?|\d+(?:\.\d+)?\s*m(?:in)?s?)/i);
-    const timeText = time?.[1]?.trim();
-    return {
-      usedPct: usagePct ? Number(usagePct[1]) : pctMatches.length ? pctMatches[0] : null,
-      vmCurrent: burn ? Number(burn[1]) : null,
-      timeLeft: timeText && /\d/.test(timeText) ? timeText.replace(/days?/ig, 'd').replace(/hours?/ig, 'h').replace(/mins?/ig, 'm') : null
-    };
-  },
+	    const primaryPct = source.match(/(?:5[\s-]*hour|five[\s-]*hour|session|primary)[^\d%]{0,40}(\d{1,3}(?:\.\d+)?)\s*%/i);
+	    return {
+	      primaryPct: primaryPct ? Number(primaryPct[1]) : pctMatches.length > 1 ? pctMatches[0] : null,
+	      usedPct: usagePct ? Number(usagePct[1]) : pctMatches.length ? pctMatches[0] : null,
+	    };
+	  },
 
-  applyUsageUpdate(button) {
-    const usedPct = Number(document.getElementById('usagePctInput').value);
-    const vmCurrent = Number(document.getElementById('usageBurnInput').value);
-    const timeLeft = document.getElementById('usageTimeInput').value.trim();
-    this.writeLiveValues({ usedPct, vmCurrent, timeLeft });
-    this.saveSnapshot('usage-update');
-    this.closeUsageModal();
-    this.flashButton(button, 'APPLIED');
-    this.setLastAction(`usage updated to ${usedPct}% used`);
-    this.showToast('Usage update applied and snapshot saved.');
-  },
+	  applyUsageUpdate(button) {
+	    const usedPct = Number(document.getElementById('usagePctInput').value);
+	    const primaryPct = Number(document.getElementById('usagePrimaryInput').value);
+	    const usage = this.latestUsage || {};
+	    const resetDate = this.resetDateForUsage(usage);
+	    const vmCurrent = this.computeBurnPctPerHour(usage.history || [], 'seven_day_pct');
+	    const timeLeft = this.fmtCountdown(resetDate - new Date());
+	    this.writeLiveValues({ usedPct, vmCurrent, timeLeft, resetTime: resetDate });
+	    this.latestUsage = { ...usage, weeklyPct: usedPct, fiveHourPct: primaryPct, stale: true, source: 'manual-fallback' };
+	    this.saveSnapshot('usage-update');
+	    this.closeUsageModal();
+	    this.flashButton(button, 'APPLIED');
+	    this.setLastAction(`fallback usage update · weekly ${usedPct}% · 5-hour ${primaryPct}%`);
+	    this.showToast('Fallback usage applied. Start Tokemon for live OAuth refresh.');
+	  },
 
   startNewWeek(button) {
     const resetAt = new Date();
@@ -4053,7 +4184,8 @@ const PACER = {
 
   PACER.live = {
 
-    view: 'week',
+	    view: 'week',
+	    current: { pct: 80, burn: 0, remaining: 20, required: 1.4, hoursLeft: 38, projected: 80 },
 
     chartData: {
       week: {
@@ -4222,35 +4354,45 @@ const PACER = {
       });
       ctx.stroke();
 
-      // Projection (red dashed) — only in week view
-      if (this.view === 'week') {
-        const lastActualX = pad.l + (cw * lastIdx / (n - 1));
-        const lastActualY = pad.t + ch - (ch * 80 / 100);
-        const projEndX = pad.l + cw;
-        const projEndY = pad.t + ch - (ch * 117 / 100);
-        ctx.strokeStyle = red;
-        ctx.setLineDash([3, 3]);
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(lastActualX, lastActualY);
+	      // Projection (red dashed) — only in week view
+	      if (this.view === 'week') {
+	        const lastActualX = pad.l + (cw * lastIdx / (n - 1));
+	        const currentPct = Math.max(0, Math.min(100, Number(this.current?.pct) || actualPoints[lastIdx] || 0));
+	        const burn = Math.max(0, Number(this.current?.burn) || 0);
+	        const hoursLeft = Math.max(0.1, Number(this.current?.hoursLeft) || 0.1);
+	        const projected = Math.max(currentPct, currentPct + burn * hoursLeft);
+	        const cappedProjected = Math.min(projected, 120);
+	        const lastActualY = pad.t + ch - (ch * currentPct / 100);
+	        const projEndX = pad.l + cw;
+	        const projEndY = pad.t + ch - (ch * cappedProjected / 100);
+	        ctx.strokeStyle = red;
+	        ctx.setLineDash([3, 3]);
+	        ctx.lineWidth = 1.5;
+	        ctx.beginPath();
+	        ctx.moveTo(lastActualX, lastActualY);
         ctx.lineTo(projEndX, Math.max(projEndY, pad.t - 8));
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Exhaustion marker
-        const exX = pad.l + (cw * 5.65 / (n - 1));
-        const exY = pad.t + 4;
-        ctx.fillStyle = red;
-        ctx.beginPath();
-        ctx.arc(exX, exY, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.font = 'bold 10px JetBrains Mono';
-        ctx.fillStyle = red;
-        ctx.textAlign = 'center';
-        ctx.fillText('100% @ 10:42 PM THU', exX, exY - 8);
+	        // Exhaustion marker
+	        if (projected >= 100 && burn > 0) {
+	          const hoursToExhaust = Math.max(0, (100 - currentPct) / Math.max(burn, 0.01));
+	          const frac = Math.max(0, Math.min(1, 1 - (hoursLeft - hoursToExhaust) / hoursLeft));
+	          const exX = lastActualX + (projEndX - lastActualX) * frac;
+	          const exY = pad.t + 4;
+	          const exhaustAt = new Date(Date.now() + hoursToExhaust * 36e5);
+	          ctx.fillStyle = red;
+	          ctx.beginPath();
+	          ctx.arc(exX, exY, 4, 0, Math.PI * 2);
+	          ctx.fill();
+	          ctx.font = 'bold 10px JetBrains Mono';
+	          ctx.fillStyle = red;
+	          ctx.textAlign = 'center';
+	          ctx.fillText(`100% @ ${PACER.formatStamp(exhaustAt)}`, exX, exY - 8);
+	        }
 
-        // NOW marker
-        const nowX = lastActualX;
+	        // NOW marker
+	        const nowX = lastActualX;
         ctx.strokeStyle = inkColor;
         ctx.setLineDash([2, 4]);
         ctx.lineWidth = 1;
@@ -4258,12 +4400,12 @@ const PACER = {
         ctx.moveTo(nowX, pad.t); ctx.lineTo(nowX, pad.t + ch);
         ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = amber;
-        ctx.font = 'bold 9px JetBrains Mono';
-        ctx.textAlign = 'left';
-        ctx.fillText('◆ NOW · 80%', nowX + 6, pad.t + 16);
-      }
-    },
+	        ctx.fillStyle = amber;
+	        ctx.font = 'bold 9px JetBrains Mono';
+	        ctx.textAlign = 'left';
+	        ctx.fillText(`◆ NOW · ${currentPct.toFixed(currentPct % 1 ? 1 : 0)}%`, nowX + 6, pad.t + 16);
+	      }
+	    },
 
     bindChartToggles() {
       document.querySelectorAll('.ctoggle[data-view]').forEach(btn => {
@@ -5301,14 +5443,51 @@ const PACER = {
     histView: 'daily',
     expandedPattern: null,
 
-    init() {
-      this.renderKPIs();
-      this.buildTable();
-      this.buildPatterns();
-      this.drawHistChart();
+	    init() {
+	      this.renderKPIs();
+	      this.buildTable();
+	      this.buildPatterns();
+	      this.drawHistChart();
       this.bindControls();
-      window.addEventListener('resize', () => this.drawHistChart());
-    },
+	      window.addEventListener('resize', () => this.drawHistChart());
+	    },
+
+	    applyBackendData(data) {
+	      const daily = Array.isArray(data?.daily) ? data.daily : [];
+	      const summary = data?.summary || {};
+	      if (!daily.length) return;
+	      const maxCost = Math.max(...daily.map(d => Number(d.cost) || 0), 1);
+	      const days = daily.slice(-7).map((d, i, arr) => {
+	        const val = Math.round(((Number(d.cost) || 0) / maxCost) * 100);
+	        const target = Math.round(100 / Math.max(arr.length, 1));
+	        return {
+	          name: String(d.date || '').toUpperCase(),
+	          val,
+	          last: 0,
+	          avg: val,
+	          target,
+	          pattern: val > target * 1.25 ? 'high' : val < target * 0.7 ? 'light' : 'normal',
+	          today: i === arr.length - 1
+	        };
+	      });
+	      const total = Math.round(days.reduce((sum, d) => sum + (Number(d.val) || 0), 0));
+	      const peak = days.reduce((best, d) => (d.val || 0) > (best.val || 0) ? d : best, days[0]);
+	      this.weeks[0] = {
+	        label: 'THIS WEEK',
+	        total: Math.min(total, 100),
+	        peak: peak?.val || 0,
+	        efficiency: Number(summary.cache_hit_rate) || 0,
+	        lockouts: 0,
+	        avgDay: +(total / Math.max(days.length, 1)).toFixed(1),
+	        totalDelta: 0,
+	        effDelta: 0,
+	        peakDay: peak?.name || '—',
+	        days
+	      };
+	      this.renderKPIs();
+	      this.buildTable();
+	      this.drawHistChart();
+	    },
 
     renderKPIs() {
       const w = this.weeks[Math.abs(this.currentWeek)];
@@ -6850,8 +7029,9 @@ const PACER = {
     PACER.broker?.handleRebalance();
   };
 
-  PACER.codex = {
-    state: { tasks: [] },
+	  PACER.codex = {
+	    state: { tasks: [] },
+	    usage: { available: false },
 
     matrix: [
       { type: 'Scaffold / boilerplate',   codex: 'Primary', claude: 'Overkill',     jules: 'Backup' },
@@ -6863,13 +7043,14 @@ const PACER = {
       { type: 'Final polish + UX QA',     codex: 'Pair',    claude: 'Primary',      jules: '—' }
     ],
 
-    init() {
-      this.restoreState();
-      this.renderMatrix();
-      this.renderTasks();
-      this.renderKPIs();
-      this.bindControls();
-    },
+	    init() {
+	      this.restoreState();
+	      this.renderMatrix();
+	      this.renderTasks();
+	      this.renderKPIs();
+	      this.bindControls();
+	      this.refreshUsage();
+	    },
 
     restoreState() {
       try {
@@ -6885,17 +7066,34 @@ const PACER = {
       try { localStorage.setItem('pacer.codex.state', JSON.stringify(this.state)); } catch (e) {}
     },
 
-    bindControls() {
+	    bindControls() {
       document.getElementById('codexLogTask')?.addEventListener('click', () => this.openLogModal());
       document.getElementById('codexResetWeek')?.addEventListener('click', () => this.resetTracker());
       document.getElementById('codexJumpLive')?.addEventListener('click', () => PACER.activateTab('live'));
       document.getElementById('codexTaskSave')?.addEventListener('click', () => this.saveTask());
       document.getElementById('codexTaskCancel')?.addEventListener('click', () => this.closeLogModal());
-      document.getElementById('codexExport')?.addEventListener('click', () => this.exportLog());
+	      document.getElementById('codexExport')?.addEventListener('click', () => this.exportLog());
       document.getElementById('codexLogModal')?.addEventListener('click', (e) => {
         if (e.target.id === 'codexLogModal') this.closeLogModal();
       });
-    },
+	    },
+
+	    async refreshUsage() {
+	      try {
+	        const response = await fetch(`${PACER.getBackendBase()}/api/codex`, { cache: 'no-store' });
+	        if (!response.ok) throw new Error('Codex API HTTP ' + response.status);
+	        this.usage = await response.json();
+	      } catch (e) {
+	        this.usage = { available: false, error: String(e?.message || e) };
+	      }
+	      this.renderKPIs();
+	    },
+
+	    fmtReset(epochSeconds) {
+	      const n = Number(epochSeconds);
+	      if (!Number.isFinite(n) || n <= 0) return 'reset unknown';
+	      return PACER.formatStamp(new Date(n * 1000));
+	    },
 
     openLogModal() {
       const descEl = document.getElementById('codexTaskDesc');
@@ -7063,11 +7261,11 @@ const PACER = {
       return streak;
     },
 
-    renderKPIs() {
-      const tasks = this.state.tasks;
-      const weekMs = 7 * 24 * 3600 * 1000;
-      const now = Date.now();
-      const weekTasks = tasks.filter(t => now - t.ts <= weekMs);
+	    renderKPIs() {
+	      const tasks = this.state.tasks;
+	      const weekMs = 7 * 24 * 3600 * 1000;
+	      const now = Date.now();
+	      const weekTasks = tasks.filter(t => now - t.ts <= weekMs);
 
       const totalCodex = tasks.filter(t => t.routed === 'codex').length;
       const totalClaude = tasks.filter(t => t.routed === 'claude').length;
@@ -7081,23 +7279,34 @@ const PACER = {
       // Heuristic: assume 200K Claude weekly token budget = 100%
       const ratio = Math.min(100, (tokensSaved / 200000) * 100);
 
-      const set = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = val;
-      };
+	      const set = (id, val) => {
+	        const el = document.getElementById(id);
+	        if (el) el.innerHTML = val;
+	      };
 
-      set('codexTasksTotal', weekTasks.length + '<span class="unit">/wk</span>');
-      set('codexTasksDelta', tasks.length
-        ? (tasks.length + ' total logged · ' + weekTasks.length + ' this week')
-        : '▬ no data yet');
-      set('codexTokensSaved', ratio.toFixed(1) + '<span class="unit">%</span>');
-      set('codexTokensDeltaLabel', tokensSaved
-        ? ('~' + tokensSaved.toLocaleString() + ' tokens diverted from Claude')
-        : 'vs running all tasks in Claude');
-      set('codexStreak', this.calcStreak() + '<span class="unit">days</span>');
-      set('codexCntCodex', totalCodex);
-      set('codexCntClaude', totalClaude);
-      set('codexCntJules', totalJules);
+	      if (this.usage?.available) {
+	        const primary = Number(this.usage.primary?.used_percent) || 0;
+	        const secondary = Number(this.usage.secondary?.used_percent) || 0;
+	        const totalTokens = Number(this.usage.total_token_usage?.total_tokens) || 0;
+	        set('codexTasksTotal', primary.toFixed(primary % 1 ? 1 : 0) + '<span class="unit">%</span>');
+	        set('codexTasksDelta', '5-hour reset ' + this.fmtReset(this.usage.primary?.resets_at));
+	        set('codexTokensSaved', secondary.toFixed(secondary % 1 ? 1 : 0) + '<span class="unit">%</span>');
+	        set('codexTokensDeltaLabel', 'weekly reset ' + this.fmtReset(this.usage.secondary?.resets_at));
+	        set('codexStreak', (this.usage.plan_type || 'plan').toUpperCase());
+	        const streakNote = document.getElementById('codexStreakNote');
+	        if (streakNote) streakNote.textContent = totalTokens ? totalTokens.toLocaleString() + ' total tokens in latest session' : 'token usage unavailable';
+	      } else {
+	        set('codexTasksTotal', '—<span class="unit">%</span>');
+	        set('codexTasksDelta', this.usage?.error || 'Codex usage unavailable');
+	        set('codexTokensSaved', '—<span class="unit">%</span>');
+	        set('codexTokensDeltaLabel', 'weekly rate limit unavailable');
+	        set('codexStreak', '—');
+	        const streakNote = document.getElementById('codexStreakNote');
+	        if (streakNote) streakNote.textContent = 'No Codex token_count event found';
+	      }
+	      set('codexCntCodex', totalCodex);
+	      set('codexCntClaude', totalClaude);
+	      set('codexCntJules', totalJules);
       const share = tasks.length ? Math.round((totalCodex / totalAll) * 100) + '%' : '—';
       set('codexShare', share);
     }
