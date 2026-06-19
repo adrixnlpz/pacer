@@ -4290,9 +4290,8 @@ const PACER = {
   },
 
   getBackendBase() {
-    const apiHost = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
-      ? 'localhost'
-      : location.hostname;
+    const h = location.hostname;
+    const apiHost = (!h || ['localhost', '127.0.0.1', '[::1]'].includes(h)) ? 'localhost' : h;
     return `http://${apiHost}:8765`;
   },
 
