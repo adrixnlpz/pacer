@@ -82,8 +82,8 @@
     --dur-slow: 0.4s;
     --dur-slower: 0.55s;
     /* ── RADIUS ── */
-    --radius-sm: 3px;
-    --radius-md: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
     --radius-full: 50%;
     /* ── SPACING (for future/refined components; not force-swept) ── */
     --space-1: 4px;
@@ -150,8 +150,8 @@
     --dur-slow: 0.4s;
     --dur-slower: 0.55s;
     /* ── RADIUS ── */
-    --radius-sm: 3px;
-    --radius-md: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
     --radius-full: 50%;
     /* ── SPACING (for future/refined components; not force-swept) ── */
     --space-1: 4px;
@@ -2826,6 +2826,19 @@
     .broker-add-row {
       grid-template-columns: 1fr;
     }
+  }
+
+  /* Day 98 — soft 8px corner round on rectangular containers (cards / panels / fields / buttons).
+     Deliberately excludes circles, pills, thin meter bars, slider thumbs, and full-bleed header
+     so nothing round gets flattened. Dial: change --radius-md. */
+  .btn, .icon-refresh-btn, .action-panel, .action-meta, .history-drawer, .history-snapshot,
+  .pacer-field, .chart-card, .dist-card, .mini-card, .sim-inputs-card, .sim-output-card,
+  .sim-projection, .sim-saved, .saved-card, .hist-kpi, .hist-chart-card, .hist-table-card,
+  .hist-patterns, .pattern-card, .cmp-selector, .cmp-card, .cmp-radar-card, .cmp-rec,
+  .opt-card, .opt-routing, .routing-card, .yield-table-card, .broker-segment, .broker-panel,
+  .broker-inline-btn, .broker-inbox-item, .glossary-toggle, .service-seg, .explainer,
+  .onboard-card, .coming-soon, .hero-card, .usage-modal select, .broker-intent-row select {
+    border-radius: var(--radius-md);
   }
 </style>
 </head>
