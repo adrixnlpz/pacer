@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PACER // Anthropic Weekly Budget Engine</title>
+<title data-i18n="meta.title">PACER // Anthropic Weekly Budget Engine</title>
 <meta name="theme-color" content="#f4ede0">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%231a0f0f'/%3E%3Crect x='36' y='80' width='120' height='32' rx='6' fill='%233a2424' stroke='%23ffb347' stroke-width='4'/%3E%3Crect x='44' y='88' width='72' height='16' rx='3' fill='%23ffb347'/%3E%3C/svg%3E">
@@ -2844,29 +2844,29 @@
     </div>
 
     <div class="reset-clock">
-      <div class="label">Weekly Reset</div>
+      <div class="label" data-i18n="header.weeklyReset">Weekly Reset</div>
       <div class="time" id="resetCountdown">--d --h --m</div>
       <div class="meta" id="resetTarget">FRI 06:00 GT</div>
     </div>
 
     <div class="account-bar">
-      <button class="account-pill plan-toggle" id="planToggle" aria-label="Switch Anthropic plan tier" title="Your Anthropic plan tier (Pro / Max / API). Sets the limit math PACER paces against — switch it to match your subscription.">
+      <button class="account-pill plan-toggle" id="planToggle" aria-label="Switch Anthropic plan tier" title="Your Anthropic plan tier (Pro / Max / API). Sets the limit math PACER paces against — switch it to match your subscription." data-i18n-aria="header.plan.aria" data-i18n-title="header.plan.title">
         <span class="dot" id="planDot"></span>
         <span id="planLabel">MAX PLAN</span>
       </button>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" data-i18n-aria="header.theme.aria">
         <span class="icon" id="themeIcon">◑</span>
         <span id="themeLabel">LIGHT</span>
       </button>
-      <button class="lang-toggle" id="langToggle" aria-label="Toggle language" title="Bilingual mode — Spanish UI is in progress; most copy is still English.">
+      <button class="lang-toggle" id="langToggle" aria-label="Toggle language" title="Bilingual mode — Spanish UI is in progress; most copy is still English." data-i18n-aria="header.lang.aria" data-i18n-title="header.lang.title">
         <span class="icon">⇄</span>
-        <span id="langLabel">SPA/ENG</span>
+        <span id="langLabel" data-i18n="header.lang.label">SPA/ENG</span>
       </button>
-      <button class="glossary-toggle" id="glossaryToggle" aria-label="Open glossary" aria-haspopup="dialog">
+      <button class="glossary-toggle" id="glossaryToggle" aria-label="Open glossary" aria-haspopup="dialog" data-i18n-aria="header.glossary.aria">
         <span class="icon" aria-hidden="true">?</span>
-        <span>GLOSSARY</span>
+        <span data-i18n="header.glossary">GLOSSARY</span>
       </button>
-      <button class="glossary-toggle" id="profileToggle" aria-label="Change view mode" aria-haspopup="dialog" title="Switch between the simple and full dashboard">
+      <button class="glossary-toggle" id="profileToggle" aria-label="Change view mode" aria-haspopup="dialog" title="Switch between the simple and full dashboard" data-i18n-aria="header.profile.aria" data-i18n-title="header.profile.title">
         <span class="icon" aria-hidden="true">◳</span>
         <span id="profileLabel">EXPERT</span>
       </button>
@@ -2876,42 +2876,42 @@
   <!-- ============================================================
        GLOBAL SERVICE SWITCH — Cloud | Codex
        ============================================================ -->
-  <div class="service-switch" role="group" aria-label="Usage service selector">
-    <span class="ss-label">Tracking</span>
+  <div class="service-switch" role="group" aria-label="Usage service selector" data-i18n-aria="service.aria">
+    <span class="ss-label" data-i18n="service.tracking">Tracking</span>
     <div class="service-seg">
       <button type="button" class="service-seg-btn" id="svcCloud" data-service="cloud" aria-pressed="true">
-        <span class="ss-ico" aria-hidden="true">☁</span>Cloud
+        <span class="ss-ico" aria-hidden="true">☁</span><span data-i18n="service.cloud">Cloud</span>
       </button>
       <button type="button" class="service-seg-btn" id="svcCodex" data-service="codex" aria-pressed="false">
-        <span class="ss-ico" aria-hidden="true">⌥</span>Codex
+        <span class="ss-ico" aria-hidden="true">⌥</span><span data-i18n="service.codex">Codex</span>
       </button>
     </div>
-    <span class="ss-hint" id="serviceHint"><strong>Anthropic · Claude Code</strong> — usage, analytics &amp; routing</span>
+    <span class="ss-hint" id="serviceHint" data-i18n="service.hint.cloud"><strong>Anthropic · Claude Code</strong> — usage, analytics &amp; routing</span>
   </div>
 
   <!-- ============================================================
        TABS
        ============================================================ -->
-  <nav class="tabs" role="tablist" aria-label="Dashboard sections">
-    <button class="tab active" role="tab" id="tab-live" data-tab="live" aria-selected="true" aria-controls="panel-live" tabindex="0">
+  <nav class="tabs" role="tablist" aria-label="Dashboard sections" data-i18n-aria="tabs.aria">
+    <button class="tab active" role="tab" id="tab-live" data-tab="live" aria-selected="true" aria-controls="panel-live" tabindex="0" data-i18n="tabs.live">
       <span class="num">01</span>LIVE
     </button>
-    <button class="tab" role="tab" id="tab-history" data-tab="history" aria-selected="false" aria-controls="panel-history" tabindex="-1">
+    <button class="tab" role="tab" id="tab-history" data-tab="history" aria-selected="false" aria-controls="panel-history" tabindex="-1" data-i18n="tabs.history">
       <span class="num">02</span>HISTORY
     </button>
-    <button class="tab" role="tab" id="tab-optimize" data-tab="optimize" aria-selected="false" aria-controls="panel-optimize" tabindex="-1">
+    <button class="tab" role="tab" id="tab-optimize" data-tab="optimize" aria-selected="false" aria-controls="panel-optimize" tabindex="-1" data-i18n="tabs.optimize">
       <span class="num">03</span>OPTIMIZE
     </button>
-    <button class="tab" role="tab" id="tab-yield" data-tab="yield" aria-selected="false" aria-controls="panel-yield" tabindex="-1">
+    <button class="tab" role="tab" id="tab-yield" data-tab="yield" aria-selected="false" aria-controls="panel-yield" tabindex="-1" data-i18n="tabs.yield">
       <span class="num">04</span>YIELD
     </button>
-    <button class="tab" role="tab" id="tab-simulator" data-tab="simulator" aria-selected="false" aria-controls="panel-simulator" tabindex="-1">
+    <button class="tab" role="tab" id="tab-simulator" data-tab="simulator" aria-selected="false" aria-controls="panel-simulator" tabindex="-1" data-i18n="tabs.simulator">
       <span class="num">05</span>SIMULATOR
     </button>
-    <button class="tab" role="tab" id="tab-compare" data-tab="compare" aria-selected="false" aria-controls="panel-compare" tabindex="-1">
+    <button class="tab" role="tab" id="tab-compare" data-tab="compare" aria-selected="false" aria-controls="panel-compare" tabindex="-1" data-i18n="tabs.compare">
       <span class="num">06</span>COMPARE
     </button>
-    <button class="tab" role="tab" id="tab-broker" data-tab="broker" aria-selected="false" aria-controls="panel-broker" tabindex="-1">
+    <button class="tab" role="tab" id="tab-broker" data-tab="broker" aria-selected="false" aria-controls="panel-broker" tabindex="-1" data-i18n="tabs.broker">
       <span class="num">07</span>BROKER
     </button>
   </nav>
@@ -3853,6 +3853,833 @@
    PACER — Foundation runtime
    ============================================================ */
 
+const I18N = {
+  en: {
+    'meta.title': 'PACER // Anthropic Weekly Budget Engine',
+
+    'header.weeklyReset': 'Weekly Reset',
+    'header.plan.aria': 'Switch Anthropic plan tier',
+    'header.plan.title': 'Your Anthropic plan tier (Pro / Max / API). Sets the limit math PACER paces against — switch it to match your subscription.',
+    'header.theme.aria': 'Toggle theme',
+    'header.theme.light': 'LIGHT',
+    'header.theme.dark': 'DARK',
+    'header.lang.aria': 'Toggle language',
+    'header.lang.title': 'Bilingual mode — Spanish UI is in progress; most copy is still English.',
+    'header.lang.label': 'SPA/ENG',
+    'header.glossary.aria': 'Open glossary',
+    'header.glossary': 'GLOSSARY',
+    'header.profile.aria': 'Change view mode',
+    'header.profile.title': 'Switch between the simple and full dashboard',
+    'header.profile.simple': 'SIMPLE',
+    'header.profile.expert': 'EXPERT',
+
+    'service.aria': 'Usage service selector',
+    'service.tracking': 'Tracking',
+    'service.cloud': 'Cloud',
+    'service.codex': 'Codex',
+    'service.hint.cloud': '<strong>Anthropic · Claude Code</strong> — usage, analytics &amp; routing',
+    'service.hint.codex': '<strong>Codex · ChatGPT</strong> — live limits in LIVE, routing in BROKER. Analytics tabs stay Claude-scoped.',
+
+    'tabs.aria': 'Dashboard sections',
+    'tabs.live': '<span class="num">01</span>LIVE',
+    'tabs.history': '<span class="num">02</span>HISTORY',
+    'tabs.optimize': '<span class="num">03</span>OPTIMIZE',
+    'tabs.yield': '<span class="num">04</span>YIELD',
+    'tabs.simulator': '<span class="num">05</span>SIMULATOR',
+    'tabs.compare': '<span class="num">06</span>COMPARE',
+    'tabs.broker': '<span class="num">07</span>BROKER',
+
+    'common.live': 'LIVE',
+    'common.refreshLiveData': 'Refresh live data',
+    'common.pending': '— Pending',
+    'common.done': 'DONE',
+    'common.working': 'WORKING...',
+    'common.opened': 'OPENED',
+    'common.parsed': 'PARSED',
+    'common.reset': 'RESET',
+    'common.saved': 'SAVED',
+    'common.open': 'OPEN',
+    'common.closed': 'CLOSED',
+    'common.syncing': 'SYNCING...',
+    'common.scanning': 'SCANNING...',
+    'common.auditComplete': 'AUDIT COMPLETE',
+    'common.analyzing': 'ANALYZING...',
+    'common.applied': 'APPLIED',
+    'common.allApplied': '✓ ALL APPLIED',
+    'common.loaded': '✓ LOADED',
+    'common.delete': 'Delete',
+    'common.high': 'HIGH',
+    'common.med': 'MED',
+    'common.low': 'LOW',
+    'common.ok': 'OK',
+    'common.normal': 'NORMAL',
+    'common.light': 'LIGHT',
+    'common.mondayPlus': 'MONDAY+',
+    'common.confidence': 'Confidence {confidence}%',
+    'common.noSessionData': 'No session data',
+    'common.safe': 'SAFE',
+    'common.custom': 'CUSTOM',
+
+    'live.explainer': '<strong>What:</strong> Your live Claude Code budget — how much of the 5-hour and weekly limits you\'ve burned, your current pace, and when you\'ll run out. <strong>Use it to:</strong> decide whether to keep working, slow down, or route work to Codex.',
+    'live.simpleMode': '<strong>Simple mode</strong> — showing the essentials. Yield, Simulator, Compare, and Broker are tucked away.',
+    'live.showAllTools': 'Show all tools',
+    'live.status.aria': 'Live status',
+    'live.pacingControls.aria': 'Pacing controls',
+    'live.pacingControlCenter': 'Pacing Control Center',
+    'live.lastAction.empty': 'No local actions recorded yet. Save a plan or paste /usage to start history.',
+    'live.startNewWeek': 'START NEW WEEK',
+    'live.updateUsage': 'UPDATE USAGE',
+    'live.savePacingPlan': 'SAVE PACING PLAN',
+    'live.viewHistory': 'VIEW HISTORY',
+    'live.hideHistory': 'HIDE HISTORY',
+    'live.localWeekSnapshots': 'Local Week Snapshots',
+    'live.emptySnapshots': 'No snapshots saved yet.',
+    'live.weeklyConsumption': '<span class="live-dot"></span>Weekly Consumption · Live',
+    'live.verdict.youAre': 'You are ',
+    'live.verdict.overPaceInitial': '9% over pace',
+    'live.verdict.with': ' with ',
+    'live.verdict.remaining': ' remaining.',
+    'live.pace': 'PACE',
+    'live.remaining': 'Remaining',
+    'live.requiredPace': 'Required Pace',
+    'live.currentBurn': 'Current Burn',
+    'live.burnRate': 'Burn Rate · 60min avg',
+    'live.burnDelta.initial': '▲ 200% vs required',
+    'live.burnDelta': '▲ {pct}% vs required',
+    'live.vsRequired': '— vs required',
+    'live.targetRate': '— — — TARGET {rate}%/hr',
+    'live.exhaustProjected': '⚠ EXHAUSTION PROJECTED: <strong>{time}</strong>',
+    'live.onPaceProjected': '✓ ON PACE: projected <strong>{pct}%</strong> by reset',
+    'live.surfaceAttribution': 'Surface Attribution',
+    'live.surfaceAlert.initial': 'Chat is your largest spend. Two conversations &gt;80K tokens drove 31% of total this week.',
+    'live.surfaceAlert.data': '{cost} across {sessions} sessions · top model: {model} · top tool: {tool}.',
+    'live.rec.syncing': 'SYNCING',
+    'live.rec.waiting': 'Waiting for Tokemon usage sync.',
+    'live.rec.meta': 'Live recommendations update after PACER reads the latest OAuth usage.',
+    'live.apply': 'APPLY',
+    'live.snooze': '1HR SNOOZE',
+    'live.dismiss': 'DISMISS',
+    'live.burnVsPace': 'Burn vs. Pace',
+    'live.cumulative': 'Cumulative consumption · this cycle',
+    'live.view24h': '24H',
+    'live.viewWeek': 'WEEK',
+    'live.view30d': '30D',
+    'live.dailyDistribution': 'Daily Distribution',
+    'live.patternWeighted': 'Pattern-weighted · 8-week avg',
+    'live.legend.actual': '▬ Actual',
+    'live.legend.target': '| Target',
+    'live.legend.over': '▬ Over',
+    'live.modelMix': 'Model Mix · This Week',
+    'live.burnMultiplier': 'Burn multiplier vs. all-Haiku',
+    'live.optimizeMix': 'OPTIMIZE MIX',
+    'live.transcriptCost': 'Transcript cost',
+    'live.circuitBreaker': 'Circuit Breaker',
+    'live.breakerStatus': 'ARMED · MONITORING',
+    'live.breakerDesc': 'Auto-alerts fire at 50%, 70%, 90%. Next: 90%.',
+    'live.alert50': '50% alert',
+    'live.alert70': '70% alert',
+    'live.alert90': '90% alert',
+    'live.alert100': '100% lockout',
+    'live.firedTue0914': '✓ Fired Tue 09:14',
+    'live.firedTue2247': '✓ Fired Tue 22:47',
+    'live.resetAlerts': 'RESET ALERTS',
+    'live.hiddenAudit': 'Hidden Cost Audit',
+    'live.projectKbOverhead': 'Project KB overhead',
+    'live.conversationHistory': 'Conversation history',
+    'live.mcpSchemaInjection': 'MCP schema injection',
+    'live.memorySummaries': 'Memory summaries',
+    'live.totalInvisibleOverhead': 'Total invisible overhead',
+    'live.runFullAudit': 'RUN FULL AUDIT',
+
+    'history.explainer': '<strong>What:</strong> Day-by-day token spend and cost, pulled from your real Claude Code session logs. <strong>Use it to:</strong> see which days ran expensive and export the data as CSV.',
+    'history.title': 'Usage <span class="accent">History</span>',
+    'history.sub': '7-day pattern · week-over-week · trend detection',
+    'history.prevWeek': '← PREV WEEK',
+    'history.thisWeek': 'THIS WEEK',
+    'history.lastWeek': 'LAST WEEK',
+    'history.nextWeek': 'NEXT WEEK →',
+    'history.exportCsv': 'EXPORT CSV',
+    'history.totalUsed': 'Total Used',
+    'history.totalDelta.initial': '▲ 12% vs last week',
+    'history.peakDay': 'Peak Day',
+    'history.monday': 'Monday',
+    'history.pacingEfficiency': 'Pacing Efficiency',
+    'history.effDelta.initial': '▲ 3% vs last week',
+    'history.lockouts': 'Lockouts',
+    'history.noLockouts': 'No lockouts this week',
+    'history.avgDay': 'Avg / Day',
+    'history.targetInitial': 'Target 14.3%',
+    'history.chartTitle': 'Daily Burn — Week over Week',
+    'history.chartSub': 'Bars = actual · Line = 8-week average · Dashed = target',
+    'history.daily': 'DAILY',
+    'history.cumulative': 'CUMULATIVE',
+    'history.bySurface': 'BY SURFACE',
+    'history.dayBreakdown': 'Day Breakdown',
+    'history.dayBreakdownSub': 'This week vs last week vs 8-week avg',
+    'history.day': 'Day',
+    'history.thisWeekHeader': 'This Week',
+    'history.lastWeekHeader': 'Last Week',
+    'history.avg8w': '8W Avg',
+    'history.vsTarget': 'vs Target',
+    'history.pattern': 'Pattern',
+    'history.patternEngine': 'Pattern Detection Engine',
+    'history.vsPriorWeek': '{arrow} {pct}% vs prior week',
+
+    'opt.explainer': '<strong>What:</strong> Concrete ways to spend fewer tokens for the same work — model mix, batching, and routing tips ranked by impact. <strong>Use it to:</strong> cut your burn before you hit a limit.',
+    'opt.title': 'Optimize <span class="accent">Engine</span>',
+    'opt.sub': 'Actionable recommendations · ranked by savings impact',
+    'opt.refresh': '↺ REFRESH',
+    'opt.scanning': '↺ SCANNING...',
+    'opt.applyAll': 'APPLY ALL',
+    'opt.potentialSavings': 'Potential Savings',
+    'opt.ifAllApplied': 'If all recs applied',
+    'opt.activeRecommendations': 'Active Recommendations',
+    'opt.appliedThisWeek': '{count} applied this week',
+    'opt.priorityLevel': 'Priority Level',
+    'opt.budgetAtRisk': 'Budget at risk',
+    'opt.timeToSafeZone': 'Time to Safe Zone',
+    'opt.ifTopApplied': 'If top rec applied now',
+    'opt.routingGuide': 'Model Routing Guide — When to Use What',
+    'opt.fetching': 'Fetching live recommendations from /api/recommend...',
+    'opt.markApplied': 'MARK APPLIED',
+    'opt.testSimulator': 'TEST IN SIMULATOR',
+    'opt.openingSimulator': 'OPENING SIMULATOR...',
+    'opt.conf': 'CONF {confidence}%',
+
+    'yield.explainer': '<strong>What:</strong> Return on tokens — which sessions produced real value versus burned budget. <strong>Use it to:</strong> spot low-yield habits; import a CodeBurn or Claude session export for a verdict.',
+    'yield.title': 'Yield <span class="accent">Analysis</span>',
+    'yield.sub': 'ROI per conversation · waste detection · value scoring',
+    'yield.importCodeburnJson': '⬆ IMPORT CODEBURN JSON',
+    'yield.runAnalysis': 'RUN ANALYSIS',
+    'yield.importTitle': 'Import CodeBurn Data',
+    'yield.importSub': 'Drop a CodeBurn JSON export here, or click IMPORT above.<br>\n      Don\'t have CodeBurn? Click LOAD DEMO DATA to see how the tab works.',
+    'yield.loadDemo': 'LOAD DEMO DATA',
+    'yield.importJson': 'IMPORT JSON',
+    'yield.avgRoiScore': 'Avg ROI Score',
+    'yield.acrossSessions': '/100 across sessions',
+    'yield.wastedBudget': 'Wasted Budget',
+    'yield.lowValueSessions': 'Low-value sessions',
+    'yield.topSessionDrain': 'Top Session Drain',
+    'yield.tuesdayPmSession': 'Tuesday PM session',
+    'yield.bestRoiSession': 'Best ROI Session',
+    'yield.mondayAmCode': 'Monday AM · Code',
+    'yield.sessionsAnalyzed': 'Sessions Analyzed',
+    'yield.thisWeek': 'This week',
+    'yield.sessionBreakdown': 'Session Breakdown',
+    'yield.sessionBreakdownSub': 'Ranked by ROI score · click any row to expand',
+    'yield.session': 'Session',
+    'yield.surface': 'Surface',
+    'yield.tokens': 'Tokens',
+    'yield.budgetPct': 'Budget %',
+    'yield.roiScore': 'ROI Score',
+    'yield.verdict': 'Verdict',
+    'yield.budgetValue': 'Budget vs. Value',
+    'yield.budgetValueSub': 'Each dot = one session · size = token cost · color = ROI',
+
+    'sim.explainer': '<strong>What:</strong> A what-if model — set your current usage, hours until reset, and work pace to see when you\'ll hit the wall. <strong>Use it to:</strong> plan a week that doesn\'t run out early.',
+    'sim.title': 'Pacing <span class="accent">Simulator</span>',
+    'sim.sub': 'What happens if you change your behavior? Adjust the sliders.',
+    'sim.reset': 'RESET',
+    'sim.savePreset': 'SAVE PRESET',
+    'sim.inputs': 'Inputs',
+    'sim.currentUsage': 'Current Usage ',
+    'sim.hoursUntilReset': 'Hours Until Reset ',
+    'sim.workHoursDay': 'Work Hours/Day ',
+    'sim.sessionsRemaining': 'Sessions Remaining ',
+    'sim.opusMix': 'Opus Mix ',
+    'sim.haiku': 'Haiku',
+    'sim.mixed': 'Mixed',
+    'sim.allOpus': 'All Opus',
+    'sim.quickPresets': 'Quick Presets',
+    'sim.comfortable': 'Comfortable',
+    'sim.tight': 'Tight',
+    'sim.critical': 'Critical',
+    'sim.exhausted': 'Exhausted',
+    'sim.statusTight': 'TIGHT',
+    'sim.descTight': 'Stretching is possible but margins are thin.',
+    'sim.perHour': 'Per Hour',
+    'sim.hrAvailable': '/hr available',
+    'sim.perSession': 'Per Session',
+    'sim.avgIfEven': 'avg if even',
+    'sim.dailyCap': 'Daily Cap',
+    'sim.ifLinear': 'if linear',
+    'sim.effectiveBurn': 'Effective Burn ×',
+    'sim.vsAllHaiku': 'vs all-Haiku',
+    'sim.projectedTrajectory': 'PROJECTED TRAJECTORY',
+    'sim.now': 'NOW',
+    'sim.exhaustionAt': 'EXHAUSTION @ {hours}h',
+    'sim.resetLabel': 'RESET',
+    'sim.safeThroughReset': 'SAFE THROUGH RESET',
+    'sim.recommendation.initial': '<strong>Recommendation:</strong> Limit sessions to Sonnet-only. Reserve any Opus use for the final session before reset.',
+    'sim.vsCurrent': 'vs CURRENT STATE',
+    'sim.comparing': '✓ COMPARING',
+    'sim.applyLive': 'APPLY TO LIVE TAB',
+    'sim.appliedOpeningLive': '✓ APPLIED · OPENING LIVE',
+    'sim.savedScenarios': 'Saved Scenarios',
+    'sim.emptySaved': 'No saved scenarios yet. Adjust sliders, then click SAVE PRESET.',
+    'sim.scenarioPrompt': 'Name this scenario:',
+    'sim.scenarioDefault': 'Scenario {count}',
+    'sim.scenarioVals': '{pct}% used · {hrs}h left · {opus}% opus',
+
+    'compare.explainer': '<strong>What:</strong> Side-by-side usage archetypes (light pro, heavy pro, code power, and more) so you can see where your habits land. <strong>Use it to:</strong> pick a sustainable pacing profile to aim for.',
+    'compare.title': 'Profile <span class="accent">Compare</span>',
+    'compare.sub': 'Side-by-side usage profiles · select up to 3',
+    'compare.addCustom': '+ ADD CUSTOM',
+    'compare.selectProfiles': 'Select Profiles to Compare',
+    'compare.attrComparison': 'Attribute Comparison',
+    'compare.attrSub': 'Normalized across 6 dimensions',
+    'compare.profileMatch': 'PROFILE MATCH',
+    'compare.recMain': 'Select profiles above to see personalized recommendations.',
+    'compare.recMeta': 'Compare up to 3 profiles · click any profile card to load settings into Simulator',
+    'compare.loadSimulator': 'LOAD IN SIMULATOR',
+
+    'codex.panel.aria': 'Codex live usage and routing',
+    'codex.explainer': '<strong>What:</strong> Your live Codex (ChatGPT) limits — 5-hour and weekly usage read from your local Codex sessions — plus a routing matrix for what to delegate. <strong>Use it to:</strong> offload coding work and save Claude budget.',
+    'codex.title': 'Codex <span class="accent">Delegation</span>',
+    'codex.sub': 'Phase 2 primary coding tool · route here when Claude budget tightens',
+    'codex.resetTracker': 'RESET TRACKER',
+    'codex.logTask': '+ LOG TASK',
+    'codex.routingStrategy': '⚙ ROUTING STRATEGY',
+    'codex.strategyMain': 'Codex is your <strong>Phase 2 primary coding tool</strong> (Google AI Pro). When Claude weekly burn exceeds pace, route <strong>scaffold · refactor · lint · boilerplate</strong> to Codex.',
+    'codex.strategyMeta': 'Jules = fallback only. Save Claude for orchestration, planning, and final polish passes.',
+    'codex.viewLiveBurn': 'VIEW LIVE BURN',
+    'codex.fiveHourLimit': 'Codex 5-hour limit · Live',
+    'codex.noDataYet': '▬ no data yet',
+    'codex.weeklyLimit': 'Codex weekly limit · Live',
+    'codex.vsClaude': 'vs running all tasks in Claude',
+    'codex.planTokens': 'Codex Plan / Tokens',
+    'codex.days': 'days',
+    'codex.consecutiveDays': 'consecutive days routing to Codex',
+    'codex.routingMatrix': 'Routing Matrix',
+    'codex.matrixSub': 'Task type → Codex vs Claude vs Jules',
+    'codex.loggedTasks': 'Logged Tasks ',
+    'codex.entries': '— {count} entries',
+    'codex.emptyTasks': 'No tasks logged yet. Click + LOG TASK to add one.',
+    'codex.pathTally': 'Path Decision Tally',
+    'codex.share': 'Codex share',
+    'codex.exportLog': 'EXPORT LOG',
+
+    'broker.explainer': '<strong>What:</strong> A budget router — split your weekly allowance across intents (income, build, explore) and decide what runs on Cloud vs Codex. <strong>Use it to:</strong> protect income work when budget tightens.',
+    'broker.title': 'Broker <span class="accent">Router</span>',
+    'broker.sub': 'Intent budget allocation · Claude vs Codex cross-service advisor',
+    'broker.loadDemo': 'LOAD DEMO INTENT',
+    'broker.syncNow': 'SYNC NOW',
+    'broker.managing': 'Managing ',
+    'broker.intents': ' intents',
+    'broker.switchHint': '· switch with the Cloud / Codex toggle at the top',
+    'broker.crossAdvisor': 'Cross-service advisor',
+    'broker.incomingIntents': 'Incoming Intents',
+    'broker.newIntentPlaceholder': 'New intent...',
+    'broker.income': 'income',
+    'broker.build': 'build',
+    'broker.explore': 'explore',
+    'broker.commit': 'Commit',
+    'broker.rebalance': 'Rebalance',
+
+    'footer.engineOnline': '<span class="dot"></span>ENGINE ONLINE',
+    'footer.surfacePrefix': 'SURFACE: ',
+
+    'onboard.title': 'Welcome to PACER',
+    'onboard.sub': 'How much do you want to see? You can switch anytime from the header.',
+    'onboard.simpleTag': 'Start simple',
+    'onboard.simpleTitle': 'Just getting started',
+    'onboard.simpleBody': 'The essentials only — live budget, history, and optimization tips. Advanced tools stay tucked away until you want them.',
+    'onboard.expertTag': 'Recommended',
+    'onboard.expertTitle': 'Power user',
+    'onboard.expertBody': 'The full dashboard — yield, simulator, profile compare, and the budget broker, all visible.',
+
+    'glossary.title': 'Glossary',
+    'glossary.sub': 'Plain-language definitions for every term in PACER.',
+    'glossary.cloudCodex.term': 'Cloud vs Codex',
+    'glossary.cloudCodex.def': 'Cloud is Anthropic / Claude Code (this app\'s main subject). Codex is OpenAI\'s coding tool you run through ChatGPT. The switch at the top flips the dashboard between each service\'s live limits and routing.',
+    'glossary.fiveHour.term': '5-hour limit',
+    'glossary.fiveHour.def': 'A rolling cap that resets every 5 hours. Hit it and you\'re paused until it refreshes, even when your weekly budget still has room.',
+    'glossary.weekly.term': 'Weekly limit',
+    'glossary.weekly.def': 'Your larger budget that resets once a week (Friday 06:00 Guatemala time for Claude). The main number to pace against.',
+    'glossary.burnRate.term': 'Burn rate',
+    'glossary.burnRate.def': 'How fast you\'re spending budget, shown as % per hour. Compare it to the required pace to know whether you\'re ahead or behind.',
+    'glossary.pacingPlan.term': 'Pacing plan',
+    'glossary.pacingPlan.def': 'A saved target for the week: how much budget to spend per day so you don\'t run out early.',
+    'glossary.hiddenCost.term': 'Hidden cost audit',
+    'glossary.hiddenCost.def': 'A scan for silent token drains — oversized context, repeated tool calls, cache misses — that cost budget without obvious work.',
+    'glossary.runAudit.term': 'Run full audit',
+    'glossary.runAudit.def': 'Triggers that scan on demand and reports what\'s quietly eating your budget.',
+    'glossary.circuit.term': 'Circuit breaker',
+    'glossary.circuit.def': 'A guardrail: when your burn would blow the budget before reset, it warns you (and can suggest pausing) so you don\'t hit a hard stop mid-task.',
+    'glossary.resetAlert.term': 'Reset alert',
+    'glossary.resetAlert.def': 'A countdown and heads-up before a 5-hour or weekly reset, so you can time heavy work for right after a refresh.',
+    'glossary.pattern.term': 'Pattern detection',
+    'glossary.pattern.def': 'Looks across your history for recurring habits — heavy Mondays, late-night spikes — so you can adjust.',
+    'glossary.yield.term': 'Yield analysis',
+    'glossary.yield.def': 'Measures value per token: which sessions were worth the spend. Import a CodeBurn or Claude session export to get a verdict.',
+    'glossary.sim.term': 'Pacing simulator',
+    'glossary.sim.def': 'A what-if calculator. Set current usage %, hours until reset, work hours per day, and sessions remaining; it projects when you\'ll hit the limit.',
+    'glossary.compare.term': 'Profile compare',
+    'glossary.compare.def': 'Pre-built usage archetypes (light pro, heavy pro, max balance, heavy max, code power) to benchmark your habits against.',
+    'glossary.broker.term': 'Broker &amp; intents',
+    'glossary.broker.def': 'A router that splits your weekly budget across intents (income, build, explore) and assigns each to Cloud or Codex, protecting priority work when budget tightens.',
+    'glossary.plan.term': 'Plan tier (Pro / Max / API)',
+    'glossary.plan.def': 'Which Anthropic subscription you\'re on. It sets the limit math PACER paces against; switch it in the header to match your plan.',
+    'glossary.close': 'Close glossary',
+
+    'usage.title': 'Fallback Usage Update',
+    'usage.sub': 'Fallback only. Use this when Tokemon is offline; PACER computes burn and reset time from live history when available.',
+    'usage.placeholder': 'Paste /usage output here. PACER looks for 5-hour and weekly percentages.',
+    'usage.primaryLabel': '5-hour limit used %',
+    'usage.weeklyLabel': 'Weekly limit used %',
+    'usage.burnLabel': 'Computed burn %/hr',
+    'usage.timeLabel': 'Computed time left to reset',
+    'usage.timePlaceholder': 'computed from reset',
+    'usage.parsePaste': 'PARSE PASTE',
+    'usage.applyUpdate': 'APPLY UPDATE',
+    'usage.cancel': 'CANCEL',
+
+    'codexLog.title': 'Log Task Routing Decision',
+    'codexLog.sub': 'Track which tool handled a task. Stored locally only.',
+    'codexLog.taskDescription': 'Task description',
+    'codexLog.taskPlaceholder': 'e.g., Scaffold FARO settings page',
+    'codexLog.routedTo': 'Routed to',
+    'codexLog.tokensSaved': 'Est. Claude tokens saved',
+    'codexLog.saveTask': 'SAVE TASK',
+    'codexLog.cancel': 'CANCEL',
+
+    'toast.language.es': 'Language: Spanish',
+    'toast.language.en': 'Language: English',
+    'toast.tokemonStale': 'Tokemon data stale — start Tokemon to refresh.',
+    'toast.syncedTokemon': 'Synced from Tokemon: {weekly}% weekly, {fiveHour}% 5-hour.',
+    'toast.tokemonFailed': 'Tokemon sync failed. Opening manual usage fallback.',
+    'toast.fallbackParsed': 'Fallback percentages parsed. PACER computed burn and reset time.',
+    'toast.fallbackApplied': 'Fallback usage applied. Start Tokemon for live OAuth refresh.',
+    'toast.newWeek': 'New week started. Live counters reset to zero.',
+    'toast.planSaved': 'Pacing plan saved locally.',
+    'toast.customProfileNumeric': 'Custom profile needs numeric weekly and Opus values.',
+    'toast.brokerRebalanced': 'Broker rebalanced {service} intents.',
+    'toast.intentRouted': 'Intent routed to {service}.',
+    'toast.intentMoved': 'Intent moved to {service}.',
+    'toast.claudeFrozen': 'Claude unlocked intents marked frozen.',
+    'toast.brokerSynced': 'Broker synced with current Live tab state.',
+    'toast.demoIntent': 'Demo intent added to Broker inbox.',
+    'toast.addTaskFirst': 'Add a task description first.',
+    'toast.taskLogged': 'Task logged → {route}',
+    'toast.trackerEmpty': 'Tracker is already empty.',
+    'toast.codexReset': 'Codex tracker reset.',
+    'toast.nothingExport': 'Nothing to export yet.',
+    'toast.exportedTasks': 'Exported {count} tasks to CSV.'
+  },
+  es: {
+    'meta.title': 'PACER // Motor de presupuesto semanal de Anthropic',
+
+    'header.weeklyReset': 'Reinicio semanal',
+    'header.plan.aria': 'Cambiar nivel del plan de Anthropic',
+    'header.plan.title': 'Su nivel de plan de Anthropic (Pro / Max / API). Define el cálculo de límites que PACER usa para el ritmo; cámbielo para que coincida con su suscripción.',
+    'header.theme.aria': 'Cambiar tema',
+    'header.theme.light': 'CLARO',
+    'header.theme.dark': 'OSCURO',
+    'header.lang.aria': 'Cambiar idioma',
+    'header.lang.title': 'Cambiar entre inglés y español.',
+    'header.lang.label': 'ESP/ENG',
+    'header.glossary.aria': 'Abrir glosario',
+    'header.glossary': 'GLOSARIO',
+    'header.profile.aria': 'Cambiar modo de vista',
+    'header.profile.title': 'Cambiar entre el tablero simple y el completo',
+    'header.profile.simple': 'SIMPLE',
+    'header.profile.expert': 'EXPERTO',
+
+    'service.aria': 'Selector de servicio de uso',
+    'service.tracking': 'Seguimiento',
+    'service.cloud': 'Cloud',
+    'service.codex': 'Codex',
+    'service.hint.cloud': '<strong>Anthropic · Claude Code</strong> — uso, analítica y enrutamiento',
+    'service.hint.codex': '<strong>Codex · ChatGPT</strong> — límites en vivo en LIVE, enrutamiento en BROKER. Las pestañas de analítica siguen enfocadas en Claude.',
+
+    'tabs.aria': 'Secciones del tablero',
+    'tabs.live': '<span class="num">01</span>EN VIVO',
+    'tabs.history': '<span class="num">02</span>HISTORIAL',
+    'tabs.optimize': '<span class="num">03</span>OPTIMIZAR',
+    'tabs.yield': '<span class="num">04</span>RENDIMIENTO',
+    'tabs.simulator': '<span class="num">05</span>SIMULADOR',
+    'tabs.compare': '<span class="num">06</span>COMPARAR',
+    'tabs.broker': '<span class="num">07</span>BROKER',
+
+    'common.live': 'EN VIVO',
+    'common.refreshLiveData': 'Actualizar datos en vivo',
+    'common.pending': '— Pendiente',
+    'common.done': 'LISTO',
+    'common.working': 'TRABAJANDO...',
+    'common.opened': 'ABIERTO',
+    'common.parsed': 'ANALIZADO',
+    'common.reset': 'REINICIADO',
+    'common.saved': 'GUARDADO',
+    'common.open': 'ABIERTO',
+    'common.closed': 'CERRADO',
+    'common.syncing': 'SINCRONIZANDO...',
+    'common.scanning': 'ESCANEANDO...',
+    'common.auditComplete': 'AUDITORÍA COMPLETA',
+    'common.analyzing': 'ANALIZANDO...',
+    'common.applied': 'APLICADO',
+    'common.allApplied': '✓ TODO APLICADO',
+    'common.loaded': '✓ CARGADO',
+    'common.delete': 'Eliminar',
+    'common.high': 'ALTO',
+    'common.med': 'MEDIO',
+    'common.low': 'BAJO',
+    'common.ok': 'OK',
+    'common.normal': 'NORMAL',
+    'common.light': 'LIGERO',
+    'common.mondayPlus': 'LUNES+',
+    'common.confidence': 'Confianza {confidence}%',
+    'common.noSessionData': 'Sin datos de sesión',
+    'common.safe': 'SEGURO',
+    'common.custom': 'PERSONALIZADO',
+
+    'live.explainer': '<strong>Qué:</strong> Su presupuesto en vivo de Claude Code: cuánto ha consumido de los límites de 5 horas y semanal, su ritmo actual y cuándo se quedará sin margen. <strong>Úselo para:</strong> decidir si conviene seguir trabajando, bajar el ritmo o enviar trabajo a Codex.',
+    'live.simpleMode': '<strong>Modo simple</strong> — muestra lo esencial. Yield, Simulator, Compare y Broker quedan guardados.',
+    'live.showAllTools': 'Mostrar todas las herramientas',
+    'live.status.aria': 'Estado en vivo',
+    'live.pacingControls.aria': 'Controles de ritmo',
+    'live.pacingControlCenter': 'Centro de control de ritmo',
+    'live.lastAction.empty': 'Aún no hay acciones locales registradas. Guarde un plan o pegue /usage para iniciar el historial.',
+    'live.startNewWeek': 'INICIAR SEMANA NUEVA',
+    'live.updateUsage': 'ACTUALIZAR USO',
+    'live.savePacingPlan': 'GUARDAR PLAN DE RITMO',
+    'live.viewHistory': 'VER HISTORIAL',
+    'live.hideHistory': 'OCULTAR HISTORIAL',
+    'live.localWeekSnapshots': 'Capturas locales de la semana',
+    'live.emptySnapshots': 'Aún no hay capturas guardadas.',
+    'live.weeklyConsumption': '<span class="live-dot"></span>Consumo semanal · En vivo',
+    'live.verdict.youAre': 'Está ',
+    'live.verdict.overPaceInitial': '9% por encima del ritmo',
+    'live.verdict.with': ' con ',
+    'live.verdict.remaining': ' restantes.',
+    'live.pace': 'RITMO',
+    'live.remaining': 'Restante',
+    'live.requiredPace': 'Ritmo requerido',
+    'live.currentBurn': 'Consumo actual',
+    'live.burnRate': 'Tasa de consumo · prom. 60 min',
+    'live.burnDelta.initial': '▲ 200% vs requerido',
+    'live.burnDelta': '▲ {pct}% vs requerido',
+    'live.vsRequired': '— vs requerido',
+    'live.targetRate': '— — — OBJETIVO {rate}%/hr',
+    'live.exhaustProjected': '⚠ AGOTAMIENTO PROYECTADO: <strong>{time}</strong>',
+    'live.onPaceProjected': '✓ EN RITMO: proyectado <strong>{pct}%</strong> al reinicio',
+    'live.surfaceAttribution': 'Atribución por superficie',
+    'live.surfaceAlert.initial': 'Chat es su mayor gasto. Dos conversaciones &gt;80K tokens generaron 31% del total esta semana.',
+    'live.surfaceAlert.data': '{cost} en {sessions} sesiones · modelo principal: {model} · herramienta principal: {tool}.',
+    'live.rec.syncing': 'SINCRONIZANDO',
+    'live.rec.waiting': 'Esperando sincronización de uso de Tokemon.',
+    'live.rec.meta': 'Las recomendaciones en vivo se actualizan después de que PACER lee el uso OAuth más reciente.',
+    'live.apply': 'APLICAR',
+    'live.snooze': 'POSPONER 1HR',
+    'live.dismiss': 'DESCARTAR',
+    'live.burnVsPace': 'Consumo vs. ritmo',
+    'live.cumulative': 'Consumo acumulado · este ciclo',
+    'live.view24h': '24H',
+    'live.viewWeek': 'SEMANA',
+    'live.view30d': '30D',
+    'live.dailyDistribution': 'Distribución diaria',
+    'live.patternWeighted': 'Ponderado por patrón · prom. 8 semanas',
+    'live.legend.actual': '▬ Real',
+    'live.legend.target': '| Objetivo',
+    'live.legend.over': '▬ Sobre',
+    'live.modelMix': 'Mezcla de modelos · Esta semana',
+    'live.burnMultiplier': 'Multiplicador de consumo vs. todo-Haiku',
+    'live.optimizeMix': 'OPTIMIZAR MEZCLA',
+    'live.transcriptCost': 'Costo de transcripción',
+    'live.circuitBreaker': 'Disyuntor',
+    'live.breakerStatus': 'ARMADO · MONITOREANDO',
+    'live.breakerDesc': 'Las alertas automáticas se activan en 50%, 70%, 90%. Siguiente: 90%.',
+    'live.alert50': 'Alerta 50%',
+    'live.alert70': 'Alerta 70%',
+    'live.alert90': 'Alerta 90%',
+    'live.alert100': 'Bloqueo 100%',
+    'live.firedTue0914': '✓ Activada mar. 09:14',
+    'live.firedTue2247': '✓ Activada mar. 22:47',
+    'live.resetAlerts': 'REINICIAR ALERTAS',
+    'live.hiddenAudit': 'Auditoría de costos ocultos',
+    'live.projectKbOverhead': 'Sobrecarga de Project KB',
+    'live.conversationHistory': 'Historial de conversación',
+    'live.mcpSchemaInjection': 'Inyección de esquema MCP',
+    'live.memorySummaries': 'Resúmenes de memoria',
+    'live.totalInvisibleOverhead': 'Sobrecarga invisible total',
+    'live.runFullAudit': 'EJECUTAR AUDITORÍA COMPLETA',
+
+    'history.explainer': '<strong>Qué:</strong> Gasto diario de token y costo, tomado de sus registros reales de sesión de Claude Code. <strong>Úselo para:</strong> ver qué días salieron caros y exportar los datos como CSV.',
+    'history.title': 'Historial de <span class="accent">uso</span>',
+    'history.sub': 'Patrón de 7 días · semana contra semana · detección de tendencias',
+    'history.prevWeek': '← SEMANA ANT.',
+    'history.thisWeek': 'ESTA SEMANA',
+    'history.lastWeek': 'SEMANA PASADA',
+    'history.nextWeek': 'SEMANA SIG. →',
+    'history.exportCsv': 'EXPORTAR CSV',
+    'history.totalUsed': 'Uso total',
+    'history.totalDelta.initial': '▲ 12% vs semana pasada',
+    'history.peakDay': 'Día pico',
+    'history.monday': 'Lunes',
+    'history.pacingEfficiency': 'Eficiencia de ritmo',
+    'history.effDelta.initial': '▲ 3% vs semana pasada',
+    'history.lockouts': 'Bloqueos',
+    'history.noLockouts': 'Sin bloqueos esta semana',
+    'history.avgDay': 'Prom. / día',
+    'history.targetInitial': 'Objetivo 14.3%',
+    'history.chartTitle': 'Consumo diario — Semana contra semana',
+    'history.chartSub': 'Barras = real · Línea = promedio 8 semanas · Punteado = objetivo',
+    'history.daily': 'DIARIO',
+    'history.cumulative': 'ACUMULADO',
+    'history.bySurface': 'POR SUPERFICIE',
+    'history.dayBreakdown': 'Desglose diario',
+    'history.dayBreakdownSub': 'Esta semana vs semana pasada vs prom. 8 semanas',
+    'history.day': 'Día',
+    'history.thisWeekHeader': 'Esta semana',
+    'history.lastWeekHeader': 'Semana pasada',
+    'history.avg8w': 'Prom. 8S',
+    'history.vsTarget': 'vs objetivo',
+    'history.pattern': 'Patrón',
+    'history.patternEngine': 'Motor de detección de patrones',
+    'history.vsPriorWeek': '{arrow} {pct}% vs semana anterior',
+
+    'opt.explainer': '<strong>Qué:</strong> Formas concretas de gastar menos tokens para el mismo trabajo: mezcla de modelos, lotes y recomendaciones de enrutamiento ordenadas por impacto. <strong>Úselo para:</strong> reducir el consumo antes de llegar a un límite.',
+    'opt.title': 'Motor de <span class="accent">optimización</span>',
+    'opt.sub': 'Recomendaciones accionables · ordenadas por impacto de ahorro',
+    'opt.refresh': '↺ ACTUALIZAR',
+    'opt.scanning': '↺ ESCANEANDO...',
+    'opt.applyAll': 'APLICAR TODO',
+    'opt.potentialSavings': 'Ahorro potencial',
+    'opt.ifAllApplied': 'Si se aplican todas las recs',
+    'opt.activeRecommendations': 'Recomendaciones activas',
+    'opt.appliedThisWeek': '{count} aplicadas esta semana',
+    'opt.priorityLevel': 'Nivel de prioridad',
+    'opt.budgetAtRisk': 'Presupuesto en riesgo',
+    'opt.timeToSafeZone': 'Tiempo a zona segura',
+    'opt.ifTopApplied': 'Si la rec principal se aplica ahora',
+    'opt.routingGuide': 'Guía de enrutamiento de modelos — Cuándo usar cada uno',
+    'opt.fetching': 'Obteniendo recomendaciones en vivo de /api/recommend...',
+    'opt.markApplied': 'MARCAR APLICADA',
+    'opt.testSimulator': 'PROBAR EN SIMULADOR',
+    'opt.openingSimulator': 'ABRIENDO SIMULADOR...',
+    'opt.conf': 'CONF {confidence}%',
+
+    'yield.explainer': '<strong>Qué:</strong> Retorno sobre tokens: qué sesiones produjeron valor real frente al presupuesto consumido. <strong>Úselo para:</strong> detectar hábitos de bajo rendimiento; importe una exportación de sesión de CodeBurn o Claude para obtener un veredicto.',
+    'yield.title': 'Análisis de <span class="accent">rendimiento</span>',
+    'yield.sub': 'ROI por conversación · detección de desperdicio · puntuación de valor',
+    'yield.importCodeburnJson': '⬆ IMPORTAR JSON DE CODEBURN',
+    'yield.runAnalysis': 'EJECUTAR ANÁLISIS',
+    'yield.importTitle': 'Importar datos de CodeBurn',
+    'yield.importSub': 'Suelte aquí una exportación JSON de CodeBurn o haga clic en IMPORTAR arriba.<br>\n      ¿No tiene CodeBurn? Haga clic en CARGAR DATOS DEMO para ver cómo funciona la pestaña.',
+    'yield.loadDemo': 'CARGAR DATOS DEMO',
+    'yield.importJson': 'IMPORTAR JSON',
+    'yield.avgRoiScore': 'Puntaje ROI prom.',
+    'yield.acrossSessions': '/100 entre sesiones',
+    'yield.wastedBudget': 'Presupuesto desperdiciado',
+    'yield.lowValueSessions': 'Sesiones de bajo valor',
+    'yield.topSessionDrain': 'Mayor drenaje de sesión',
+    'yield.tuesdayPmSession': 'Sesión martes PM',
+    'yield.bestRoiSession': 'Mejor sesión ROI',
+    'yield.mondayAmCode': 'Lunes AM · Code',
+    'yield.sessionsAnalyzed': 'Sesiones analizadas',
+    'yield.thisWeek': 'Esta semana',
+    'yield.sessionBreakdown': 'Desglose de sesiones',
+    'yield.sessionBreakdownSub': 'Ordenado por puntaje ROI · haga clic en cualquier fila para expandir',
+    'yield.session': 'Sesión',
+    'yield.surface': 'Superficie',
+    'yield.tokens': 'Tokens',
+    'yield.budgetPct': 'Presupuesto %',
+    'yield.roiScore': 'Puntaje ROI',
+    'yield.verdict': 'Veredicto',
+    'yield.budgetValue': 'Presupuesto vs. valor',
+    'yield.budgetValueSub': 'Cada punto = una sesión · tamaño = costo en token · color = ROI',
+
+    'sim.explainer': '<strong>Qué:</strong> Un modelo hipotético: configure su uso actual, horas hasta el reinicio y ritmo de trabajo para ver cuándo tocará el límite. <strong>Úselo para:</strong> planificar una semana que no se agote temprano.',
+    'sim.title': 'Simulador de <span class="accent">ritmo</span>',
+    'sim.sub': '¿Qué pasa si cambia su comportamiento? Ajuste los controles.',
+    'sim.reset': 'REINICIAR',
+    'sim.savePreset': 'GUARDAR PRESET',
+    'sim.inputs': 'Entradas',
+    'sim.currentUsage': 'Uso actual ',
+    'sim.hoursUntilReset': 'Horas hasta reinicio ',
+    'sim.workHoursDay': 'Horas de trabajo/día ',
+    'sim.sessionsRemaining': 'Sesiones restantes ',
+    'sim.opusMix': 'Mezcla Opus ',
+    'sim.haiku': 'Haiku',
+    'sim.mixed': 'Mixto',
+    'sim.allOpus': 'Todo Opus',
+    'sim.quickPresets': 'Presets rápidos',
+    'sim.comfortable': 'Cómodo',
+    'sim.tight': 'Ajustado',
+    'sim.critical': 'Crítico',
+    'sim.exhausted': 'Agotado',
+    'sim.statusTight': 'AJUSTADO',
+    'sim.descTight': 'Es posible estirar el presupuesto, pero el margen es estrecho.',
+    'sim.perHour': 'Por hora',
+    'sim.hrAvailable': '/hr disponible',
+    'sim.perSession': 'Por sesión',
+    'sim.avgIfEven': 'prom. si es uniforme',
+    'sim.dailyCap': 'Tope diario',
+    'sim.ifLinear': 'si es lineal',
+    'sim.effectiveBurn': 'Consumo efectivo ×',
+    'sim.vsAllHaiku': 'vs todo-Haiku',
+    'sim.projectedTrajectory': 'TRAYECTORIA PROYECTADA',
+    'sim.now': 'AHORA',
+    'sim.exhaustionAt': 'AGOTAMIENTO @ {hours}h',
+    'sim.resetLabel': 'REINICIO',
+    'sim.safeThroughReset': 'SEGURO HASTA EL REINICIO',
+    'sim.recommendation.initial': '<strong>Recomendación:</strong> Limite las sesiones a solo Sonnet. Reserve cualquier uso de Opus para la última sesión antes del reinicio.',
+    'sim.vsCurrent': 'vs ESTADO ACTUAL',
+    'sim.comparing': '✓ COMPARANDO',
+    'sim.applyLive': 'APLICAR A LIVE',
+    'sim.appliedOpeningLive': '✓ APLICADO · ABRIENDO LIVE',
+    'sim.savedScenarios': 'Escenarios guardados',
+    'sim.emptySaved': 'Aún no hay escenarios guardados. Ajuste los controles y luego haga clic en GUARDAR PRESET.',
+    'sim.scenarioPrompt': 'Nombre este escenario:',
+    'sim.scenarioDefault': 'Escenario {count}',
+    'sim.scenarioVals': '{pct}% usado · {hrs}h restantes · {opus}% opus',
+
+    'compare.explainer': '<strong>Qué:</strong> Arquetipos de uso lado a lado (pro ligero, pro intensivo, potencia de código y más) para ver dónde caen sus hábitos. <strong>Úselo para:</strong> elegir un perfil de ritmo sostenible como objetivo.',
+    'compare.title': 'Comparación de <span class="accent">perfiles</span>',
+    'compare.sub': 'Perfiles de uso lado a lado · seleccione hasta 3',
+    'compare.addCustom': '+ AGREGAR PERSONALIZADO',
+    'compare.selectProfiles': 'Seleccione perfiles para comparar',
+    'compare.attrComparison': 'Comparación de atributos',
+    'compare.attrSub': 'Normalizado en 6 dimensiones',
+    'compare.profileMatch': 'COINCIDENCIA DE PERFIL',
+    'compare.recMain': 'Seleccione perfiles arriba para ver recomendaciones personalizadas.',
+    'compare.recMeta': 'Compare hasta 3 perfiles · haga clic en cualquier tarjeta de perfil para cargar ajustes en Simulator',
+    'compare.loadSimulator': 'CARGAR EN SIMULADOR',
+
+    'codex.panel.aria': 'Uso en vivo y enrutamiento de Codex',
+    'codex.explainer': '<strong>Qué:</strong> Sus límites en vivo de Codex (ChatGPT): uso de 5 horas y semanal leído desde sus sesiones locales de Codex, más una matriz de enrutamiento sobre qué delegar. <strong>Úselo para:</strong> descargar trabajo de código y ahorrar presupuesto de Claude.',
+    'codex.title': 'Delegación a <span class="accent">Codex</span>',
+    'codex.sub': 'Herramienta principal de código en Fase 2 · enrute aquí cuando el presupuesto de Claude se ajuste',
+    'codex.resetTracker': 'REINICIAR TRACKER',
+    'codex.logTask': '+ REGISTRAR TAREA',
+    'codex.routingStrategy': '⚙ ESTRATEGIA DE ENRUTAMIENTO',
+    'codex.strategyMain': 'Codex es su <strong>herramienta principal de código en Fase 2</strong> (Google AI Pro). Cuando el consumo semanal de Claude exceda el ritmo, enrute <strong>scaffold · refactor · lint · boilerplate</strong> a Codex.',
+    'codex.strategyMeta': 'Jules = solo respaldo. Reserve Claude para orquestación, planificación y pasadas finales de pulido.',
+    'codex.viewLiveBurn': 'VER CONSUMO EN VIVO',
+    'codex.fiveHourLimit': 'Límite Codex de 5 horas · En vivo',
+    'codex.noDataYet': '▬ aún sin datos',
+    'codex.weeklyLimit': 'Límite semanal de Codex · En vivo',
+    'codex.vsClaude': 'vs ejecutar todas las tareas en Claude',
+    'codex.planTokens': 'Plan / Tokens de Codex',
+    'codex.days': 'días',
+    'codex.consecutiveDays': 'días consecutivos enrutando a Codex',
+    'codex.routingMatrix': 'Matriz de enrutamiento',
+    'codex.matrixSub': 'Tipo de tarea → Codex vs Claude vs Jules',
+    'codex.loggedTasks': 'Tareas registradas ',
+    'codex.entries': '— {count} entradas',
+    'codex.emptyTasks': 'Aún no hay tareas registradas. Haga clic en + REGISTRAR TAREA para agregar una.',
+    'codex.pathTally': 'Conteo de decisiones de ruta',
+    'codex.share': 'Participación de Codex',
+    'codex.exportLog': 'EXPORTAR LOG',
+
+    'broker.explainer': '<strong>Qué:</strong> Un router de presupuesto: divida su asignación semanal entre intenciones (ingresos, construcción, exploración) y decida qué corre en Cloud vs Codex. <strong>Úselo para:</strong> proteger el trabajo de ingresos cuando el presupuesto se ajusta.',
+    'broker.title': 'Router <span class="accent">Broker</span>',
+    'broker.sub': 'Asignación de presupuesto por intención · asesor cruzado Claude vs Codex',
+    'broker.loadDemo': 'CARGAR INTENCIÓN DEMO',
+    'broker.syncNow': 'SINCRONIZAR AHORA',
+    'broker.managing': 'Gestionando intenciones de ',
+    'broker.intents': '',
+    'broker.switchHint': '· cambie con el selector Cloud / Codex de arriba',
+    'broker.crossAdvisor': 'Asesor cruzado',
+    'broker.incomingIntents': 'Intenciones entrantes',
+    'broker.newIntentPlaceholder': 'Nueva intención...',
+    'broker.income': 'ingresos',
+    'broker.build': 'construcción',
+    'broker.explore': 'exploración',
+    'broker.commit': 'Confirmar',
+    'broker.rebalance': 'Rebalancear',
+
+    'footer.engineOnline': '<span class="dot"></span>MOTOR EN LÍNEA',
+    'footer.surfacePrefix': 'SUPERFICIE: ',
+
+    'onboard.title': 'Bienvenido a PACER',
+    'onboard.sub': '¿Cuánto desea ver? Puede cambiarlo en cualquier momento desde el encabezado.',
+    'onboard.simpleTag': 'Empezar simple',
+    'onboard.simpleTitle': 'Primeros pasos',
+    'onboard.simpleBody': 'Solo lo esencial: presupuesto en vivo, historial y consejos de optimización. Las herramientas avanzadas quedan guardadas hasta que las necesite.',
+    'onboard.expertTag': 'Recomendado',
+    'onboard.expertTitle': 'Usuario avanzado',
+    'onboard.expertBody': 'El tablero completo: rendimiento, simulador, comparación de perfiles y broker de presupuesto, todo visible.',
+
+    'glossary.title': 'Glosario',
+    'glossary.sub': 'Definiciones claras para cada término en PACER.',
+    'glossary.cloudCodex.term': 'Cloud vs Codex',
+    'glossary.cloudCodex.def': 'Cloud es Anthropic / Claude Code (el tema principal de esta app). Codex es la herramienta de código de OpenAI que se usa mediante ChatGPT. El selector superior cambia el tablero entre los límites en vivo y el enrutamiento de cada servicio.',
+    'glossary.fiveHour.term': 'Límite de 5 horas',
+    'glossary.fiveHour.def': 'Un tope móvil que se reinicia cada 5 horas. Si lo alcanza, queda pausado hasta que se actualice, aunque su presupuesto semanal todavía tenga margen.',
+    'glossary.weekly.term': 'Límite semanal',
+    'glossary.weekly.def': 'Su presupuesto mayor, que se reinicia una vez por semana (viernes 06:00 hora de Guatemala para Claude). Es el número principal contra el cual medir el ritmo.',
+    'glossary.burnRate.term': 'Tasa de consumo',
+    'glossary.burnRate.def': 'Qué tan rápido está gastando presupuesto, mostrado como % por hora. Compárelo con el ritmo requerido para saber si va adelantado o atrasado.',
+    'glossary.pacingPlan.term': 'Plan de ritmo',
+    'glossary.pacingPlan.def': 'Un objetivo guardado para la semana: cuánto presupuesto gastar por día para no quedarse sin margen temprano.',
+    'glossary.hiddenCost.term': 'Auditoría de costos ocultos',
+    'glossary.hiddenCost.def': 'Un escaneo de drenajes silenciosos de token: contexto sobredimensionado, llamadas repetidas a herramientas, fallos de caché; todo eso cuesta presupuesto sin trabajo evidente.',
+    'glossary.runAudit.term': 'Ejecutar auditoría completa',
+    'glossary.runAudit.def': 'Activa ese escaneo bajo demanda e informa qué está consumiendo presupuesto en silencio.',
+    'glossary.circuit.term': 'Disyuntor',
+    'glossary.circuit.def': 'Una barrera de protección: cuando su consumo agotaría el presupuesto antes del reinicio, le advierte (y puede sugerir una pausa) para no topar con un corte duro a mitad de una tarea.',
+    'glossary.resetAlert.term': 'Alerta de reinicio',
+    'glossary.resetAlert.def': 'Una cuenta regresiva y aviso antes de un reinicio de 5 horas o semanal, para programar trabajo pesado justo después de la actualización.',
+    'glossary.pattern.term': 'Detección de patrones',
+    'glossary.pattern.def': 'Revisa su historial para encontrar hábitos recurrentes: lunes pesados, picos nocturnos, y así ajustar el ritmo.',
+    'glossary.yield.term': 'Análisis de rendimiento',
+    'glossary.yield.def': 'Mide valor por token: qué sesiones valieron el gasto. Importe una exportación de CodeBurn o Claude para obtener un veredicto.',
+    'glossary.sim.term': 'Simulador de ritmo',
+    'glossary.sim.def': 'Una calculadora hipotética. Configure uso actual %, horas hasta reinicio, horas de trabajo por día y sesiones restantes; proyecta cuándo llegará al límite.',
+    'glossary.compare.term': 'Comparación de perfiles',
+    'glossary.compare.def': 'Arquetipos de uso prearmados (pro ligero, pro intensivo, max balanceado, max intensivo, potencia de código) para comparar sus hábitos.',
+    'glossary.broker.term': 'Broker e intenciones',
+    'glossary.broker.def': 'Un router que divide su presupuesto semanal entre intenciones (ingresos, construcción, exploración) y asigna cada una a Cloud o Codex, protegiendo el trabajo prioritario cuando el presupuesto se ajusta.',
+    'glossary.plan.term': 'Nivel de plan (Pro / Max / API)',
+    'glossary.plan.def': 'La suscripción de Anthropic que usa. Define el cálculo de límites que PACER usa para el ritmo; cámbiela en el encabezado para que coincida con su plan.',
+    'glossary.close': 'Cerrar glosario',
+
+    'usage.title': 'Actualización de uso alternativa',
+    'usage.sub': 'Solo alternativa. Úsela cuando Tokemon esté fuera de línea; PACER calcula consumo y tiempo de reinicio desde el historial en vivo cuando está disponible.',
+    'usage.placeholder': 'Pegue aquí la salida de /usage. PACER busca porcentajes de 5 horas y semanales.',
+    'usage.primaryLabel': 'Límite de 5 horas usado %',
+    'usage.weeklyLabel': 'Límite semanal usado %',
+    'usage.burnLabel': 'Consumo calculado %/hr',
+    'usage.timeLabel': 'Tiempo calculado hasta reinicio',
+    'usage.timePlaceholder': 'calculado desde el reinicio',
+    'usage.parsePaste': 'ANALIZAR PEGADO',
+    'usage.applyUpdate': 'APLICAR ACTUALIZACIÓN',
+    'usage.cancel': 'CANCELAR',
+
+    'codexLog.title': 'Registrar decisión de enrutamiento',
+    'codexLog.sub': 'Registre qué herramienta manejó una tarea. Solo se guarda localmente.',
+    'codexLog.taskDescription': 'Descripción de la tarea',
+    'codexLog.taskPlaceholder': 'ej., Crear página de ajustes FARO',
+    'codexLog.routedTo': 'Enrutado a',
+    'codexLog.tokensSaved': 'Tokens Claude ahorrados est.',
+    'codexLog.saveTask': 'GUARDAR TAREA',
+    'codexLog.cancel': 'CANCELAR',
+
+    'toast.language.es': 'Idioma: español',
+    'toast.language.en': 'Idioma: inglés',
+    'toast.tokemonStale': 'Datos de Tokemon obsoletos — inicie Tokemon para actualizar.',
+    'toast.syncedTokemon': 'Sincronizado desde Tokemon: {weekly}% semanal, {fiveHour}% 5 horas.',
+    'toast.tokemonFailed': 'Falló la sincronización de Tokemon. Abriendo actualización manual alternativa.',
+    'toast.fallbackParsed': 'Porcentajes alternativos analizados. PACER calculó consumo y tiempo de reinicio.',
+    'toast.fallbackApplied': 'Uso alternativo aplicado. Inicie Tokemon para actualización OAuth en vivo.',
+    'toast.newWeek': 'Semana nueva iniciada. Contadores en vivo reiniciados a cero.',
+    'toast.planSaved': 'Plan de ritmo guardado localmente.',
+    'toast.customProfileNumeric': 'El perfil personalizado necesita valores numéricos para semanal y Opus.',
+    'toast.brokerRebalanced': 'Broker rebalanceó las intenciones de {service}.',
+    'toast.intentRouted': 'Intención enrutada a {service}.',
+    'toast.intentMoved': 'Intención movida a {service}.',
+    'toast.claudeFrozen': 'Intenciones desbloqueadas de Claude marcadas como congeladas.',
+    'toast.brokerSynced': 'Broker sincronizado con el estado actual de Live.',
+    'toast.demoIntent': 'Intención demo agregada a la bandeja de Broker.',
+    'toast.addTaskFirst': 'Agregue primero una descripción de tarea.',
+    'toast.taskLogged': 'Tarea registrada → {route}',
+    'toast.trackerEmpty': 'El tracker ya está vacío.',
+    'toast.codexReset': 'Tracker de Codex reiniciado.',
+    'toast.nothingExport': 'Aún no hay nada para exportar.',
+    'toast.exportedTasks': 'Se exportaron {count} tareas a CSV.'
+  }
+};
+
 const PACER = {
 	  state: {
 	    theme: 'light',
@@ -3865,6 +4692,51 @@ const PACER = {
 	  latestData: null,
 	  latestUsage: null,
 	  latestCodexUsage: null,
+
+  t(key, vars = {}) {
+    const lang = this.state?.language === 'es' ? 'es' : 'en';
+    const value = I18N[lang]?.[key] ?? I18N.en[key] ?? key;
+    return String(value).replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? '');
+  },
+
+  applyLanguage(lang = this.state.language) {
+    const language = lang === 'es' ? 'es' : 'en';
+    const read = (key) => I18N[language]?.[key] ?? I18N.en[key];
+
+    const titleText = read('meta.title');
+    if (titleText) document.title = titleText;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const value = read(key);
+      if (value != null) el.innerHTML = value;
+    });
+
+    [
+      ['data-i18n-title', 'title'],
+      ['data-i18n-aria', 'aria-label'],
+      ['data-i18n-placeholder', 'placeholder']
+    ].forEach(([dataAttr, attr]) => {
+      document.querySelectorAll(`[${dataAttr}]`).forEach(el => {
+        const value = read(el.getAttribute(dataAttr));
+        if (value != null) el.setAttribute(attr, value);
+      });
+    });
+
+    this.refreshLanguageStateLabels();
+  },
+
+  refreshLanguageStateLabels() {
+    this.setTheme(this.state.theme, false, false);
+    this.updateProfileLabel();
+    this.updateServiceHint();
+    const footer = document.getElementById('footerSurface');
+    if (footer) {
+      footer.textContent = this.t('footer.surfacePrefix') +
+        String(this.state.activeTab || 'live').toUpperCase() +
+        (this.state.service === 'codex' ? ' · CODEX' : '');
+    }
+  },
 
   init() {
     this.restoreTheme();
@@ -3908,12 +4780,9 @@ const PACER = {
   setTheme(theme, animate = true, persist = true) {
     this.state.theme = theme;
     document.documentElement.setAttribute('data-theme', theme);
-    const themeLabels = this.state.language === 'es'
-      ? { dark: 'OSCURO', light: 'CLARO' }
-      : { dark: 'DARK', light: 'LIGHT' };
     const themeLabel = document.getElementById('themeLabel');
     const themeIcon = document.getElementById('themeIcon');
-    if (themeLabel) themeLabel.textContent = themeLabels[theme];
+    if (themeLabel) themeLabel.textContent = this.t(theme === 'dark' ? 'header.theme.dark' : 'header.theme.light');
     if (themeIcon) themeIcon.textContent = theme === 'dark' ? '◐' : '◑';
 
     if (animate) {
@@ -3951,7 +4820,7 @@ const PACER = {
     document.documentElement.lang = language === 'es' ? 'es' : 'en';
     document.documentElement.setAttribute('data-lang', language);
     document.getElementById('langToggle')?.setAttribute('data-current', language);
-    this.setTheme(this.state.theme, false, false);
+    this.applyLanguage(language);
 
     if (persist) {
       try {
@@ -3965,7 +4834,7 @@ const PACER = {
     document.getElementById('langToggle')?.addEventListener('click', () => {
       const next = this.state.language === 'en' ? 'es' : 'en';
       this.setLanguage(next);
-      this.showToast(next === 'es' ? 'Español (beta) · interfaz en progreso' : 'Language: English');
+      this.showToast(next === 'es' ? 'toast.language.es' : 'toast.language.en');
     });
   },
 
@@ -4042,7 +4911,7 @@ const PACER = {
       }
     });
     document.getElementById('footerSurface').textContent =
-      'SURFACE: ' + name.toUpperCase() + (service === 'codex' ? ' · CODEX' : '');
+      this.t('footer.surfacePrefix') + name.toUpperCase() + (service === 'codex' ? ' · CODEX' : '');
     // Per-tab canvas redraws (deferred so DOM is stable post-animation)
     if (targetPanel === 'live' && PACER.live) setTimeout(() => PACER.live.drawChart(), 80);
     if (PACER.live?.resetOptimizeCTA) PACER.live.resetOptimizeCTA();
@@ -4079,12 +4948,7 @@ const PACER = {
     cloudBtn?.setAttribute('aria-pressed', String(service === 'cloud'));
     codexBtn?.setAttribute('aria-pressed', String(service === 'codex'));
 
-    const hint = document.getElementById('serviceHint');
-    if (hint) {
-      hint.innerHTML = service === 'codex'
-        ? '<strong>Codex · ChatGPT</strong> — live limits in LIVE, routing in BROKER. Analytics tabs stay Claude-scoped.'
-        : '<strong>Anthropic · Claude Code</strong> — usage, analytics &amp; routing';
-    }
+    this.updateServiceHint();
 
     // Mirror to the Broker so its intents follow the global service.
     if (PACER.broker?.setActiveServiceFromGlobal) {
@@ -4095,6 +4959,14 @@ const PACER = {
 
     // Re-render the current tab against the selected service.
     this.activateTab(this.state.activeTab);
+  },
+
+  updateServiceHint() {
+    const hint = document.getElementById('serviceHint');
+    if (!hint) return;
+    hint.innerHTML = this.state.service === 'codex'
+      ? this.t('service.hint.codex')
+      : this.t('service.hint.cloud');
   },
 
   /* ------------ Glossary + reusable modal a11y helper ------------ */
@@ -4134,14 +5006,18 @@ const PACER = {
     const profile = mode === 'newbie' ? 'newbie' : 'expert';
     this.state.profile = profile;
     document.body.setAttribute('data-profile', profile);
-    const label = document.getElementById('profileLabel');
-    if (label) label.textContent = profile === 'newbie' ? 'SIMPLE' : 'EXPERT';
+    this.updateProfileLabel();
     // If a now-hidden tab is active, fall back to Live.
     const hiddenInNewbie = ['yield', 'simulator', 'compare', 'broker'];
     if (profile === 'newbie' && hiddenInNewbie.includes(this.state.activeTab)) {
       this.activateTab('live');
     }
     if (persist) { try { localStorage.setItem('pacer.profile', profile); } catch (e) {} }
+  },
+
+  updateProfileLabel() {
+    const label = document.getElementById('profileLabel');
+    if (label) label.textContent = this.t(this.state.profile === 'newbie' ? 'header.profile.simple' : 'header.profile.expert');
   },
 
   modal: {
@@ -4238,7 +5114,9 @@ const PACER = {
     document.getElementById('footerClock').textContent = this.fmtGTClock();
     // Update reset target label (GT time)
     const resetGT = new Date(reset.getTime() - 6 * 3600 * 1000);
-    const dayNames = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    const dayNames = this.state.language === 'es'
+      ? ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB']
+      : ['SUN','MON','TUE','WED','THU','FRI','SAT'];
     const target = document.getElementById('resetTarget');
     if (target) target.textContent = `${dayNames[resetGT.getUTCDay()]} 06:00 GT`;
   },
@@ -4277,24 +5155,24 @@ const PACER = {
     });
   },
 
-  showToast(message) {
+  showToast(message, vars = {}) {
     const toast = document.getElementById('pacerToast');
     if (!toast) return;
-    toast.textContent = message;
+    toast.textContent = I18N.en[message] || I18N.es[message] ? this.t(message, vars) : message;
     toast.classList.add('show');
     clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
   },
 
-  flashButton(button, label = 'DONE') {
+  flashButton(button, label = 'common.done') {
     if (!button) return;
     const original = button.textContent;
     button.classList.add('loading');
-    button.textContent = 'WORKING...';
+    button.textContent = this.t('common.working');
     setTimeout(() => {
       button.classList.remove('loading');
       button.classList.add('pulse-ok');
-      button.textContent = label;
+      button.textContent = I18N.en[label] || I18N.es[label] ? this.t(label) : label;
       setTimeout(() => {
         button.classList.remove('pulse-ok');
         button.textContent = original;
@@ -4316,7 +5194,7 @@ const PACER = {
   },
 
 	  formatStamp(date) {
-	    return date.toLocaleString('en-US', {
+	    return date.toLocaleString(this.state.language === 'es' ? 'es-GT' : 'en-US', {
 	      month: 'short',
 	      day: '2-digit',
 	      hour: '2-digit',
