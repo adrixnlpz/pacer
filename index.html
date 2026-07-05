@@ -4284,7 +4284,7 @@ const I18N = {
     'common.noModel': 'No model',
     'common.noModelUsageFound': 'No model usage found',
     'common.noModelData': 'No model data',
-    'common.resetUnknown': 'reset unknown',
+    'common.resetUnknown': 'unknown',
     'common.soon': 'soon',
     'common.day.FRI': 'FRI',
     'common.day.SAT': 'SAT',
@@ -4688,9 +4688,9 @@ const I18N = {
     'live.verdict.youAre': 'Está ',
     'live.verdict.overPaceInitial': '9% por encima del ritmo',
     'live.verdict.with': ' con ',
-    'live.verdict.remaining': ' restántes.',
+    'live.verdict.remaining': ' restantes.',
     'live.pace': 'RITMO',
-    'live.remaining': 'Restánte',
+    'live.remaining': 'Restante',
     'live.requiredPace': 'Ritmo requerido',
     'live.currentBurn': 'Consumo actual',
     'live.burnRate': 'Tasa de consumo · prom. 60 min',
@@ -4852,7 +4852,7 @@ const I18N = {
     'sim.currentUsage': 'Uso actual ',
     'sim.hoursUntilReset': 'Horas hasta reinicio ',
     'sim.workHoursDay': 'Horas de trabajo/día ',
-    'sim.sessionsRemaining': 'Sesiónes restántes ',
+    'sim.sessionsRemaining': 'Sesiónes restantes ',
     'sim.opusMix': 'Mezcla Opus ',
     'sim.haiku': 'Haiku',
     'sim.mixed': 'Mixto',
@@ -4886,7 +4886,7 @@ const I18N = {
     'sim.emptySaved': 'Aún no hay escenarios guardados. Ajuste los controles y luego haga clic en GUARDAR PRESET.',
     'sim.scenarioPrompt': 'Nombre este escenario:',
     'sim.scenarioDefault': 'Escenario {count}',
-    'sim.scenarioVals': '{pct}% usado · {hrs}h restántes · {opus}% opus',
+    'sim.scenarioVals': '{pct}% usado · {hrs}h restantes · {opus}% opus',
 
     'compare.explainer': '<strong>Qué:</strong> Arquetipos de uso lado a lado (pro ligero, pro intensivo, potencia de código y más) para ver dónde caen sus hábitos. <strong>Úselo para:</strong> elegir un perfil de ritmo sostenible como objetivo.',
     'compare.title': 'Comparación de <span class="accent">perfiles</span>',
@@ -4980,7 +4980,7 @@ const I18N = {
     'glossary.yield.term': 'Análisis de rendimiento',
     'glossary.yield.def': 'Mide valor por token: qué sesiones valieron el gasto. Importe una exportación de CodeBurn o Claude para obtener un veredicto.',
     'glossary.sim.term': 'Simulador de ritmo',
-    'glossary.sim.def': 'Una calculadora hipotética. Configure uso actual %, horas hasta reinicio, horas de trabajo por día y sesiones restántes; proyecta cuándo llegará al límite.',
+    'glossary.sim.def': 'Una calculadora hipotética. Configure uso actual %, horas hasta reinicio, horas de trabajo por día y sesiones restantes; proyecta cuándo llegará al límite.',
     'glossary.compare.term': 'Comparación de perfiles',
     'glossary.compare.def': 'Arquetipos de uso prearmados (pro ligero, pro intensivo, max balanceado, max intensivo, potencia de código) para comparar sus hábitos.',
     'glossary.broker.term': 'Broker e intenciones',
@@ -5020,7 +5020,7 @@ const I18N = {
     'common.noModel': 'Sin modelo',
     'common.noModelUsageFound': 'No se encontró uso por modelo',
     'common.noModelData': 'Sin datos de modelo',
-    'common.resetUnknown': 'reinicio desconocido',
+    'common.resetUnknown': 'desconocido',
     'common.soon': 'pronto',
     'common.day.FRI': 'VIE',
     'common.day.SAT': 'SAB',
@@ -5049,7 +5049,7 @@ const I18N = {
     'live.rec.watch': 'VIGILAR',
     'live.rec.onPace': 'EN RITMO',
     'live.rec.reduceBurn': 'Reduzca el consumo a <strong>{burn}%/hr</strong>; el uso proyectado es <strong>{projected}%</strong> antes del reinicio.',
-    'live.rec.metaDanger': '{pct}% usado · {left} restánte · ritmo requerido {required}%/hr',
+    'live.rec.metaDanger': '{pct}% usado · {left} restante · ritmo requerido {required}%/hr',
     'live.rec.watchBurn': 'Vigile la tasa de consumo. Mantenga la próxima sesión por debajo de <strong>{required}%/hr</strong>.',
     'live.rec.metaWatch': '{pct}% usado · proyectado {projected}% al reinicio',
     'live.rec.onPaceMessage': 'El plan actual se mantiene: <strong>{pct}% usado</strong> a <strong>{burn}%/hr</strong>.',
@@ -5071,7 +5071,7 @@ const I18N = {
     'live.breakerDescNext50': 'Las alertas automáticas se activan en 50%, 70%, 90%. Siguiente: 50%.',
     'live.breakerTripped': 'ACTIVADO · AGOTAMIENTO PROYECTADO',
     'live.breakerDescProjectedBeforeReset': 'Proyectado {projected}% antes del reinicio; agotamiento en {hours}h.',
-    'live.breakerDescProjectedByReset': 'Proyectado {projected}% al reinicio con {hours}h restántes.',
+    'live.breakerDescProjectedByReset': 'Proyectado {projected}% al reinicio con {hours}h restantes.',
     'live.currentThresholdCrossed': '✓ Umbral actual cruzado',
     'live.projectedBeforeReset': 'Proyectado antes del reinicio',
     'live.projectedIn': 'Proyectado en {hours}h',
@@ -5206,7 +5206,7 @@ const I18N = {
     'compare.axis.lowPeak': 'Pico bajo',
     'compare.axis.lowLockouts': 'Bloqueos bajos',
     'compare.axis.consistency': 'Consistencia',
-    'compare.axis.budgetLeft': 'Presupuesto restánte',
+    'compare.axis.budgetLeft': 'Presupuesto restante',
     'compare.customNamePrompt': 'Nombre del perfil personalizado:',
     'compare.customNameDefault': 'Mi perfil',
     'compare.weeklyPrompt': 'Uso semanal % (0-100):',
@@ -5503,12 +5503,12 @@ const PACER = {
 
   refreshDynamicLanguage() {
     try {
+      PACER.renderLiveDataPanels?.(PACER.latestData || {});
+      if (PACER._lastLiveValues) PACER.writeLiveValues(PACER._lastLiveValues);
+      PACER.renderHistory?.();
       if (PACER.live) {
-        PACER.live.renderLiveDataPanels?.(PACER.latestData || {});
-        PACER.live.updateLiveRecommendation?.();
-        PACER.live.renderHistory?.();
         PACER.live.drawChart?.();
-        PACER.live.updateCircuitBreaker?.();
+        PACER.live.updateCircuitBreaker?.(PACER.live.current);
         PACER.live.updateResetAlerts?.();
       }
       if (PACER.sim) {
@@ -5963,7 +5963,10 @@ const PACER = {
 	      updatedAt: plan.updated_at,
 	      source: plan.source || 'unknown',
 	      stale: Boolean(plan.stale),
-	      resetTime: plan.reset_time || null,
+	      resetTime: (() => {
+	        const raw = plan.reset_time ? Date.parse(plan.reset_time) : NaN;
+	        return Number.isFinite(raw) && raw > Date.now() ? plan.reset_time : null;
+	      })(),
 	      burnPctPerHour: this.computeBurnPctPerHour(history, 'seven_day_pct'),
 	      history,
 	      data
@@ -6144,6 +6147,7 @@ const PACER = {
   },
 
 	  writeLiveValues({ usedPct, vmCurrent, timeLeft, resetTime = null }) {
+	    this._lastLiveValues = { usedPct, vmCurrent, timeLeft, resetTime };
 	    const pct = Math.max(0, Math.min(100, Number(usedPct) || 0));
 	    const remaining = +(100 - pct).toFixed(1);
 	    const burn = Number(vmCurrent) || 0;
@@ -6152,7 +6156,9 @@ const PACER = {
     const required = remaining / hoursLeft;
     const pacePct = Math.max(0, Math.min(100, pct - required * 3));
     const stateClass = pct >= 90 ? 'over' : pct >= 70 ? 'warn' : 'ok';
-    const accentText = pct >= 90 ? this.t('live.verdict.criticalBurn') : pct >= 70 ? this.t('live.verdict.abovePace') : this.t('live.verdict.withinPace');
+    const expectedPct = Math.max(0, Math.min(100, 100 - (hoursLeft / 168) * 100));
+    const overBy = Math.max(1, Math.round(pct - expectedPct));
+    const accentText = pct >= 90 ? this.t('live.verdict.criticalBurn') : pct >= 70 ? this.t('live.verdict.abovePace', { pct: overBy }) : this.t('live.verdict.withinPace');
 
     document.getElementById('usedPct').textContent = pct.toFixed(pct % 1 ? 1 : 0);
     document.getElementById('timeLeft').textContent = left;
@@ -6161,7 +6167,9 @@ const PACER = {
     document.getElementById('vmCurrent').textContent = `${burn.toFixed(1)}%/hr`;
     document.getElementById('verdictFill').style.width = `${pct}%`;
     document.getElementById('verdictMarker').style.left = `${pacePct}%`;
-    document.getElementById('verdictAccent').textContent = accentText;
+    const verdictAccentEl = document.getElementById('verdictAccent');
+    verdictAccentEl.removeAttribute('data-i18n');
+    verdictAccentEl.textContent = accentText;
     document.getElementById('verdictAccent').style.color = stateClass === 'ok' ? 'var(--green)' : stateClass === 'warn' ? 'var(--amber)' : 'var(--red)';
     document.querySelectorAll('#vmCurrent, #vmRequired').forEach(el => {
       el.classList.remove('ok', 'warn', 'over');
@@ -6958,7 +6966,7 @@ const PACER = {
         setTimeout(() => {
           document.querySelector('[data-tab="live"]')?.click();
           const r = this.compute(v);
-          PACER.live.writeLiveValues({
+          PACER.writeLiveValues({
             usedPct: v.pct,
             vmCurrent: r.hourly,
             timeLeft: PACER.fmtCountdown(v.hrs * 3600000),
